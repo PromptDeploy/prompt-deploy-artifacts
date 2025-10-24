@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompting Technique Decision Tree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #F5F5F5;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .reset-btn {
+            background: #0066FF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #0052CC;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,102,255,0.3);
+        }
+
+        .decision-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .node {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            min-width: 300px;
+            max-width: 600px;
+            text-align: center;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .node.question {
+            border-color: #0066FF;
+            background: linear-gradient(135deg, #F0F7FF 0%, #FFFFFF 100%);
+        }
+
+        .node.result {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 100%);
+        }
+
+        .node-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 16px;
+        }
+
+        .node-description {
+            font-size: 0.875rem;
+            color: #616161;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px 24px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #212121;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            border-color: #0066FF;
+            background: #F0F7FF;
+            transform: translateX(4px);
+        }
+
+        .option-btn.selected {
+            border-color: #0066FF;
+            background: #0066FF;
+            color: white;
+        }
+
+        .result-box {
+            background: white;
+            border: 3px solid #22C55E;
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 24px;
+        }
+
+        .result-technique {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22C55E;
+            margin-bottom: 8px;
+        }
+
+        .result-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .result-description {
+            font-size: 1rem;
+            color: #616161;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .result-why {
+            background: #F0FDF4;
+            border-left: 4px solid #22C55E;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .result-why-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #22C55E;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .result-why-text {
+            font-size: 0.9375rem;
+            color: #212121;
+            line-height: 1.6;
+        }
+
+        .result-combinations {
+            background: #FFFBEB;
+            border-left: 4px solid #F59E0B;
+            padding: 16px;
+            border-radius: 4px;
+        }
+
+        .result-combinations-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #F59E0B;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .result-combinations-text {
+            font-size: 0.9375rem;
+            color: #212121;
+            line-height: 1.6;
+        }
+
+        .path-indicator {
+            text-align: center;
+            color: #616161;
+            font-size: 0.875rem;
+            margin: 16px 0;
+        }
+
+        .path-arrow {
+            font-size: 2rem;
+            color: #E0E0E0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+            color: #616161;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .node {
+                min-width: 100%;
+                padding: 20px;
+            }
+
+            .result-technique {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Prompting Technique Decision Tree</h1>
+            <p>Answer a few questions about your task, and discover the optimal prompting technique to use</p>
+        </div>
+
+        <div class="controls">
+            <button class="reset-btn" onclick="resetTree()">↻ Start Over</button>
+        </div>
+
+        <div class="decision-tree" id="tree">
+            <!-- Dynamic content goes here -->
+        </div>
+
+        <div class="footer">
+            <p><strong>Prompt Deploy Newsletter</strong> | Course 1: Prompting Technique Selection Guide</p>
+            <p style="margin-top: 8px; font-size: 0.75rem;">Click through questions to find your optimal technique • Combinations are often more powerful • v2.0 - Technically Verified</p>
+        </div>
+    </div>
+
+    <script>
+        const decisionTree = {
+            id: 'start',
+            type: 'question',
+            title: 'What best describes your task?',
+            description: 'Choose the primary characteristic of what you need to accomplish',
+            options: [
+                {
+                    label: 'I need to control tone, style, or expertise level',
+                    next: 'role_based'
+                },
+                {
+                    label: 'I need to solve complex logic, math, or reasoning problems',
+                    next: 'reasoning'
+                },
+                {
+                    label: 'I need to access external data or use tools',
+                    next: 'react'
+                },
+                {
+                    label: 'I need to execute a multi-step process or workflow',
+                    next: 'workflow'
+                },
+                {
+                    label: 'I need to ensure quality, format, or validation',
+                    next: 'quality'
+                },
+                {
+                    label: 'I need to monitor or evaluate performance',
+                    next: 'production'
+                }
+            ]
+        };
+
+        const nodes = {
+            start: decisionTree,
+            
+            role_based: {
+                id: 'role_based',
+                type: 'result',
+                technique: 'RBP',
+                name: 'Role-Based Prompting',
+                description: 'Assign your LLM a specific persona or role (e.g., "Act as a Senior Python Developer") to produce specialized, consistent outputs with appropriate tone and expertise.',
+                why: 'When you need specialized knowledge or a consistent voice/style, giving the model a role grounds its outputs in that persona\'s expected behavior patterns.',
+                combinations: 'Combine with: Few-Shot examples (to show the role\'s style), Chain-of-Thought (for expert reasoning), Structured Output (for consistent formatting)'
+            },
+
+            reasoning: {
+                id: 'reasoning',
+                type: 'question',
+                title: 'How complex is the reasoning required?',
+                description: 'Select based on the depth of logical steps needed',
+                options: [
+                    {
+                        label: 'Simple/moderate - basic step-by-step thinking',
+                        next: 'zero_shot_cot'
+                    },
+                    {
+                        label: 'Complex - needs detailed reasoning examples',
+                        next: 'few_shot_cot'
+                    },
+                    {
+                        label: 'Very complex - needs multiple reasoning attempts',
+                        next: 'self_consistency'
+                    }
+                ]
+            },
+
+            zero_shot_cot: {
+                id: 'zero_shot_cot',
+                type: 'result',
+                technique: 'CoT-Z',
+                name: 'Zero-Shot Chain-of-Thought',
+                description: 'Add simple phrases like "Let\'s think step by step" or "Show your work" to trigger the model to generate intermediate reasoning steps before answering.',
+                why: 'For problems requiring logical steps (math, analysis, decision-making), explicit reasoning reduces errors and makes the process transparent.',
+                combinations: 'Combine with: Role-Based (expert reasoning), Validation (check logic steps), Structured Output (organize reasoning clearly)'
+            },
+
+            few_shot_cot: {
+                id: 'few_shot_cot',
+                type: 'result',
+                technique: 'CoT-F',
+                name: 'Few-Shot Chain-of-Thought',
+                description: 'Provide 2-3 examples showing complete reasoning paths (problem → step-by-step thinking → answer) to guide the model\'s problem-solving approach.',
+                why: 'When the reasoning pattern is complex or domain-specific, examples teach the model HOW to think through similar problems.',
+                combinations: 'Combine with: Role-Based (domain expertise), Self-Consistency (verify reasoning), Gate Checks (validate each step)'
+            },
+
+            self_consistency: {
+                id: 'self_consistency',
+                type: 'result',
+                technique: 'SC',
+                name: 'Self-Consistency',
+                description: 'Generate multiple Chain-of-Thought reasoning paths (5-10) and select the most frequent answer. This increases robustness for critical decisions.',
+                why: 'For high-stakes problems where accuracy is critical, sampling multiple reasoning paths catches errors and increases confidence in the answer.',
+                combinations: 'Combine with: Few-Shot CoT (guide reasoning), LLM-as-Judge (evaluate paths), Structured Output (standardize format)'
+            },
+
+            react: {
+                id: 'react',
+                type: 'result',
+                technique: 'ReAct',
+                name: 'Reason + Act Framework',
+                description: 'Implement the THOUGHT → ACTION → OBSERVATION loop. The agent reasons about what it needs, executes tools to get data, processes results, and repeats until complete. This pattern handles everything from simple single tool calls to complex multi-step reasoning with external data.',
+                why: 'When tasks require real-world data or tool interaction, ReAct enables the agent to dynamically decide what information to gather and how to use it. The iterative loop allows for adaptive problem-solving based on what\'s discovered.',
+                combinations: 'Combine with: Role-Based (expert agent), CoT (deep reasoning in THOUGHT phase), Gate Checks (validate tool outputs), Structured Output (parse observations consistently)'
+            },
+
+            workflow: {
+                id: 'workflow',
+                type: 'question',
+                title: 'What kind of workflow structure do you need?',
+                description: 'Select your workflow pattern',
+                options: [
+                    {
+                        label: 'Sequential steps - each depends on previous output',
+                        next: 'prompt_chaining'
+                    },
+                    {
+                        label: 'Iterative refinement - improve output through feedback',
+                        next: 'feedback_loops'
+                    },
+                    {
+                        label: 'Route to different paths based on input type',
+                        next: 'routing'
+                    }
+                ]
+            },
+
+            prompt_chaining: {
+                id: 'prompt_chaining',
+                type: 'result',
+                technique: 'PC',
+                name: 'Prompt Chaining',
+                description: 'Break complex tasks into a sequence of LLM calls: Task 1 → output becomes input to Task 2 → output to Task 3, etc. Each step is specialized and simpler.',
+                why: 'Complex tasks are easier to build, debug, and maintain when broken into discrete, manageable steps with clear inputs/outputs.',
+                combinations: 'Combine with: Role-Based (specialized agents per step), Gate Checks (validate between steps), Feedback Loops (refine outputs)'
+            },
+
+            feedback_loops: {
+                id: 'feedback_loops',
+                type: 'result',
+                technique: 'FL',
+                name: 'Feedback Loops',
+                description: 'Generate output → Evaluate (programmatically or with LLM-as-Judge) → If not acceptable, feed evaluation back and regenerate → Repeat until quality threshold met.',
+                why: 'When output quality is critical and variable, iterative refinement with evaluation enables autonomous quality improvement.',
+                combinations: 'Combine with: LLM-as-Judge (evaluate quality), Gate Checks (set thresholds), Structured Output (consistent format)'
+            },
+
+            routing: {
+                id: 'routing',
+                type: 'result',
+                technique: 'RT',
+                name: 'Routing Pattern',
+                description: 'Classify input type and direct to appropriate workflow or handler: Analyze input → Determine category → Route to specialized processing. This is an application pattern combining classification with prompt chaining, commonly used in customer support and multi-domain systems.',
+                why: 'Different inputs need different handling. Routing enables you to use specialized approaches for each type without overloading a single agent.',
+                combinations: 'Combine with: Role-Based (specialized agents per route), Prompt Chaining (per-route workflows), Structured Output (classification schema)'
+            },
+
+            quality: {
+                id: 'quality',
+                type: 'question',
+                title: 'What kind of quality control do you need?',
+                description: 'Choose your validation approach',
+                options: [
+                    {
+                        label: 'Enforce specific output format (JSON, etc.)',
+                        next: 'structured_output'
+                    },
+                    {
+                        label: 'Validate correctness with programmatic checks',
+                        next: 'gate_checks'
+                    },
+                    {
+                        label: 'Evaluate quality/correctness with another LLM',
+                        next: 'llm_judge'
+                    }
+                ]
+            },
+
+            structured_output: {
+                id: 'structured_output',
+                type: 'result',
+                technique: 'SO',
+                name: 'Structured Output',
+                description: 'Force outputs to match a schema (JSON, Pydantic, XML). Use native structured output features or parsing libraries. Critical for reliable downstream processing.',
+                why: 'Free-form text is hard to parse reliably. Structured output ensures you can programmatically use the LLM\'s response without parsing errors.',
+                combinations: 'Combine with: Role-Based (format-aware agent), Few-Shot (show format examples), Validation (verify schema compliance)'
+            },
+
+            gate_checks: {
+                id: 'gate_checks',
+                type: 'result',
+                technique: 'GC',
+                name: 'Gate Checks',
+                description: 'Add programmatic validation between workflow steps: Check output format, verify business rules, validate against constraints. Fail fast if checks don\'t pass.',
+                why: 'Catching errors early prevents cascading failures and wasted compute. Gate checks ensure each step produces valid input for the next.',
+                combinations: 'Combine with: Prompt Chaining (validate between steps), Feedback Loops (retry if fails), Structured Output (easier validation)'
+            },
+
+            llm_judge: {
+                id: 'llm_judge',
+                type: 'result',
+                technique: 'LLM-J',
+                name: 'LLM-as-Judge',
+                description: 'Use a second LLM call to evaluate the quality of the first LLM\'s output. Provide rubric/criteria and ask for scoring or binary decision (accept/reject).',
+                why: 'For subjective quality (tone, persuasiveness, accuracy), another LLM can evaluate better than programmatic checks. Useful when ground truth is unavailable.',
+                combinations: 'Combine with: Feedback Loops (judge → refine), Role-Based (expert judge), Structured Output (standardized scoring)'
+            },
+
+            production: {
+                id: 'production',
+                type: 'result',
+                technique: 'EVAL + MON',
+                name: 'Evaluation & Monitoring',
+                description: 'Track metrics in development (accuracy, precision, recall) and production (latency, costs, usage). Log all traces (inputs/outputs/steps) for debugging and analysis.',
+                why: 'You can\'t improve what you don\'t measure. Continuous evaluation and monitoring catch degradation, identify optimization opportunities, and prove ROI.',
+                combinations: 'Combine with: All techniques - monitoring is essential for production systems. Use traces to debug any workflow.'
+            }
+        };
+
+        let currentPath = ['start'];
+
+        function renderNode(nodeId) {
+            const node = nodes[nodeId];
+            const tree = document.getElementById('tree');
+            
+            if (node.type === 'question') {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node question';
+                nodeEl.innerHTML = `
+                    <div class="node-title">${node.title}</div>
+                    <div class="node-description">${node.description}</div>
+                    <div class="options">
+                        ${node.options.map((opt, idx) => `
+                            <button class="option-btn" onclick="selectOption('${opt.next}')">${opt.label}</button>
+                        `).join('')}
+                    </div>
+                `;
+                tree.appendChild(nodeEl);
+            } else if (node.type === 'result') {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node result';
+                nodeEl.innerHTML = `
+                    <div class="result-box">
+                        <div class="result-technique">${node.technique}</div>
+                        <div class="result-name">${node.name}</div>
+                        <div class="result-description">${node.description}</div>
+                        <div class="result-why">
+                            <div class="result-why-title">Why this technique?</div>
+                            <div class="result-why-text">${node.why}</div>
+                        </div>
+                        <div class="result-combinations">
+                            <div class="result-combinations-title">Powerful combinations</div>
+                            <div class="result-combinations-text">${node.combinations}</div>
+                        </div>
+                    </div>
+                `;
+                tree.appendChild(nodeEl);
+            }
+        }
+
+        function selectOption(nextNodeId) {
+            currentPath.push(nextNodeId);
+            
+            // Add arrow
+            const tree = document.getElementById('tree');
+            const arrow = document.createElement('div');
+            arrow.className = 'path-arrow';
+            arrow.innerHTML = '↓';
+            tree.appendChild(arrow);
+            
+            // Render next node
+            renderNode(nextNodeId);
+            
+            // Scroll to new node
+            setTimeout(() => {
+                arrow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        function resetTree() {
+            currentPath = ['start'];
+            const tree = document.getElementById('tree');
+            tree.innerHTML = '';
+            renderNode('start');
+        }
+
+        // Initialize
+        renderNode('start');
+    </script>
+</body>
+</html>

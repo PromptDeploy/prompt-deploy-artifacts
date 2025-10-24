@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation & Error Handling Framework</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto 24px;
+        }
+
+        .header-warning {
+            background: #FFF4E6;
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 20px 24px;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .header-warning-title {
+            font-weight: 700;
+            color: #F59E0B;
+            margin-bottom: 8px;
+        }
+
+        .header-warning-text {
+            font-size: 0.9rem;
+            color: #616161;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 60px;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #212121;
+            text-align: center;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .nav-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            border-color: #0066FF;
+            transform: translateY(-2px);
+        }
+
+        .nav-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .nav-label {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.95rem;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 80px;
+            scroll-margin-top: 20px;
+        }
+
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-number {
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            color: #616161;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin: 32px 0;
+        }
+
+        .content-block h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #212121;
+        }
+
+        .content-block p {
+            color: #616161;
+            margin-bottom: 12px;
+        }
+
+        /* Strategy Cards */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .strategy-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .strategy-card:hover {
+            border-color: #0066FF;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .strategy-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .strategy-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .strategy-description {
+            font-size: 0.9rem;
+            color: #616161;
+            margin-bottom: 12px;
+        }
+
+        .strategy-when {
+            font-size: 0.85rem;
+            color: #0066FF;
+            font-weight: 600;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        /* Diagram */
+        .diagram {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 32px 0;
+            overflow-x: auto;
+        }
+
+        .diagram-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #212121;
+        }
+
+        .flow-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .flow-horizontal {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px 24px;
+            min-width: 140px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #616161;
+        }
+
+        .flow-branch {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        /* Decision Matrix */
+        .decision-matrix {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+
+        .matrix-header {
+            background: #F5F5F5;
+            padding: 16px 24px;
+            font-weight: 600;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 2fr;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .matrix-row:last-child {
+            border-bottom: none;
+        }
+
+        .matrix-cell {
+            padding: 16px 24px;
+            color: #616161;
+            font-size: 0.9rem;
+        }
+
+        .matrix-cell:not(:last-child) {
+            border-right: 1px solid #E0E0E0;
+        }
+
+        .matrix-cell-header {
+            font-weight: 600;
+            color: #212121;
+        }
+
+        /* Code Example */
+        .code-example {
+            background: #212121;
+            color: #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-comment {
+            color: #9E9E9E;
+        }
+
+        .code-keyword {
+            color: #22C55E;
+        }
+
+        .code-function {
+            color: #0066FF;
+        }
+
+        .code-string {
+            color: #F59E0B;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            border-left: 4px solid;
+            border-radius: 0 12px 12px 0;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box-content {
+            color: #616161;
+        }
+
+        .info-box-blue {
+            background: #E8F4FF;
+            border-color: #0066FF;
+        }
+
+        .info-box-blue .info-box-title {
+            color: #0066FF;
+        }
+
+        .info-box-green {
+            background: #E8FFF1;
+            border-color: #22C55E;
+        }
+
+        .info-box-green .info-box-title {
+            color: #22C55E;
+        }
+
+        .info-box-amber {
+            background: #FFF4E6;
+            border-color: #F59E0B;
+        }
+
+        .info-box-amber .info-box-title {
+            color: #F59E0B;
+        }
+
+        /* Pattern Validation Grid */
+        .pattern-validation {
+            display: grid;
+            gap: 24px;
+            margin: 32px 0;
+        }
+
+        .pattern-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .pattern-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        .pattern-card-icon {
+            font-size: 32px;
+        }
+
+        .pattern-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #212121;
+        }
+
+        .pattern-card-content {
+            font-size: 0.9rem;
+            color: #616161;
+        }
+
+        .validation-points {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .validation-points li {
+            padding-left: 24px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .validation-points li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #22C55E;
+            font-weight: bold;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .checklist-title {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #212121;
+        }
+
+        .checklist-items {
+            list-style: none;
+        }
+
+        .checklist-items li {
+            padding: 12px 12px 12px 40px;
+            position: relative;
+            color: #616161;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .checklist-items li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-items li:before {
+            content: "☐";
+            position: absolute;
+            left: 12px;
+            font-size: 1.25rem;
+            color: #9E9E9E;
+        }
+
+        /* Section Colors */
+        .section-1 .section-number { background: #E8F4FF; color: #0066FF; }
+        .section-2 .section-number { background: #E8FFF1; color: #22C55E; }
+        .section-3 .section-number { background: #FFF4E6; color: #F59E0B; }
+        .section-4 .section-number { background: #E8F4FF; color: #0066FF; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .matrix-row {
+                grid-template-columns: 1fr;
+            }
+
+            .matrix-cell:not(:last-child) {
+                border-right: none;
+                border-bottom: 1px solid #E0E0E0;
+            }
+
+            .flow-horizontal {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #0066FF;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Validation & Error Handling Framework</h1>
+            <p class="subtitle">Building robust, production-ready agentic systems through comprehensive validation, error recovery, and context management</p>
+            
+            <div class="header-warning">
+                <div class="header-warning-title">⚠️ Why This Matters</div>
+                <div class="header-warning-text">Without proper validation and error handling, early mistakes compound through your workflow, leading to unreliable outputs and production failures. This framework prevents error propagation and ensures consistent quality.</div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-menu">
+            <div class="nav-title">Framework Components</div>
+            <div class="nav-grid">
+                <a href="#validation-types" class="nav-item">
+                    <div class="nav-icon">🛡️</div>
+                    <div class="nav-label">Validation Types</div>
+                </a>
+                <a href="#error-handling" class="nav-item">
+                    <div class="nav-icon">🔧</div>
+                    <div class="nav-label">Error Handling</div>
+                </a>
+                <a href="#context-management" class="nav-item">
+                    <div class="nav-icon">📋</div>
+                    <div class="nav-label">Context Management</div>
+                </a>
+                <a href="#pattern-validation" class="nav-item">
+                    <div class="nav-icon">🎯</div>
+                    <div class="nav-label">Pattern-Specific</div>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Section 1: Validation Types -->
+        <section id="validation-types" class="section section-1">
+            <div class="section-header">
+                <div class="section-number">Part 1</div>
+                <h2 class="section-title">Four Validation Strategies</h2>
+                <p class="section-description">Choose the right validation approach based on your quality requirements and constraints</p>
+            </div>
+
+            <div class="diagram">
+                <div class="diagram-title">Validation Pipeline</div>
+                <div class="flow-vertical">
+                    <div class="flow-box" style="border-color: #0066FF; background: #E8F4FF;">Agent Output</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-horizontal">
+                        <div class="flow-box">Programmatic</div>
+                        <div class="flow-box">LLM-Based</div>
+                        <div class="flow-box">Rule-Based</div>
+                        <div class="flow-box">Confidence</div>
+                    </div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-branch">
+                        <div class="flow-box" style="border-color: #22C55E; background: #E8FFF1;">✓ Pass</div>
+                        <div class="flow-box" style="border-color: #F59E0B; background: #FFF4E6;">✗ Fail → Retry</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-icon">⚙️</div>
+                    <div class="strategy-title">1. Programmatic Validation</div>
+                    <div class="strategy-description">
+                        Use custom code to verify structural requirements, formats, and constraints.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Valid JSON/XML structure</li>
+                            <li>Required fields present</li>
+                            <li>Length requirements (min/max)</li>
+                            <li>Data type checking</li>
+                            <li>Numerical ranges</li>
+                        </ul>
+                    </div>
+                    <div class="strategy-when">Best for: Format compliance, structural validation</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">🤖</div>
+                    <div class="strategy-title">2. LLM-Based Validation</div>
+                    <div class="strategy-description">
+                        Another LLM evaluates output quality against semantic criteria.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Accuracy of information</li>
+                            <li>Relevance to query</li>
+                            <li>Tone appropriateness</li>
+                            <li>Completeness of answer</li>
+                            <li>Logical consistency</li>
+                        </ul>
+                    </div>
+                    <div class="strategy-when">Best for: Quality assessment, semantic validation</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">📏</div>
+                    <div class="strategy-title">3. Rule-Based Validation</div>
+                    <div class="strategy-description">
+                        Predefined business rules and domain-specific constraints.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Keyword presence/absence</li>
+                            <li>Pattern matching (regex)</li>
+                            <li>Business logic compliance</li>
+                            <li>Domain-specific rules</li>
+                            <li>Consistency checks</li>
+                        </ul>
+                    </div>
+                    <div class="strategy-when">Best for: Business rules, compliance requirements</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">📊</div>
+                    <div class="strategy-title">4. Confidence Scoring</div>
+                    <div class="strategy-description">
+                        Use model confidence scores to identify uncertain outputs.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Token probability scores</li>
+                            <li>Multiple generation comparison</li>
+                            <li>Threshold-based flagging</li>
+                            <li>Uncertainty detection</li>
+                            <li>Automatic escalation</li>
+                        </ul>
+                    </div>
+                    <div class="strategy-when">Best for: Uncertainty detection, risk assessment</div>
+                </div>
+            </div>
+
+            <div class="code-example">
+<span class="code-comment"># Example: Multi-Layer Validation</span>
+
+<span class="code-keyword">def</span> <span class="code-function">validate_output</span>(output, config):
+    <span class="code-comment"># Layer 1: Programmatic - Structure</span>
+    <span class="code-keyword">if not</span> <span class="code-function">is_valid_json</span>(output):
+        <span class="code-keyword">return</span> <span class="code-keyword">False</span>, <span class="code-string">"Invalid JSON structure"</span>
+    
+    data = json.<span class="code-function">loads</span>(output)
+    
+    <span class="code-comment"># Layer 2: Programmatic - Required fields</span>
+    required_fields = [<span class="code-string">"category"</span>, <span class="code-string">"confidence"</span>, <span class="code-string">"reasoning"</span>]
+    <span class="code-keyword">if not</span> <span class="code-function">all</span>(field <span class="code-keyword">in</span> data <span class="code-keyword">for</span> field <span class="code-keyword">in</span> required_fields):
+        <span class="code-keyword">return</span> <span class="code-keyword">False</span>, <span class="code-string">"Missing required fields"</span>
+    
+    <span class="code-comment"># Layer 3: Rule-Based - Business logic</span>
+    <span class="code-keyword">if</span> data[<span class="code-string">"category"</span>] <span class="code-keyword">not in</span> config.allowed_categories:
+        <span class="code-keyword">return</span> <span class="code-keyword">False</span>, <span class="code-string">"Invalid category"</span>
+    
+    <span class="code-comment"># Layer 4: Confidence - Threshold check</span>
+    <span class="code-keyword">if</span> data[<span class="code-string">"confidence"</span>] < config.min_confidence:
+        <span class="code-keyword">return</span> <span class="code-keyword">False</span>, <span class="code-string">"Low confidence score"</span>
+    
+    <span class="code-comment"># Layer 5: LLM-Based - Quality check</span>
+    quality_score = <span class="code-function">llm_evaluate_quality</span>(data, config.criteria)
+    <span class="code-keyword">if</span> quality_score < config.quality_threshold:
+        <span class="code-keyword">return</span> <span class="code-keyword">False</span>, <span class="code-string">"Failed quality evaluation"</span>
+    
+    <span class="code-keyword">return</span> <span class="code-keyword">True</span>, <span class="code-string">"Validation passed"</span>
+            </div>
+
+            <div class="info-box info-box-blue">
+                <div class="info-box-title">💡 Validation Layer Strategy</div>
+                <div class="info-box-content">
+                    Start with fast, cheap validations (programmatic) and progress to slower, expensive ones (LLM-based) only if needed. This "validation funnel" catches most issues quickly while reserving costly checks for outputs that pass initial screening.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Error Handling -->
+        <section id="error-handling" class="section section-2">
+            <div class="section-header">
+                <div class="section-number">Part 2</div>
+                <h2 class="section-title">Five Error Handling Strategies</h2>
+                <p class="section-description">Recover gracefully when validation fails or agents produce errors</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Error Handling Decision Flow</h3>
+            </div>
+
+            <div class="diagram">
+                <div class="diagram-title">Error Recovery Process</div>
+                <div class="flow-vertical">
+                    <div class="flow-box" style="border-color: #F59E0B; background: #FFF4E6;">Validation Failed</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #0066FF;">Analyze Failure Type</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-horizontal">
+                        <div class="flow-box">Retry</div>
+                        <div class="flow-box">Re-prompt</div>
+                        <div class="flow-box">Fallback</div>
+                        <div class="flow-box">Critique</div>
+                        <div class="flow-box">Log & Escalate</div>
+                    </div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #22C55E;">Max Attempts?</div>
+                    <div class="flow-branch">
+                        <div class="flow-box" style="background: #E8FFF1;">No → Retry Strategy</div>
+                        <div class="flow-box" style="background: #FFF4E6;">Yes → Fallback</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-icon">🔄</div>
+                    <div class="strategy-title">1. Simple Retry</div>
+                    <div class="strategy-description">
+                        Re-run the exact same prompt with same parameters. Effective when randomness in LLM sampling might produce better results on second try.
+                    </div>
+                    <div class="strategy-when">Use when: Failure seems random, no clear pattern, low cost to retry</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">💬</div>
+                    <div class="strategy-title">2. Re-prompt with Feedback</div>
+                    <div class="strategy-description">
+                        Include validation error details in revised prompt. Agent learns from its mistake and corrects specific issues.
+                    </div>
+                    <div class="strategy-when">Use when: Clear validation failure reason, agent can learn from feedback</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">⚡</div>
+                    <div class="strategy-title">3. Fallback Mechanism</div>
+                    <div class="strategy-description">
+                        Switch to alternative agent, simpler task, or default response when all else fails. Ensures system doesn't break completely.
+                    </div>
+                    <div class="strategy-when">Use when: Max retries exhausted, critical path needs completion</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">🔍</div>
+                    <div class="strategy-title">4. Critique & Refinement</div>
+                    <div class="strategy-description">
+                        Agent critiques its own output, identifies issues, then regenerates improved version. Self-correction loop.
+                    </div>
+                    <div class="strategy-when">Use when: High quality needed, agent capable of self-assessment</div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">📊</div>
+                    <div class="strategy-title">5. Logging & Monitoring</div>
+                    <div class="strategy-description">
+                        Track all failures with context for analysis. Essential for debugging patterns and improving system over time.
+                    </div>
+                    <div class="strategy-when">Use always: Required for production systems, enables continuous improvement</div>
+                </div>
+            </div>
+
+            <div class="decision-matrix">
+                <div class="matrix-header">Error Handling Strategy Selection Matrix</div>
+                <div class="matrix-row">
+                    <div class="matrix-cell matrix-cell-header">Scenario</div>
+                    <div class="matrix-cell matrix-cell-header">Recommended Strategy</div>
+                    <div class="matrix-cell matrix-cell-header">Why</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Format error (invalid JSON)</div>
+                    <div class="matrix-cell">Re-prompt with feedback</div>
+                    <div class="matrix-cell">Clear, fixable error that agent can correct</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Low confidence score</div>
+                    <div class="matrix-cell">Retry with temperature adjustment</div>
+                    <div class="matrix-cell">Sampling variation might improve confidence</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Factual inaccuracy</div>
+                    <div class="matrix-cell">Critique & refinement</div>
+                    <div class="matrix-cell">Needs reasoning about correctness, not just format</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Timeout or API error</div>
+                    <div class="matrix-cell">Retry with exponential backoff</div>
+                    <div class="matrix-cell">Transient infrastructure issue</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Max retries exhausted</div>
+                    <div class="matrix-cell">Fallback + log</div>
+                    <div class="matrix-cell">Must complete workflow, track for analysis</div>
+                </div>
+                <div class="matrix-row">
+                    <div class="matrix-cell">Ambiguous input</div>
+                    <div class="matrix-cell">Fallback to clarification request</div>
+                    <div class="matrix-cell">Need more information from user</div>
+                </div>
+            </div>
+
+            <div class="code-example">
+<span class="code-comment"># Example: Comprehensive Error Handling</span>
+
+<span class="code-keyword">def</span> <span class="code-function">execute_with_error_handling</span>(agent, input_data, max_attempts=<span class="code-string">3</span>):
+    <span class="code-keyword">for</span> attempt <span class="code-keyword">in</span> <span class="code-function">range</span>(max_attempts):
+        <span class="code-keyword">try</span>:
+            <span class="code-comment"># Execute agent</span>
+            output = agent.<span class="code-function">run</span>(input_data)
+            
+            <span class="code-comment"># Validate output</span>
+            is_valid, error_msg = <span class="code-function">validate_output</span>(output)
+            
+            <span class="code-keyword">if</span> is_valid:
+                <span class="code-function">log_success</span>(agent, attempt)
+                <span class="code-keyword">return</span> output
+            
+            <span class="code-keyword">else</span>:
+                <span class="code-comment"># Strategy: Re-prompt with feedback</span>
+                <span class="code-function">log_failure</span>(agent, attempt, error_msg)
+                
+                <span class="code-keyword">if</span> attempt < max_attempts - <span class="code-string">1</span>:
+                    <span class="code-comment"># Add error feedback to prompt</span>
+                    input_data = <span class="code-function">add_feedback</span>(input_data, error_msg)
+                    <span class="code-keyword">continue</span>
+        
+        <span class="code-keyword">except</span> <span class="code-keyword">Exception</span> <span class="code-keyword">as</span> e:
+            <span class="code-function">log_exception</span>(agent, attempt, e)
+            
+            <span class="code-keyword">if</span> attempt < max_attempts - <span class="code-string">1</span>:
+                <span class="code-keyword">continue</span>
+    
+    <span class="code-comment"># All attempts failed - use fallback</span>
+    <span class="code-function">log_fallback</span>(agent, input_data)
+    <span class="code-keyword">return</span> <span class="code-function">get_fallback_response</span>(input_data)
+            </div>
+
+            <div class="info-box info-box-amber">
+                <div class="info-box-title">⚠️ Set Maximum Retry Limits</div>
+                <div class="info-box-content">
+                    ALWAYS define maximum retry attempts (typically 2-5) to prevent infinite loops and runaway costs. Balance quality improvement against time and expense. Track retry rates to identify systemic issues.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Context Management -->
+        <section id="context-management" class="section section-3">
+            <div class="section-header">
+                <div class="section-number">Part 3</div>
+                <h2 class="section-title">Context Management Techniques</h2>
+                <p class="section-description">Optimize information flow to maintain quality while preventing context overload</p>
+            </div>
+
+            <div class="content-block">
+                <h3>The Context Challenge</h3>
+                <p>In chained workflows, context accumulates. Too little context and agents lose critical information. Too much and performance degrades due to attention dilution and increased latency.</p>
+            </div>
+
+            <div class="diagram">
+                <div class="diagram-title">Context Flow Strategies</div>
+                <div class="flow-vertical">
+                    <div class="flow-box" style="border-color: #F59E0B; background: #FFF4E6;">Full Context<br/>(All Previous Steps)</div>
+                    <div style="margin: 12px 0; text-align: center; color: #616161; font-size: 0.9rem;">vs</div>
+                    <div class="flow-box" style="border-color: #22C55E; background: #E8FFF1;">Selective Context<br/>(Only Relevant Info)</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-horizontal">
+                        <div style="text-align: center;">
+                            <div class="flow-box" style="background: #FFF4E6;">❌ Context Overload</div>
+                            <div style="font-size: 0.8rem; color: #616161; margin-top: 8px;">Slow, expensive, diluted attention</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="flow-box" style="background: #E8FFF1;">✓ Optimized</div>
+                            <div style="font-size: 0.8rem; color: #616161; margin-top: 8px;">Fast, focused, effective</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-card">
+                    <div class="strategy-icon">🎯</div>
+                    <div class="strategy-title">Selective Passing</div>
+                    <div class="strategy-description">
+                        Only pass information relevant to the next step. Filter out intermediate data that doesn't contribute to downstream decisions.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Extract only necessary fields</li>
+                            <li>Summarize long content</li>
+                            <li>Remove temporary variables</li>
+                            <li>Pass final results, not all steps</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">🔁</div>
+                    <div class="strategy-title">Contextual Reiteration</div>
+                    <div class="strategy-description">
+                        Repeat critical context in each prompt to ensure agents don't "forget" essential information as chain lengthens.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>Restate key objectives</li>
+                            <li>Include important constraints</li>
+                            <li>Remind of output format</li>
+                            <li>Maintain persona consistency</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="strategy-card">
+                    <div class="strategy-icon">⚖️</div>
+                    <div class="strategy-title">Balance Optimization</div>
+                    <div class="strategy-description">
+                        Find the sweet spot between too much and too little context through testing and monitoring.
+                        <ul style="margin-top: 8px; margin-left: 20px; font-size: 0.85rem;">
+                            <li>A/B test context levels</li>
+                            <li>Monitor performance vs. context size</li>
+                            <li>Track where agents fail</li>
+                            <li>Adjust based on results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-example">
+<span class="code-comment"># Example: Selective Context Passing</span>
+
+<span class="code-keyword">def</span> <span class="code-function">chain_execution</span>(steps, input_data):
+    context = {
+        <span class="code-string">"original_request"</span>: input_data,  <span class="code-comment"># Always preserve</span>
+        <span class="code-string">"step_results"</span>: {}
+    }
+    
+    <span class="code-keyword">for</span> i, step <span class="code-keyword">in</span> <span class="code-function">enumerate</span>(steps):
+        <span class="code-comment"># Selective: Only pass relevant prior context</span>
+        relevant_context = <span class="code-function">extract_relevant_context</span>(
+            context,
+            step.dependencies
+        )
+        
+        <span class="code-comment"># Reiteration: Include critical constraints</span>
+        prompt = <span class="code-function">build_prompt</span>(
+            step.instruction,
+            relevant_context,
+            critical_constraints=context[<span class="code-string">"constraints"</span>]
+        )
+        
+        <span class="code-comment"># Execute step</span>
+        result = step.<span class="code-function">execute</span>(prompt)
+        
+        <span class="code-comment"># Store result but don't pass everything forward</span>
+        context[<span class="code-string">"step_results"</span>][i] = result
+        
+        <span class="code-comment"># Balance: Summarize if context getting large</span>
+        <span class="code-keyword">if</span> <span class="code-function">len</span>(context[<span class="code-string">"step_results"</span>]) > <span class="code-string">3</span>:
+            context[<span class="code-string">"summary"</span>] = <span class="code-function">summarize_results</span>(
+                context[<span class="code-string">"step_results"</span>]
+            )
+    
+    <span class="code-keyword">return</span> context[<span class="code-string">"step_results"</span>][-<span class="code-string">1</span>]  <span class="code-comment"># Return final output</span>
+            </code>
+
+            <div class="info-box info-box-blue">
+                <div class="info-box-title">💡 Context Window Strategy</div>
+                <div class="info-box-content">
+                    <strong>Start narrow, expand if needed:</strong> Begin with minimal context and add only when agents fail due to missing information. This prevents the common mistake of over-contexting from the start, which wastes tokens and degrades performance.
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Context Management Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Identify dependencies:</strong> What does each step actually need?</li>
+                    <li><strong>Define critical context:</strong> What must persist across all steps?</li>
+                    <li><strong>Implement summarization:</strong> Condense information at key points</li>
+                    <li><strong>Test minimal context:</strong> Start lean, expand only when necessary</li>
+                    <li><strong>Monitor context size:</strong> Track token usage and performance</li>
+                    <li><strong>Document context flow:</strong> Clear specs for what passes between steps</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 4: Pattern-Specific Validation -->
+        <section id="pattern-validation" class="section section-4">
+            <div class="section-header">
+                <div class="section-number">Part 4</div>
+                <h2 class="section-title">Validation Placement by Pattern</h2>
+                <p class="section-description">Where and how to implement validation for each of the 5 workflow patterns</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Pattern-Specific Validation Strategies</h3>
+                <p>Each workflow pattern has unique validation requirements and optimal placement points for quality gates.</p>
+            </div>
+
+            <div class="pattern-validation">
+                <div class="pattern-card">
+                    <div class="pattern-card-header">
+                        <div class="pattern-card-icon">🔗</div>
+                        <div class="pattern-card-title">Prompt Chaining</div>
+                    </div>
+                    <div class="pattern-card-content">
+                        <strong>Critical Challenge:</strong> Error propagation through sequential steps
+                        
+                        <ul class="validation-points">
+                            <li><strong>After every step:</strong> Validate before passing to next agent</li>
+                            <li><strong>At decision points:</strong> Check branching logic correctness</li>
+                            <li><strong>Before final output:</strong> Comprehensive quality check</li>
+                            <li><strong>Context size:</strong> Monitor and summarize if growing too large</li>
+                        </ul>
+
+                        <p style="margin-top: 12px; font-weight: 600;">Recommended Approach:</p>
+                        <p style="font-size: 0.85rem; margin-top: 4px;">Programmatic validation after each step (fast), LLM-based validation only at critical junctions or final output (expensive but thorough).</p>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-card-header">
+                        <div class="pattern-card-icon">🔀</div>
+                        <div class="pattern-card-title">Routing</div>
+                    </div>
+                    <div class="pattern-card-content">
+                        <strong>Critical Challenge:</strong> Misclassification sends task to wrong agent
+                        
+                        <ul class="validation-points">
+                            <li><strong>Classification output:</strong> Verify category is valid option</li>
+                            <li><strong>Confidence threshold:</strong> Flag low-confidence routing decisions</li>
+                            <li><strong>Reasoning check:</strong> Ensure classification logic makes sense</li>
+                            <li><strong>Worker output:</strong> Validate specialist agent's response</li>
+                        </ul>
+
+                        <p style="margin-top: 12px; font-weight: 600;">Recommended Approach:</p>
+                        <p style="font-size: 0.85rem; margin-top: 4px;">Rule-based validation on classification output (must be valid category), confidence scoring to flag uncertain cases, fallback to general agent if confidence too low.</p>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-card-header">
+                        <div class="pattern-card-icon">⚡</div>
+                        <div class="pattern-card-title">Parallelization</div>
+                    </div>
+                    <div class="pattern-card-content">
+                        <strong>Critical Challenge:</strong> Inconsistent results from parallel agents
+                        
+                        <ul class="validation-points">
+                            <li><strong>Individual outputs:</strong> Basic quality check on each agent</li>
+                            <li><strong>Consistency check:</strong> Flag major disagreements between agents</li>
+                            <li><strong>Synthesis validation:</strong> Ensure consolidation is coherent</li>
+                            <li><strong>Completeness:</strong> Verify all subtasks produced valid outputs</li>
+                        </ul>
+
+                        <p style="margin-top: 12px; font-weight: 600;">Recommended Approach:</p>
+                        <p style="font-size: 0.85rem; margin-top: 4px;">Programmatic checks that all agents completed, LLM-based synthesis validation to ensure combined output is coherent. Consider voting/consensus mechanisms when agents disagree significantly.</p>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-card-header">
+                        <div class="pattern-card-icon">🔄</div>
+                        <div class="pattern-card-title">Evaluator-Optimizer</div>
+                    </div>
+                    <div class="pattern-card-content">
+                        <strong>Critical Challenge:</strong> Evaluation loop runs too long or doesn't converge
+                        
+                        <ul class="validation-points">
+                            <li><strong>Generated output:</strong> Validate each iteration's output</li>
+                            <li><strong>Evaluator consistency:</strong> Check evaluator criteria are applied properly</li>
+                            <li><strong>Improvement tracking:</strong> Verify output is actually getting better</li>
+                            <li><strong>Max iterations:</strong> Hard limit prevents infinite loops</li>
+                        </ul>
+
+                        <p style="margin-top: 12px; font-weight: 600;">Recommended Approach:</p>
+                        <p style="font-size: 0.85rem; margin-top: 4px;">LLM-based evaluation with clear rubric, track improvement scores across iterations, stop if no improvement for 2 consecutive iterations OR max attempts (3-5) reached. Always set maximum iterations.</p>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-card-header">
+                        <div class="pattern-card-icon">🎯</div>
+                        <div class="pattern-card-title">Orchestrator-Workers</div>
+                    </div>
+                    <div class="pattern-card-content">
+                        <strong>Critical Challenge:</strong> Dynamic planning can diverge or loop infinitely
+                        
+                        <ul class="validation-points">
+                            <li><strong>Plan validity:</strong> Verify orchestrator's strategy makes sense</li>
+                            <li><strong>Worker selection:</strong> Check chosen workers are appropriate</li>
+                            <li><strong>Progress tracking:</strong> Ensure system is making forward progress</li>
+                            <li><strong>Total steps limit:</strong> Cap maximum workflow complexity</li>
+                        </ul>
+
+                        <p style="margin-top: 12px; font-weight: 600;">Recommended Approach:</p>
+                        <p style="font-size: 0.85rem; margin-top: 4px;">LLM-based plan validation, programmatic checks on worker selection logic, track state changes to detect loops, set maximum total steps (e.g., 10-20) to prevent runaway orchestration.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box info-box-green">
+                <div class="info-box-title">✅ Universal Validation Principles</div>
+                <div class="info-box-content">
+                    Regardless of pattern:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li><strong>Validate at boundaries:</strong> Check inputs and outputs of each major component</li>
+                        <li><strong>Fail fast:</strong> Catch errors as early as possible in the workflow</li>
+                        <li><strong>Provide actionable feedback:</strong> Error messages should enable fixes</li>
+                        <li><strong>Log everything:</strong> Track all validation results for analysis</li>
+                        <li><strong>Set hard limits:</strong> Maximum iterations, timeouts, context sizes</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Section -->
+        <section style="margin-top: 80px; padding: 40px; background: linear-gradient(135deg, #E8F4FF 0%, #E8FFF1 100%); border-radius: 12px;">
+            <h2 style="font-size: 1.75rem; margin-bottom: 24px; color: #212121; text-align: center;">🎯 Production Readiness Checklist</h2>
+            
+            <div class="checklist">
+                <div class="checklist-title">Essential Implementation Steps</div>
+                <ul class="checklist-items">
+                    <li><strong>Multi-layer validation:</strong> Combine programmatic, rule-based, and LLM validation</li>
+                    <li><strong>Error handling strategy:</strong> Define retry logic, fallbacks, and escalation paths</li>
+                    <li><strong>Context optimization:</strong> Implement selective passing and summarization</li>
+                    <li><strong>Maximum limits:</strong> Set retry caps, iteration limits, timeout values</li>
+                    <li><strong>Logging infrastructure:</strong> Track all inputs, outputs, validation results, errors</li>
+                    <li><strong>Pattern-specific checks:</strong> Implement validation appropriate to workflow pattern</li>
+                    <li><strong>Monitoring dashboards:</strong> Track error rates, retry rates, performance metrics</li>
+                    <li><strong>Continuous improvement:</strong> Analyze logs to refine prompts and validation criteria</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 32px; text-align: center; font-size: 0.9rem; color: #616161;">
+                <strong>Remember:</strong> Validation and error handling aren't optional—they're what separate prototype demos from production-ready systems. Invest the time upfront to prevent costly failures later.
+            </div>
+        </section>
+    </div>
+
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+
+    <script>
+        // Back to top functionality
+        const backToTop = document.getElementById('backToTop');
+        
+        function updateBackToTop() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        }
+
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', updateBackToTop);
+        updateBackToTop();
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

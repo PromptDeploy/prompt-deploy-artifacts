@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Decision Flow + RAG Loop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #FFFFFF;
+            padding: 40px 20px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .flow-container {
+            position: relative;
+            padding: 40px;
+            background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+        
+        .flow-section {
+            margin-bottom: 24px;
+        }
+        
+        /* Node Types */
+        .node {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 0 auto 16px;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        .node-start {
+            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
+            border: 3px solid #0066FF;
+        }
+        
+        .node-process {
+            border: 2px solid #E0E0E0;
+        }
+        
+        .node-decision {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+            border: 3px solid #F59E0B;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            padding: 40px 60px;
+        }
+        
+        .node-decision-inner {
+            clip-path: none;
+        }
+        
+        .node-action {
+            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
+            border: 2px solid #22C55E;
+        }
+        
+        .node-end {
+            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%);
+            border: 3px solid #8B5CF6;
+        }
+        
+        .node-error {
+            background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+            border: 2px solid #EF4444;
+        }
+        
+        .node-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+            text-align: center;
+        }
+        
+        .node-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .node-description {
+            font-size: 0.875rem;
+            color: #616161;
+            text-align: center;
+            line-height: 1.5;
+        }
+        
+        /* Arrows */
+        .arrow {
+            text-align: center;
+            color: #0066FF;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 8px 0;
+        }
+        
+        .arrow-label {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #616161;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: -4px 0 12px;
+        }
+        
+        /* Branch Container */
+        .branch-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin: 24px 0;
+        }
+        
+        .branch {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid #E0E0E0;
+        }
+        
+        .branch-yes {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F0FDF4 0%, #E8FFF1 100%);
+        }
+        
+        .branch-no {
+            border-color: #8B5CF6;
+            background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+        }
+        
+        .branch-header {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 16px;
+            padding: 8px;
+            border-radius: 6px;
+        }
+        
+        .branch-yes .branch-header {
+            background: #22C55E;
+            color: white;
+        }
+        
+        .branch-no .branch-header {
+            background: #8B5CF6;
+            color: white;
+        }
+        
+        /* RAG Loop Section */
+        .rag-loop {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF4CC 100%);
+            border: 3px dashed #F59E0B;
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+            position: relative;
+        }
+        
+        .rag-loop::before {
+            content: "⭐ AGENTIC RAG SPECIAL LOOP";
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: #F59E0B;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        
+        .rag-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .rag-cycle {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .rag-step {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #F59E0B;
+            position: relative;
+        }
+        
+        .rag-step-number {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #F59E0B;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .rag-step-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .rag-step-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .rag-step-desc {
+            font-size: 0.75rem;
+            color: #616161;
+            line-height: 1.4;
+        }
+        
+        .rag-arrows {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .rag-arrow {
+            color: #F59E0B;
+            font-size: 1.5rem;
+        }
+        
+        .rag-note {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #F59E0B;
+            font-size: 0.875rem;
+            color: #424242;
+            text-align: center;
+        }
+        
+        /* Legend */
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #E0E0E0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .legend-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+        
+        .legend-text {
+            font-size: 0.875rem;
+            color: #424242;
+        }
+        
+        .legend-title {
+            font-weight: 700;
+            color: #212121;
+        }
+        
+        /* State Annotations */
+        .state-annotation {
+            background: #FFF9E6;
+            border: 2px solid #F59E0B;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px auto;
+            max-width: 500px;
+            font-size: 0.875rem;
+            color: #424242;
+        }
+        
+        .state-annotation strong {
+            color: #F59E0B;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        @media (max-width: 968px) {
+            .branch-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .rag-cycle {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .legend {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .rag-cycle {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Agent Decision Flow + RAG Loop</h1>
+            <p>The complete execution path showing how agents process queries, make decisions, call tools, manage state, and iterate through Agentic RAG reflection cycles</p>
+        </div>
+        
+        <div class="flow-container">
+            <!-- START -->
+            <div class="node node-start">
+                <span class="node-icon">🎯</span>
+                <div class="node-title">User Query Received</div>
+                <div class="node-description">Agent receives input from user (question, task, or command)</div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Initialize State -->
+            <div class="node node-process">
+                <span class="node-icon">🔄</span>
+                <div class="node-title">Initialize State</div>
+                <div class="node-description">Create state object with query, system instructions, empty message history, and tool definitions</div>
+            </div>
+            
+            <div class="state-annotation">
+                <strong>📋 State Contents:</strong>
+                Query text, system prompt, messages[], tool_calls[], intermediate_results[], current_step
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Memory Retrieval -->
+            <div class="node node-action">
+                <span class="node-icon">🧠</span>
+                <div class="node-title">Check Memory (Optional)</div>
+                <div class="node-description">Retrieve relevant context from short-term (session) or long-term (cross-session) memory if applicable</div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Prepare Messages -->
+            <div class="node node-process">
+                <span class="node-icon">📝</span>
+                <div class="node-title">Prepare Messages</div>
+                <div class="node-description">Construct message array: system prompt + memory context + conversation history + current query</div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- LLM Call -->
+            <div class="node node-process">
+                <span class="node-icon">🤖</span>
+                <div class="node-title">Call LLM</div>
+                <div class="node-description">Send messages + available tools to language model for reasoning and response generation</div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Parse Response -->
+            <div class="node node-process">
+                <span class="node-icon">🔍</span>
+                <div class="node-title">Parse LLM Response</div>
+                <div class="node-description">Extract text response, function calls (if any), and any structured outputs</div>
+            </div>
+            
+            <div class="arrow">↓</div>
+            
+            <!-- Decision: Tools Needed? -->
+            <div class="node node-decision">
+                <div class="node-decision-inner">
+                    <span class="node-icon">❓</span>
+                    <div class="node-title">Tools Needed?</div>
+                    <div class="node-description">Did LLM request function calls?</div>
+                </div>
+            </div>
+            
+            <!-- Branch Container -->
+            <div class="branch-container">
+                <!-- YES Branch -->
+                <div class="branch branch-yes">
+                    <div class="branch-header">✅ YES - TOOL EXECUTION PATH</div>
+                    
+                    <div class="node node-action" style="margin-bottom: 16px;">
+                        <span class="node-icon">🛠️</span>
+                        <div class="node-title">Extract Tool Calls</div>
+                        <div class="node-description">Parse function name + arguments from LLM response</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-action" style="margin-bottom: 16px;">
+                        <span class="node-icon">✅</span>
+                        <div class="node-title">Validate Arguments</div>
+                        <div class="node-description">Check required fields, types, formats using schemas</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-process" style="margin-bottom: 16px;">
+                        <span class="node-icon">⚡</span>
+                        <div class="node-title">Execute Tool</div>
+                        <div class="node-description">Call API, query database, run search, or perform computation</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-action" style="margin-bottom: 16px;">
+                        <span class="node-icon">📊</span>
+                        <div class="node-title">Process Results</div>
+                        <div class="node-description">Format tool output for next LLM call</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-process" style="margin-bottom: 16px;">
+                        <span class="node-icon">🔄</span>
+                        <div class="node-title">Update State</div>
+                        <div class="node-description">Add tool results to message history, increment step counter</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-decision" style="margin-bottom: 16px;">
+                        <div class="node-decision-inner">
+                            <span class="node-icon">🔁</span>
+                            <div class="node-title">More Tools?</div>
+                            <div class="node-description">Need additional tools or final response?</div>
+                        </div>
+                    </div>
+                    
+                    <div class="arrow-label">If more tools needed, loop back to "Call LLM"</div>
+                    <div class="arrow-label">Otherwise, proceed to final response</div>
+                </div>
+                
+                <!-- NO Branch -->
+                <div class="branch branch-no">
+                    <div class="branch-header">⛔ NO - DIRECT RESPONSE PATH</div>
+                    
+                    <div class="node node-process" style="margin-bottom: 16px;">
+                        <span class="node-icon">📄</span>
+                        <div class="node-title">Extract Text Response</div>
+                        <div class="node-description">LLM provided complete answer without needing tools</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-action" style="margin-bottom: 16px;">
+                        <span class="node-icon">✨</span>
+                        <div class="node-title">Validate Output</div>
+                        <div class="node-description">Check for structured output compliance (if Pydantic schema provided)</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-process" style="margin-bottom: 16px;">
+                        <span class="node-icon">💾</span>
+                        <div class="node-title">Update Memory</div>
+                        <div class="node-description">Store conversation in short-term memory for session continuity</div>
+                    </div>
+                    
+                    <div class="arrow">↓</div>
+                    
+                    <div class="node node-end" style="margin-bottom: 0;">
+                        <span class="node-icon">✅</span>
+                        <div class="node-title">Return Final Response</div>
+                        <div class="node-description">Send answer back to user</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="arrow" style="margin-top: 24px;">↓</div>
+            
+            <!-- Final Response (from tool path) -->
+            <div class="node node-end">
+                <span class="node-icon">🎉</span>
+                <div class="node-title">Task Complete</div>
+                <div class="node-description">Agent returns final synthesized response to user</div>
+            </div>
+        </div>
+        
+        <!-- Agentic RAG Special Loop -->
+        <div class="rag-loop">
+            <div class="rag-title">🔄 Agentic RAG Reflection & Retry Loop</div>
+            <div class="rag-note" style="margin-bottom: 24px;">
+                <strong>When does this activate?</strong> When using retrieval tools (vector search, web search, database queries), Agentic RAG adds an evaluation→reflection→retry cycle to improve result quality.
+            </div>
+            
+            <div class="rag-cycle">
+                <div class="rag-step">
+                    <div class="rag-step-number">1</div>
+                    <div class="rag-step-icon">🔍</div>
+                    <div class="rag-step-title">Retrieve</div>
+                    <div class="rag-step-desc">Execute search query, get initial results from vector DB or web</div>
+                </div>
+                
+                <div class="rag-step">
+                    <div class="rag-step-number">2</div>
+                    <div class="rag-step-icon">🤖</div>
+                    <div class="rag-step-title">Generate</div>
+                    <div class="rag-step-desc">LLM creates answer based on retrieved context</div>
+                </div>
+                
+                <div class="rag-step">
+                    <div class="rag-step-number">3</div>
+                    <div class="rag-step-icon">⚖️</div>
+                    <div class="rag-step-title">Evaluate</div>
+                    <div class="rag-step-desc">Judge quality: Is answer complete? Are sources relevant?</div>
+                </div>
+                
+                <div class="rag-step">
+                    <div class="rag-step-number">4</div>
+                    <div class="rag-step-icon">🔁</div>
+                    <div class="rag-step-title">Decide</div>
+                    <div class="rag-step-desc">Good enough? Return. Needs work? Reflect & retry</div>
+                </div>
+            </div>
+            
+            <div class="rag-arrows">
+                <span class="rag-arrow">⟲</span>
+                <span style="color: #F59E0B; font-weight: 600; font-size: 0.875rem;">If quality insufficient, loop back with improved query</span>
+                <span class="rag-arrow">⟲</span>
+            </div>
+            
+            <div class="rag-note">
+                <strong>Key Difference from Traditional RAG:</strong> Traditional RAG is "retrieve once, generate once." Agentic RAG actively evaluates output quality, reflects on what's missing, reformulates queries, and retries until satisfactory—like a researcher iterating on a literature review.
+            </div>
+        </div>
+        
+        <!-- Error Handling Section -->
+        <div class="flow-container" style="background: linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%);">
+            <h3 style="text-align: center; margin-bottom: 24px; color: #212121;">⚠️ Error Handling & Resilience</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                <div class="node node-error">
+                    <span class="node-icon">🔌</span>
+                    <div class="node-title">API Failure</div>
+                    <div class="node-description">Retry with backoff, use fallback tool, or inform user gracefully</div>
+                </div>
+                
+                <div class="node node-error">
+                    <span class="node-icon">❌</span>
+                    <div class="node-title">Validation Error</div>
+                    <div class="node-description">Request corrected output from LLM with error details</div>
+                </div>
+                
+                <div class="node node-error">
+                    <span class="node-icon">⏱️</span>
+                    <div class="node-title">Timeout</div>
+                    <div class="node-description">Cancel long-running tool, return partial results or error message</div>
+                </div>
+                
+                <div class="node node-error">
+                    <span class="node-icon">🔒</span>
+                    <div class="node-title">Auth Failure</div>
+                    <div class="node-description">Prompt user to reconnect or use alternative data source</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div style="margin-top: 40px;">
+            <h3 style="text-align: center; margin-bottom: 24px; color: #212121;">📖 Visual Legend</h3>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%); border: 2px solid #0066FF;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">Start/Entry Point</div>
+                        User query begins execution
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-box" style="background: white; border: 2px solid #E0E0E0;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">Process Step</div>
+                        Standard operation or transformation
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%); border: 2px solid #F59E0B;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">Decision Point</div>
+                        Conditional logic determines path
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%); border: 2px solid #22C55E;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">Action/Tool Call</div>
+                        External system interaction
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%); border: 2px solid #8B5CF6;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">End/Completion</div>
+                        Final response returned to user
+                    </div>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-box" style="background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); border: 2px solid #EF4444;"></div>
+                    <div class="legend-text">
+                        <div class="legend-title">Error State</div>
+                        Exception handling or recovery
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

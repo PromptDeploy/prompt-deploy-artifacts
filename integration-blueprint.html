@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Integration Blueprint</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #F5F5F5;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #616161;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .blueprint-intro {
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F4FF 100%);
+            border-left: 4px solid #0066FF;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .blueprint-intro h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0066FF;
+            margin-bottom: 12px;
+        }
+
+        .blueprint-intro p {
+            font-size: 0.9375rem;
+            color: #212121;
+            line-height: 1.6;
+        }
+
+        .architecture-stack {
+            margin-bottom: 48px;
+        }
+
+        .layer {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .layer:hover {
+            border-color: #0066FF;
+            box-shadow: 0 4px 12px rgba(0,102,255,0.1);
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .layer-icon {
+            font-size: 1.5rem;
+        }
+
+        .layer-name {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #212121;
+        }
+
+        .layer-badge {
+            background: #E0E0E0;
+            color: #616161;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .layer-description {
+            font-size: 0.875rem;
+            color: #616161;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .techniques-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .technique-chip {
+            background: #FAFAFA;
+            border: 1px solid #E0E0E0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .technique-chip:hover {
+            background: #F0F7FF;
+            border-color: #0066FF;
+            transform: translateY(-2px);
+        }
+
+        /* Layer-specific colors */
+        .layer.foundation { border-color: #0066FF; }
+        .layer.foundation .layer-badge { background: #E8F4FF; color: #0066FF; }
+        .layer.foundation .technique-chip:hover { background: #E8F4FF; }
+
+        .layer.enhancement { border-color: #7C3AED; }
+        .layer.enhancement .layer-badge { background: #F5F3FF; color: #7C3AED; }
+        .layer.enhancement .technique-chip:hover { background: #F5F3FF; }
+
+        .layer.integration { border-color: #22C55E; }
+        .layer.integration .layer-badge { background: #F0FDF4; color: #22C55E; }
+        .layer.integration .technique-chip:hover { background: #F0FDF4; }
+
+        .layer.orchestration { border-color: #F59E0B; }
+        .layer.orchestration .layer-badge { background: #FFFBEB; color: #F59E0B; }
+        .layer.orchestration .technique-chip:hover { background: #FFFBEB; }
+
+        .layer.quality { border-color: #EF4444; }
+        .layer.quality .layer-badge { background: #FEF2F2; color: #EF4444; }
+        .layer.quality .technique-chip:hover { background: #FEF2F2; }
+
+        .layer.production { border-color: #1A1A1A; }
+        .layer.production .layer-badge { background: #FAFAFA; color: #1A1A1A; }
+        .layer.production .technique-chip:hover { background: #FAFAFA; }
+
+        .flow-diagram {
+            background: #FAFAFA;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 48px;
+        }
+
+        .flow-title {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 32px;
+        }
+
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .flow-step-number {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #0066FF;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 700;
+        }
+
+        .flow-step-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+
+        .flow-step-description {
+            font-size: 0.875rem;
+            color: #616161;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .flow-step-techniques {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .flow-step-tag {
+            background: #F0F7FF;
+            color: #0066FF;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            color: #0066FF;
+            font-size: 1.5rem;
+            margin: 8px 0;
+        }
+
+        .integration-patterns {
+            margin-bottom: 48px;
+        }
+
+        .patterns-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .pattern-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .pattern-card:hover {
+            border-color: #22C55E;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+        }
+
+        .pattern-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .pattern-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+
+        .pattern-description {
+            font-size: 0.875rem;
+            color: #616161;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .pattern-stack {
+            background: #FAFAFA;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: #212121;
+        }
+
+        .pattern-stack strong {
+            color: #0066FF;
+        }
+
+        .best-practices {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .best-practices h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #22C55E;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .practices-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .practice-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border-left: 4px solid #22C55E;
+        }
+
+        .practice-item strong {
+            display: block;
+            font-size: 0.875rem;
+            color: #212121;
+            margin-bottom: 6px;
+        }
+
+        .practice-item span {
+            font-size: 0.8125rem;
+            color: #616161;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+            color: #616161;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .techniques-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .patterns-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The AI Agent Integration Blueprint</h1>
+            <p>A comprehensive system architecture showing how all prompting techniques combine to build production-ready AI agents</p>
+        </div>
+
+        <div class="blueprint-intro">
+            <h2>From Concept to Production</h2>
+            <p>Building sophisticated AI agents requires combining multiple techniques in a structured architecture. This blueprint shows you exactly how to layer techniques from foundational prompts to production monitoring, creating reliable, scalable agent systems.</p>
+        </div>
+
+        <div class="architecture-stack">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #212121; margin-bottom: 24px; text-align: center;">The Agent Architecture Stack</h2>
+            
+            <div class="layer foundation">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🏗️</div>
+                        <div class="layer-name">Layer 1: Foundation</div>
+                    </div>
+                    <div class="layer-badge">REQUIRED</div>
+                </div>
+                <div class="layer-description">
+                    Every AI agent starts here. Define who the agent is, what it knows, and how it should behave. This layer establishes the baseline capabilities and personality.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">Role-Based Prompting</div>
+                    <div class="technique-chip">System Prompt</div>
+                    <div class="technique-chip">Few-Shot Examples</div>
+                    <div class="technique-chip">Context Definition</div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">↓</div>
+
+            <div class="layer enhancement">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🧠</div>
+                        <div class="layer-name">Layer 2: Reasoning Enhancement</div>
+                    </div>
+                    <div class="layer-badge">OPTIONAL</div>
+                </div>
+                <div class="layer-description">
+                    Add reasoning capabilities for complex problems. Use these techniques when your task requires multi-step logic, mathematical calculations, or analytical thinking.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">Chain-of-Thought</div>
+                    <div class="technique-chip">Zero-Shot CoT</div>
+                    <div class="technique-chip">Few-Shot CoT</div>
+                    <div class="technique-chip">Self-Consistency</div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">↓</div>
+
+            <div class="layer integration">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">🔌</div>
+                        <div class="layer-name">Layer 3: Tool Integration</div>
+                    </div>
+                    <div class="layer-badge">CONDITIONAL</div>
+                </div>
+                <div class="layer-description">
+                    Connect your agent to the real world. Enable dynamic data access, API calls, and external tool usage through the ReAct framework for tasks requiring current information.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">ReAct Framework</div>
+                    <div class="technique-chip">Tool Calling</div>
+                    <div class="technique-chip">Action Execution</div>
+                    <div class="technique-chip">Observation Processing</div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">↓</div>
+
+            <div class="layer orchestration">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">⚙️</div>
+                        <div class="layer-name">Layer 4: Workflow Orchestration</div>
+                    </div>
+                    <div class="layer-badge">RECOMMENDED</div>
+                </div>
+                <div class="layer-description">
+                    Manage complex multi-step processes. Break tasks into manageable pieces, coordinate execution, and enable iterative improvement through feedback mechanisms.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">Prompt Chaining</div>
+                    <div class="technique-chip">Feedback Loops</div>
+                    <div class="technique-chip">Prompt Refinement</div>
+                    <div class="technique-chip">Routing Patterns</div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">↓</div>
+
+            <div class="layer quality">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">✓</div>
+                        <div class="layer-name">Layer 5: Quality Control</div>
+                    </div>
+                    <div class="layer-badge">ESSENTIAL</div>
+                </div>
+                <div class="layer-description">
+                    Ensure reliability and correctness. Validate outputs at every step, enforce formats, and catch errors before they cascade through your system.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">Gate Checks</div>
+                    <div class="technique-chip">Validation</div>
+                    <div class="technique-chip">Structured Output</div>
+                    <div class="technique-chip">LLM-as-Judge</div>
+                </div>
+            </div>
+
+            <div class="flow-arrow">↓</div>
+
+            <div class="layer production">
+                <div class="layer-header">
+                    <div class="layer-title">
+                        <div class="layer-icon">📊</div>
+                        <div class="layer-name">Layer 6: Production Operations</div>
+                    </div>
+                    <div class="layer-badge">CRITICAL</div>
+                </div>
+                <div class="layer-description">
+                    Monitor, measure, and maintain your agent in production. Track performance, identify issues, optimize costs, and ensure continuous improvement.
+                </div>
+                <div class="techniques-grid">
+                    <div class="technique-chip">Evaluation Metrics</div>
+                    <div class="technique-chip">Monitoring</div>
+                    <div class="technique-chip">Traces & Logs</div>
+                    <div class="technique-chip">Observability</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flow-diagram">
+            <div class="flow-title">Implementation Workflow: Step-by-Step</div>
+            
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <div class="flow-step-number">1</div>
+                    <div class="flow-step-title">Define Agent Identity & Purpose</div>
+                    <div class="flow-step-description">
+                        Start by establishing who the agent is and what it should accomplish. Create a clear role, define expertise areas, and set behavioral guidelines.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Role-Based Prompting</span>
+                        <span class="flow-step-tag">System Prompt</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">2</div>
+                    <div class="flow-step-title">Break Down Complex Tasks</div>
+                    <div class="flow-step-description">
+                        Decompose your workflow into discrete, manageable steps. Each step should have clear inputs, outputs, and success criteria.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Prompt Chaining</span>
+                        <span class="flow-step-tag">Task Decomposition</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">3</div>
+                    <div class="flow-step-title">For Each Step: Select Appropriate Technique</div>
+                    <div class="flow-step-description">
+                        Choose techniques based on step requirements: Use CoT for reasoning-heavy tasks, ReAct for tool-enabled tasks, and ensure proper output formatting.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">CoT (reasoning)</span>
+                        <span class="flow-step-tag">ReAct (tools)</span>
+                        <span class="flow-step-tag">Structured Output</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">4</div>
+                    <div class="flow-step-title">Add Validation Between Steps</div>
+                    <div class="flow-step-description">
+                        Implement gate checks to validate outputs before proceeding. Catch format errors, business rule violations, and logical inconsistencies early.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Gate Checks</span>
+                        <span class="flow-step-tag">Validation</span>
+                        <span class="flow-step-tag">Error Handling</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">5</div>
+                    <div class="flow-step-title">Implement Feedback Mechanisms</div>
+                    <div class="flow-step-description">
+                        Enable iterative refinement where quality matters. Use evaluation results to automatically improve outputs until they meet your standards.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Feedback Loops</span>
+                        <span class="flow-step-tag">LLM-as-Judge</span>
+                        <span class="flow-step-tag">Self-Correction</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">6</div>
+                    <div class="flow-step-title">Test, Evaluate & Refine Prompts</div>
+                    <div class="flow-step-description">
+                        Systematically test your agent with diverse inputs. Measure performance, identify failure patterns, and iteratively improve your prompts.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Prompt Refinement</span>
+                        <span class="flow-step-tag">Evaluation Metrics</span>
+                        <span class="flow-step-tag">Testing</span>
+                    </div>
+                </div>
+
+                <div class="flow-arrow">↓</div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">7</div>
+                    <div class="flow-step-title">Deploy with Monitoring</div>
+                    <div class="flow-step-description">
+                        Launch your agent with comprehensive logging and monitoring. Track performance metrics, costs, and user patterns to optimize continuously.
+                    </div>
+                    <div class="flow-step-techniques">
+                        <span class="flow-step-tag">Monitoring</span>
+                        <span class="flow-step-tag">Traces</span>
+                        <span class="flow-step-tag">Observability</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="integration-patterns">
+            <div class="patterns-title">Common Integration Patterns</div>
+            <div class="patterns-grid">
+                <div class="pattern-card">
+                    <div class="pattern-icon">💬</div>
+                    <div class="pattern-name">Simple Q&A Agent</div>
+                    <div class="pattern-description">
+                        Answers questions using internal knowledge with clear, consistent responses. Perfect for customer support, documentation queries, and information retrieval.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + Few-Shot + Structured Output
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-icon">🔍</div>
+                    <div class="pattern-name">Research Assistant</div>
+                    <div class="pattern-description">
+                        Searches external sources, synthesizes information, and provides evidence-based answers. Great for market research, competitive analysis, and fact-checking.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + ReAct + CoT + LLM-as-Judge
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-icon">💻</div>
+                    <div class="pattern-name">Code Generation Agent</div>
+                    <div class="pattern-description">
+                        Writes, tests, and debugs code iteratively until all tests pass. Ideal for automation, script generation, and development assistance.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + CoT + Prompt Chaining + Feedback Loops + Gate Checks
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-icon">📝</div>
+                    <div class="pattern-name">Content Creation Workflow</div>
+                    <div class="pattern-description">
+                        Researches topics, creates outlines, writes drafts, and refines until quality standards are met. Perfect for blog posts, reports, and marketing content.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + Prompt Chaining + Feedback Loops + LLM-as-Judge
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-icon">📊</div>
+                    <div class="pattern-name">Data Analysis Agent</div>
+                    <div class="pattern-description">
+                        Gathers data from multiple sources, performs calculations, and generates insights with visualizations. Used for business intelligence and reporting.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + ReAct + CoT + Structured Output + Validation
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <div class="pattern-icon">🎯</div>
+                    <div class="pattern-name">Multi-Domain Router</div>
+                    <div class="pattern-description">
+                        Classifies incoming requests and routes to specialized handlers. Essential for customer support systems and multi-capability platforms.
+                    </div>
+                    <div class="pattern-stack">
+                        <strong>Stack:</strong> Role-Based + Routing Pattern + Prompt Chaining + Structured Output
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="best-practices">
+            <h3>Production-Ready Best Practices</h3>
+            <div class="practices-list">
+                <div class="practice-item">
+                    <strong>Start Simple, Add Complexity</strong>
+                    <span>Begin with basic Role-Based + Few-Shot. Only add techniques when needed for specific requirements.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Validate at Every Step</strong>
+                    <span>Gate checks between chained prompts prevent cascading failures and save compute costs.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Log Everything</strong>
+                    <span>Comprehensive traces are essential for debugging, optimization, and understanding agent behavior.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Test Edge Cases</strong>
+                    <span>Adversarial inputs, malformed data, and unexpected scenarios reveal weaknesses before production.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Set Maximum Iterations</strong>
+                    <span>Always limit feedback loops and ReAct cycles to prevent infinite loops and runaway costs.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Monitor Continuously</strong>
+                    <span>Track latency, costs, accuracy, and usage patterns. Set alerts for degradation or anomalies.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Version Your Prompts</strong>
+                    <span>Treat prompts like code. Version control enables A/B testing and safe rollbacks.</span>
+                </div>
+                <div class="practice-item">
+                    <strong>Fail Gracefully</strong>
+                    <span>Have fallback strategies for every failure mode. Inform users when the agent can't complete a task.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Prompt Deploy Newsletter</strong> | Course 1: AI Agent Integration Blueprint</p>
+            <p style="margin-top: 8px; font-size: 0.75rem;">Use this blueprint as a reference when architecting AI agent systems • All techniques verified for Course 1 accuracy</p>
+        </div>
+    </div>
+</body>
+</html>

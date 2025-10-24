@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Prompting Techniques - Periodic Table</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #F5F5F5;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #616161;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: #616161;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid currentColor;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .element {
+            background: white;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .element:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .element-symbol {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .element-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .element-use {
+            font-size: 0.875rem;
+            color: #616161;
+            line-height: 1.4;
+            flex-grow: 1;
+        }
+
+        .element-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.9);
+        }
+
+        /* Category Colors */
+        .foundational {
+            border-color: #0066FF;
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F4FF 100%);
+        }
+        .foundational .element-symbol { color: #0066FF; }
+        .foundational .element-badge { color: #0066FF; }
+
+        .reasoning {
+            border-color: #7C3AED;
+            background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+        }
+        .reasoning .element-symbol { color: #7C3AED; }
+        .reasoning .element-badge { color: #7C3AED; }
+
+        .action {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+        }
+        .action .element-symbol { color: #22C55E; }
+        .action .element-badge { color: #22C55E; }
+
+        .quality {
+            border-color: #EF4444;
+            background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+        }
+        .quality .element-symbol { color: #EF4444; }
+        .quality .element-badge { color: #EF4444; }
+
+        .workflow {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+        }
+        .workflow .element-symbol { color: #F59E0B; }
+        .workflow .element-badge { color: #F59E0B; }
+
+        .production {
+            border-color: #1A1A1A;
+            background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+        }
+        .production .element-symbol { color: #1A1A1A; }
+        .production .element-badge { color: #1A1A1A; }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+            color: #616161;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .legend {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Prompt Engineering Periodic Table</h1>
+            <p>A comprehensive reference of AI agent prompting techniques from Course 1: Advanced LLM Reasoning & Planning</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="color: #0066FF;"></div>
+                <span>Foundational</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="color: #7C3AED;"></div>
+                <span>Reasoning</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="color: #22C55E;"></div>
+                <span>Action-Taking</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="color: #EF4444;"></div>
+                <span>Quality Control</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="color: #F59E0B;"></div>
+                <span>Workflow</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="color: #1A1A1A;"></div>
+                <span>Production</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">FOUNDATIONAL TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element foundational">
+                    <div class="element-badge">Basic</div>
+                    <div class="element-symbol">RBP</div>
+                    <div class="element-name">Role-Based Prompting</div>
+                    <div class="element-use">Assign specific persona for specialized, consistent outputs with appropriate tone and expertise</div>
+                </div>
+                <div class="element foundational">
+                    <div class="element-badge">Basic</div>
+                    <div class="element-symbol">FS</div>
+                    <div class="element-name">Few-Shot Learning</div>
+                    <div class="element-use">Provide examples in prompt to guide behavior and demonstrate desired output patterns</div>
+                </div>
+                <div class="element foundational">
+                    <div class="element-badge">Basic</div>
+                    <div class="element-symbol">SYS</div>
+                    <div class="element-name">System Prompt</div>
+                    <div class="element-use">Define agent behavior, capabilities, and constraints at the system level</div>
+                </div>
+                <div class="element foundational">
+                    <div class="element-badge">Basic</div>
+                    <div class="element-symbol">ZS</div>
+                    <div class="element-name">Zero-Shot</div>
+                    <div class="element-use">Rely solely on instructions without examples, testing model's general capabilities</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">REASONING TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element reasoning">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">CoT</div>
+                    <div class="element-name">Chain-of-Thought</div>
+                    <div class="element-use">Generate step-by-step reasoning for complex math, logic, and sequential problems</div>
+                </div>
+                <div class="element reasoning">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">CoT-Z</div>
+                    <div class="element-name">Zero-Shot CoT</div>
+                    <div class="element-use">Trigger reasoning with "Let's think step by step" without providing examples</div>
+                </div>
+                <div class="element reasoning">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">CoT-F</div>
+                    <div class="element-name">Few-Shot CoT</div>
+                    <div class="element-use">Show examples with complete reasoning paths to guide problem-solving approach</div>
+                </div>
+                <div class="element reasoning">
+                    <div class="element-badge">Advanced</div>
+                    <div class="element-symbol">SC</div>
+                    <div class="element-name">Self-Consistency</div>
+                    <div class="element-use">Sample multiple reasoning paths and select most frequent answer for robustness</div>
+                </div>
+                <div class="element reasoning">
+                    <div class="element-badge">Advanced</div>
+                    <div class="element-symbol">L2M</div>
+                    <div class="element-name">Least-to-Most</div>
+                    <div class="element-use">Break complex problems into progressively simpler sub-problems</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">ACTION-TAKING TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element action">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">ReAct</div>
+                    <div class="element-name">Reason + Act</div>
+                    <div class="element-use">Interleave reasoning (thought) with action (tool use) in iterative loop</div>
+                </div>
+                <div class="element action">
+                    <div class="element-badge">Component</div>
+                    <div class="element-symbol">TC</div>
+                    <div class="element-name">Tool Calling</div>
+                    <div class="element-use">Execute external functions and APIs as part of ReAct framework to interact with environment</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">QUALITY CONTROL TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element quality">
+                    <div class="element-badge">Essential</div>
+                    <div class="element-symbol">GC</div>
+                    <div class="element-name">Gate Checks</div>
+                    <div class="element-use">Programmatic validation between workflow steps to catch errors early</div>
+                </div>
+                <div class="element quality">
+                    <div class="element-badge">Essential</div>
+                    <div class="element-symbol">VAL</div>
+                    <div class="element-name">Validation</div>
+                    <div class="element-use">Verify outputs match expected format, constraints, and business rules</div>
+                </div>
+                <div class="element quality">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">LLM-J</div>
+                    <div class="element-name">LLM-as-Judge</div>
+                    <div class="element-use">Use LLM to evaluate other LLM outputs for quality and correctness</div>
+                </div>
+                <div class="element quality">
+                    <div class="element-badge">Essential</div>
+                    <div class="element-symbol">SO</div>
+                    <div class="element-name">Structured Output</div>
+                    <div class="element-use">Enforce specific formats (JSON, Pydantic) for reliable, parseable responses</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">WORKFLOW TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element workflow">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">PC</div>
+                    <div class="element-name">Prompt Chaining</div>
+                    <div class="element-use">Link multiple LLM calls programmatically to break down complex workflows</div>
+                </div>
+                <div class="element workflow">
+                    <div class="element-badge">Core</div>
+                    <div class="element-symbol">FL</div>
+                    <div class="element-name">Feedback Loops</div>
+                    <div class="element-use">Iteratively refine outputs using evaluation results for self-improvement</div>
+                </div>
+                <div class="element workflow">
+                    <div class="element-badge">Advanced</div>
+                    <div class="element-symbol">PR</div>
+                    <div class="element-name">Prompt Refinement</div>
+                    <div class="element-use">Systematically optimize prompts based on performance data and testing</div>
+                </div>
+                <div class="element workflow">
+                    <div class="element-badge">Pattern</div>
+                    <div class="element-symbol">RT</div>
+                    <div class="element-name">Routing</div>
+                    <div class="element-use">Application pattern to direct tasks to appropriate workflows based on input classification</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">PRODUCTION TECHNIQUES</div>
+            <div class="section-grid">
+                <div class="element production">
+                    <div class="element-badge">Critical</div>
+                    <div class="element-symbol">EVAL</div>
+                    <div class="element-name">Evaluation</div>
+                    <div class="element-use">Measure agent performance using accuracy, precision, recall, and custom metrics</div>
+                </div>
+                <div class="element production">
+                    <div class="element-badge">Critical</div>
+                    <div class="element-symbol">MON</div>
+                    <div class="element-name">Monitoring</div>
+                    <div class="element-use">Track latency, costs, usage patterns, and performance in production</div>
+                </div>
+                <div class="element production">
+                    <div class="element-badge">Critical</div>
+                    <div class="element-symbol">TRC</div>
+                    <div class="element-name">Traces</div>
+                    <div class="element-use">Log all inputs, outputs, and intermediate steps for debugging and analysis</div>
+                </div>
+                <div class="element production">
+                    <div class="element-badge">Essential</div>
+                    <div class="element-symbol">OBS</div>
+                    <div class="element-name">Observability</div>
+                    <div class="element-use">Understand actual vs expected behavior through comprehensive logging</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Prompt Deploy Newsletter</strong> | Course 1: Key Concepts - Prompting for Effective LLM Reasoning and Planning</p>
+            <p style="margin-top: 8px; font-size: 0.75rem;">Hover over elements for details • Use this as a quick reference for technique selection • v2.0 - Technically Verified</p>
+        </div>
+    </div>
+</body>
+</html>

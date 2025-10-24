@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Hierarchy Mental Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #FFFFFF;
+            padding: 40px 20px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Concentric Circles Visualization */
+        .circles-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 800px;
+            margin: 0 auto 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .circle:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
+        }
+        
+        .circle-state {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+            border: 4px solid #F59E0B;
+            z-index: 3;
+        }
+        
+        .circle-shortterm {
+            width: 450px;
+            height: 450px;
+            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
+            border: 4px solid #22C55E;
+            z-index: 2;
+        }
+        
+        .circle-longterm {
+            width: 650px;
+            height: 650px;
+            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
+            border: 4px solid #0066FF;
+            z-index: 1;
+        }
+        
+        .circle-content {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .circle-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .circle-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .circle-subtitle {
+            font-size: 0.875rem;
+            color: #616161;
+            font-style: italic;
+        }
+        
+        /* Timeline Visualization */
+        .timeline-container {
+            background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .timeline-title {
+            text-align: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 40px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #F59E0B 0%, #22C55E 33%, #0066FF 100%);
+            transform: translateY(-50%);
+        }
+        
+        .timeline-items {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .timeline-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .timeline-marker {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            border: 4px solid;
+            background: white;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .timeline-item-1 .timeline-marker {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+        }
+        
+        .timeline-item-2 .timeline-marker {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
+        }
+        
+        .timeline-item-3 .timeline-marker {
+            border-color: #0066FF;
+            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
+        }
+        
+        .timeline-label {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .timeline-duration {
+            font-size: 0.875rem;
+            color: #616161;
+            font-weight: 600;
+        }
+        
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+        
+        .comparison-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            border: 3px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .comparison-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-state {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #FFFBF5 0%, #FFF9F0 100%);
+        }
+        
+        .card-shortterm {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F8FFF9 0%, #F0FFF4 100%);
+        }
+        
+        .card-longterm {
+            border-color: #0066FF;
+            background: linear-gradient(135deg, #F5F9FF 0%, #EBF4FF 100%);
+        }
+        
+        .card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .card-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #616161;
+            font-style: italic;
+        }
+        
+        .card-section {
+            margin-bottom: 20px;
+        }
+        
+        .card-section-title {
+            font-weight: 700;
+            color: #212121;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .card-section-content {
+            font-size: 0.875rem;
+            color: #424242;
+            line-height: 1.6;
+        }
+        
+        .card-section-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .card-section-content li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .card-section-content li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #0066FF;
+            font-weight: 700;
+        }
+        
+        .card-state .card-section-content li::before {
+            color: #F59E0B;
+        }
+        
+        .card-shortterm .card-section-content li::before {
+            color: #22C55E;
+        }
+        
+        .card-example {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: #424242;
+            border-left: 3px solid;
+            margin-top: 8px;
+        }
+        
+        .card-state .card-example {
+            border-left-color: #F59E0B;
+        }
+        
+        .card-shortterm .card-example {
+            border-left-color: #22C55E;
+        }
+        
+        .card-longterm .card-example {
+            border-left-color: #0066FF;
+        }
+        
+        /* Strategies Section */
+        .strategies-section {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .strategies-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .strategy-card {
+            background: #F5F5F5;
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid #E0E0E0;
+            transition: all 0.3s ease;
+        }
+        
+        .strategy-card:hover {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F8FFF9 0%, #F0FFF4 100%);
+        }
+        
+        .strategy-title {
+            font-weight: 700;
+            color: #212121;
+            font-size: 1.125rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .strategy-description {
+            font-size: 0.875rem;
+            color: #424242;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        .strategy-tradeoff {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: #616161;
+            border-left: 3px solid #22C55E;
+        }
+        
+        .strategy-tradeoff strong {
+            color: #212121;
+        }
+        
+        /* Key Insights */
+        .insights-section {
+            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%);
+            border-radius: 16px;
+            padding: 40px;
+        }
+        
+        .insights-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .insight-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid #8B5CF6;
+        }
+        
+        .insight-title {
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        
+        .insight-content {
+            font-size: 0.875rem;
+            color: #424242;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 1024px) {
+            .comparison-grid,
+            .strategies-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .circles-container {
+                height: 600px;
+            }
+            
+            .circle-state { width: 180px; height: 180px; }
+            .circle-shortterm { width: 340px; height: 340px; }
+            .circle-longterm { width: 500px; height: 500px; }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .timeline-items {
+                flex-direction: column;
+                gap: 40px;
+            }
+            
+            .timeline-line {
+                width: 4px;
+                height: 100%;
+                left: 50%;
+                top: 0;
+                transform: translateX(-50%);
+                background: linear-gradient(180deg, #F59E0B 0%, #22C55E 50%, #0066FF 100%);
+            }
+            
+            .circles-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Memory Hierarchy Mental Model</h1>
+            <p>Understanding the critical distinction between State (ephemeral execution), Short-Term Memory (session context), and Long-Term Memory (persistent user data)</p>
+        </div>
+        
+        <!-- Concentric Circles -->
+        <div class="circles-container">
+            <div class="circle circle-longterm">
+                <div class="circle-content" style="margin-top: 240px;">
+                    <span class="circle-icon">🌍</span>
+                    <div class="circle-title">Long-Term Memory</div>
+                    <div class="circle-subtitle">Cross-Session Persistence</div>
+                </div>
+            </div>
+            <div class="circle circle-shortterm">
+                <div class="circle-content" style="margin-top: 140px;">
+                    <span class="circle-icon">💬</span>
+                    <div class="circle-title">Short-Term Memory</div>
+                    <div class="circle-subtitle">Session-Level Context</div>
+                </div>
+            </div>
+            <div class="circle circle-state">
+                <div class="circle-content">
+                    <span class="circle-icon">⚡</span>
+                    <div class="circle-title">State</div>
+                    <div class="circle-subtitle">Task Execution</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline -->
+        <div class="timeline-container">
+            <div class="timeline-title">⏱️ Persistence Timeline</div>
+            <div class="timeline">
+                <div class="timeline-line"></div>
+                <div class="timeline-items">
+                    <div class="timeline-item timeline-item-1">
+                        <div class="timeline-marker">⚡</div>
+                        <div class="timeline-label">State</div>
+                        <div class="timeline-duration">Seconds to Minutes<br>(Single Task)</div>
+                    </div>
+                    <div class="timeline-item timeline-item-2">
+                        <div class="timeline-marker">💬</div>
+                        <div class="timeline-label">Short-Term Memory</div>
+                        <div class="timeline-duration">Minutes to Hours<br>(One Session)</div>
+                    </div>
+                    <div class="timeline-item timeline-item-3">
+                        <div class="timeline-marker">🌍</div>
+                        <div class="timeline-label">Long-Term Memory</div>
+                        <div class="timeline-duration">Days to Forever<br>(Across Sessions)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparison Cards -->
+        <div class="comparison-grid">
+            <!-- State Card -->
+            <div class="comparison-card card-state">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">State</div>
+                    <div class="card-subtitle">Ephemeral Execution Context</div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">⏱️ Lifespan</div>
+                    <div class="card-section-content">
+                        Exists only during a single task execution. Disappears when task completes.
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">📦 Contains</div>
+                    <div class="card-section-content">
+                        <ul>
+                            <li>Current user query</li>
+                            <li>System instructions</li>
+                            <li>Message buffer (this task only)</li>
+                            <li>Tool calls (pending/completed)</li>
+                            <li>Intermediate results</li>
+                            <li>Current step counter</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">🎯 Purpose</div>
+                    <div class="card-section-content">
+                        Track progress and context during multi-step task execution. Enables the agent to know "where it is" in solving a problem.
+                    </div>
+                </div>
+                
+                <div class="card-example">
+                    <strong>Example:</strong> User asks "Book me a flight to NYC." State tracks: initial query → search tool called → results retrieved → booking tool prepared → confirmation generated. After task completes, state is discarded.
+                </div>
+            </div>
+            
+            <!-- Short-Term Memory Card -->
+            <div class="comparison-card card-shortterm">
+                <div class="card-header">
+                    <div class="card-icon">💬</div>
+                    <div class="card-title">Short-Term Memory</div>
+                    <div class="card-subtitle">Session-Level Continuity</div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">⏱️ Lifespan</div>
+                    <div class="card-section-content">
+                        Persists for the duration of a conversation session (minutes to hours). Resets when session ends.
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">📦 Contains</div>
+                    <div class="card-section-content">
+                        <ul>
+                            <li>Full conversation history</li>
+                            <li>Context from previous exchanges</li>
+                            <li>References user made earlier</li>
+                            <li>Temporary preferences ("today only")</li>
+                            <li>Session-specific data</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">🎯 Purpose</div>
+                    <div class="card-section-content">
+                        Enable coherent multi-turn conversations. Agent remembers what you discussed 5 minutes ago in the same chat.
+                    </div>
+                </div>
+                
+                <div class="card-example">
+                    <strong>Example:</strong> User: "Find Italian restaurants." Agent provides options. User: "What about the second one?" Agent knows "second one" refers to a restaurant from 2 exchanges ago because it's in short-term memory.
+                </div>
+            </div>
+            
+            <!-- Long-Term Memory Card -->
+            <div class="comparison-card card-longterm">
+                <div class="card-header">
+                    <div class="card-icon">🌍</div>
+                    <div class="card-title">Long-Term Memory</div>
+                    <div class="card-subtitle">Persistent User Knowledge</div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">⏱️ Lifespan</div>
+                    <div class="card-section-content">
+                        Stored permanently across sessions (days, weeks, forever). Survives session closure and system restarts.
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">📦 Contains</div>
+                    <div class="card-section-content">
+                        <ul>
+                            <li>User preferences & interests</li>
+                            <li>Historical facts about user</li>
+                            <li>Past decisions & patterns</li>
+                            <li>Relationship context</li>
+                            <li>Episodic memories (key events)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card-section">
+                    <div class="card-section-title">🎯 Purpose</div>
+                    <div class="card-section-content">
+                        Personalize experiences across time. Build ongoing relationships. Remember important user context indefinitely.
+                    </div>
+                </div>
+                
+                <div class="card-example">
+                    <strong>Example:</strong> User had 10 conversations over 3 months about vegetarian recipes. Long-term memory stores "User is vegetarian, prefers Indian cuisine, allergic to peanuts." Next session (weeks later), agent automatically filters suggestions accordingly.
+                </div>
+            </div>
+        </div>
+        
+        <!-- Memory Strategies -->
+        <div class="strategies-section">
+            <div class="strategies-title">🧠 Short-Term Memory Management Strategies</div>
+            <div class="strategies-grid">
+                <div class="strategy-card">
+                    <div class="strategy-title">
+                        <span>📚</span>
+                        Full Conversation History
+                    </div>
+                    <div class="strategy-description">
+                        Include every message from the session in every prompt. Maximum context preservation.
+                    </div>
+                    <div class="strategy-tradeoff">
+                        <strong>✅ Pros:</strong> No information loss, complete context<br>
+                        <strong>❌ Cons:</strong> Expensive (tokens), slow, can hit context limits
+                    </div>
+                </div>
+                
+                <div class="strategy-card">
+                    <div class="strategy-title">
+                        <span>🪟</span>
+                        Sliding Window
+                    </div>
+                    <div class="strategy-description">
+                        Keep only the last N messages (e.g., most recent 10 exchanges). Discard older messages.
+                    </div>
+                    <div class="strategy-tradeoff">
+                        <strong>✅ Pros:</strong> Fixed token cost, fast, scalable<br>
+                        <strong>❌ Cons:</strong> Can lose important early context
+                    </div>
+                </div>
+                
+                <div class="strategy-card">
+                    <div class="strategy-title">
+                        <span>📝</span>
+                        Summarization
+                    </div>
+                    <div class="strategy-description">
+                        Periodically condense older messages into compact summaries. Keep recent messages verbatim.
+                    </div>
+                    <div class="strategy-tradeoff">
+                        <strong>✅ Pros:</strong> Balanced approach, preserves key info<br>
+                        <strong>❌ Cons:</strong> Summarization quality varies, extra LLM calls
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Insights -->
+        <div class="insights-section">
+            <div class="insights-title">💡 Critical Mental Model Insights</div>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-title">State ≠ Memory (Most Important!)</div>
+                    <div class="insight-content">
+                        State is execution scaffolding for one task. Memory is context accumulation across tasks or sessions. Don't confuse them—state is transient by design, memory is intentionally persistent.
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-title">Memory is Simulated, Not Real</div>
+                    <div class="insight-content">
+                        LLMs don't inherently "remember" anything. Memory is constructed by feeding past interactions into current prompts. It's an illusion created through context management.
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-title">Each Layer Depends on the One Below</div>
+                    <div class="insight-content">
+                        State enables single-task execution. Short-term memory accumulates states across tasks. Long-term memory distills short-term memory into durable knowledge. Each builds on the previous layer.
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-title">Trade-offs Are Unavoidable</div>
+                    <div class="insight-content">
+                        More memory = better context but higher cost and slower responses. Less memory = cheaper and faster but risks losing important information. Choose strategies based on use case requirements.
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-title">Context Window Limits Everything</div>
+                    <div class="insight-content">
+                        Models have token limits. Eventually you must choose: full history (expensive), sliding window (limited), or summarization (lossy). Long-term memory in vector DBs bypasses this constraint.
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <div class="insight-title">Storage Location Reflects Lifespan</div>
+                    <div class="insight-content">
+                        State lives in execution variables (RAM). Short-term memory in prompt buffers. Long-term memory in databases (PostgreSQL, vector stores). Architecture reflects persistence needs.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

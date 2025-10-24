@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Workflow Patterns - Mechanics Deep Dive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #FFFFFF;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 60px;
+        }
+
+        .toc h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #212121;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .toc-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toc-item:hover {
+            border-color: #0066FF;
+            transform: translateY(-2px);
+        }
+
+        .toc-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .toc-label {
+            font-weight: 600;
+            color: #212121;
+        }
+
+        /* Pattern Sections */
+        .pattern-section {
+            margin-bottom: 80px;
+            scroll-margin-top: 20px;
+        }
+
+        .pattern-header {
+            margin-bottom: 32px;
+        }
+
+        .pattern-number {
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .pattern-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .pattern-definition {
+            font-size: 1.125rem;
+            color: #616161;
+            font-style: italic;
+            margin-bottom: 24px;
+        }
+
+        /* Diagram Styles */
+        .diagram {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 32px 0;
+            overflow-x: auto;
+        }
+
+        .flow-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: max-content;
+            justify-content: center;
+        }
+
+        .flow-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px 24px;
+            min-width: 140px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #616161;
+        }
+
+        .flow-vertical {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin: 32px 0;
+        }
+
+        .content-block h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #212121;
+        }
+
+        .content-block p {
+            color: #616161;
+            margin-bottom: 12px;
+        }
+
+        .list {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .list li {
+            padding-left: 28px;
+            position: relative;
+            margin-bottom: 12px;
+            color: #616161;
+        }
+
+        .list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #0066FF;
+            font-weight: bold;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            border-left: 4px solid #0066FF;
+            background: #F5F5F5;
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #212121;
+        }
+
+        .warning-box {
+            border-left-color: #F59E0B;
+            background: #FFF4E6;
+        }
+
+        .success-box {
+            border-left-color: #22C55E;
+            background: #E8FFF1;
+        }
+
+        /* Example Box */
+        .example-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .example-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #0066FF;
+            margin-bottom: 12px;
+        }
+
+        .example-content {
+            color: #616161;
+        }
+
+        /* Color Variants */
+        .pattern-1 .pattern-number { background: #E8F4FF; color: #0066FF; }
+        .pattern-1 .flow-box { border-color: #0066FF; }
+        
+        .pattern-2 .pattern-number { background: #E8FFF1; color: #22C55E; }
+        .pattern-2 .flow-box { border-color: #22C55E; }
+        
+        .pattern-3 .pattern-number { background: #FFF4E6; color: #F59E0B; }
+        .pattern-3 .flow-box { border-color: #F59E0B; }
+        
+        .pattern-4 .pattern-number { background: #E8F4FF; color: #0066FF; }
+        .pattern-4 .flow-box { border-color: #0066FF; }
+        
+        .pattern-5 .pattern-number { background: #E8FFF1; color: #22C55E; }
+        .pattern-5 .flow-box { border-color: #22C55E; }
+
+        /* Grid Layouts for Parallelization */
+        .parallel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .parallel-box {
+            background: white;
+            border: 2px solid #F59E0B;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        /* Loop Diagram for Evaluator-Optimizer */
+        .loop-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .loop-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .loop-arrow-down {
+            font-size: 24px;
+            color: #616161;
+        }
+
+        .loop-arrow-back {
+            position: absolute;
+            left: -40px;
+            font-size: 20px;
+            color: #616161;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .pattern-title {
+                font-size: 1.5rem;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-container {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .parallel-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .diagram {
+                padding: 24px;
+            }
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #0066FF;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic Workflow Patterns</h1>
+            <p class="subtitle">A visual guide to the five core patterns for building intelligent AI systems</p>
+        </header>
+
+        <!-- Table of Contents -->
+        <nav class="toc">
+            <h2>Pattern Navigation</h2>
+            <div class="toc-grid">
+                <a href="#pattern-1" class="toc-item">
+                    <span class="toc-icon">🔗</span>
+                    <span class="toc-label">Prompt Chaining</span>
+                </a>
+                <a href="#pattern-2" class="toc-item">
+                    <span class="toc-icon">🔀</span>
+                    <span class="toc-label">Routing</span>
+                </a>
+                <a href="#pattern-3" class="toc-item">
+                    <span class="toc-icon">⚡</span>
+                    <span class="toc-label">Parallelization</span>
+                </a>
+                <a href="#pattern-4" class="toc-item">
+                    <span class="toc-icon">🔄</span>
+                    <span class="toc-label">Evaluator-Optimizer</span>
+                </a>
+                <a href="#pattern-5" class="toc-item">
+                    <span class="toc-icon">🎯</span>
+                    <span class="toc-label">Orchestrator-Workers</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Pattern 1: Prompt Chaining -->
+        <section id="pattern-1" class="pattern-section pattern-1">
+            <div class="pattern-header">
+                <div class="pattern-number">Pattern 1</div>
+                <h2 class="pattern-title">Prompt Chaining</h2>
+                <p class="pattern-definition">Breaking complex tasks into sequential, dependent steps where each step's output feeds the next</p>
+            </div>
+
+            <div class="diagram">
+                <div class="flow-container">
+                    <div class="flow-box">Input Task</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 1<br/>Agent A</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 2<br/>Agent B</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 3<br/>Agent C</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Final Output</div>
+                </div>
+            </div>
+
+            <div class="content-block">
+                <h3>How It Works</h3>
+                <ul class="list">
+                    <li><strong>Decompose:</strong> Break complex task into smaller, manageable subtasks</li>
+                    <li><strong>Chain:</strong> Each step involves an LLM call with a focused prompt</li>
+                    <li><strong>Connect:</strong> Output of one step becomes input to the next</li>
+                    <li><strong>Validate:</strong> Check quality at intermediate points to prevent error propagation</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>Key Benefits</h3>
+                <p><strong>Enhanced Reasoning:</strong> Each step can focus deeply on a specific subtask without being overwhelmed by the full complexity.</p>
+                <p><strong>Reduced Hallucinations:</strong> Focused attention on smaller problems leads to more accurate outputs.</p>
+                <p><strong>Better Debuggability:</strong> Isolated steps make it easier to identify and fix issues.</p>
+            </div>
+
+            <div class="warning-box info-box">
+                <div class="info-box-title">⚠️ Critical Challenge: Error Propagation</div>
+                <p>Errors in early steps compound through the chain. Solution: Implement validation checkpoints between steps using programmatic checks, LLM-based evaluation, or rule-based validation.</p>
+            </div>
+
+            <div class="content-block">
+                <h3>When to Use</h3>
+                <ul class="list">
+                    <li>Task requires multiple sequential, dependent steps</li>
+                    <li>Each step needs focused attention on a specific aspect</li>
+                    <li>Complex problem can be decomposed linearly</li>
+                    <li>Quality validation at each step is important</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Real-World Example</div>
+                <div class="example-content">
+                    <strong>Research Report Generation:</strong>
+                    <ol style="margin-left: 20px; color: #616161;">
+                        <li><strong>Step 1:</strong> Extract key topics from source documents</li>
+                        <li><strong>Step 2:</strong> Generate outline based on topics</li>
+                        <li><strong>Step 3:</strong> Write detailed sections using outline</li>
+                        <li><strong>Step 4:</strong> Create executive summary from sections</li>
+                        <li><strong>Step 5:</strong> Format and polish final report</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pattern 2: Routing -->
+        <section id="pattern-2" class="pattern-section pattern-2">
+            <div class="pattern-header">
+                <div class="pattern-number">Pattern 2</div>
+                <h2 class="pattern-title">Routing</h2>
+                <p class="pattern-definition">Intelligently directing tasks to the most appropriate specialized agent based on classification</p>
+            </div>
+
+            <div class="diagram">
+                <div class="flow-vertical">
+                    <div class="flow-box">Incoming Task</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #22C55E; font-weight: 700;">Router Agent<br/>(Classifier)</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-container">
+                        <div class="flow-box">Agent A<br/>(Type 1)</div>
+                        <div class="flow-box">Agent B<br/>(Type 2)</div>
+                        <div class="flow-box">Agent C<br/>(Type 3)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-block">
+                <h3>How It Works</h3>
+                <p><strong>Stage 1 - Classification:</strong> Router agent analyzes the incoming task to determine its type, category, intent, or complexity level.</p>
+                <p><strong>Stage 2 - Dispatch:</strong> Based on classification, the task is directed to the specialized agent best suited to handle it.</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Classification Methods</h3>
+                <p><strong>Rule-Based:</strong> Use keyword matching, regex patterns, or conditional logic for deterministic routing.</p>
+                <p><strong>LLM-Based:</strong> Let an LLM understand context and categorize based on semantic meaning for more nuanced classification.</p>
+            </div>
+
+            <div class="success-box info-box">
+                <div class="info-box-title">✅ Key Benefits</div>
+                <ul class="list" style="margin-top: 12px;">
+                    <li><strong>Task Specialization:</strong> Each agent optimized for specific request types</li>
+                    <li><strong>Resource Optimization:</strong> Route simple tasks to fast/cheap models, complex to powerful ones</li>
+                    <li><strong>Scalability:</strong> Easily add new specialized agents without changing core logic</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>When to Use</h3>
+                <ul class="list">
+                    <li>Handling diverse types of requests that need different handling</li>
+                    <li>Different tasks require specialized agents or approaches</li>
+                    <li>Resource optimization is important (cost/speed tradeoffs)</li>
+                    <li>System needs to scale with new capabilities over time</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Real-World Example</div>
+                <div class="example-content">
+                    <strong>Customer Support System:</strong> Router classifies incoming messages and directs to specialized teams:
+                    <ul style="margin: 12px 0 0 20px; color: #616161;">
+                        <li><strong>Billing Agent:</strong> Handles payment, invoices, refunds</li>
+                        <li><strong>Technical Agent:</strong> Solves product bugs, integration issues</li>
+                        <li><strong>Sales Agent:</strong> Answers feature questions, upgrades</li>
+                        <li><strong>Escalation Agent:</strong> Routes complex/angry customers to humans</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pattern 3: Parallelization -->
+        <section id="pattern-3" class="pattern-section pattern-3">
+            <div class="pattern-header">
+                <div class="pattern-number">Pattern 3</div>
+                <h2 class="pattern-title">Parallelization</h2>
+                <p class="pattern-definition">Multiple agents working simultaneously on independent subtasks, then consolidating results</p>
+            </div>
+
+            <div class="diagram">
+                <div class="flow-vertical">
+                    <div class="flow-box">Input Task</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #F59E0B; font-weight: 700;">Scatter</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="parallel-grid">
+                        <div class="parallel-box">Agent 1<br/>Subtask A</div>
+                        <div class="parallel-box">Agent 2<br/>Subtask B</div>
+                        <div class="parallel-box">Agent 3<br/>Subtask C</div>
+                    </div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #F59E0B; font-weight: 700;">Gather & Synthesize</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box">Final Output</div>
+                </div>
+            </div>
+
+            <div class="content-block">
+                <h3>How It Works</h3>
+                <ul class="list">
+                    <li><strong>Scatter:</strong> Distribute workload to multiple agents that work concurrently</li>
+                    <li><strong>Process:</strong> Agents execute their independent subtasks simultaneously</li>
+                    <li><strong>Gather:</strong> Collect all results when agents complete their work</li>
+                    <li><strong>Synthesize:</strong> Consolidate outputs into coherent final result</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>Synthesis Methods</h3>
+                <p><strong>Consolidation:</strong> Merge all outputs into a unified document (e.g., combining research from different sources).</p>
+                <p><strong>Voting:</strong> Agents "vote" on the best answer, with majority or consensus determining output.</p>
+                <p><strong>Debate:</strong> Agents present different perspectives, then a final agent synthesizes the discussion.</p>
+            </div>
+
+            <div class="success-box info-box">
+                <div class="info-box-title">✅ Key Benefits</div>
+                <ul class="list" style="margin-top: 12px;">
+                    <li><strong>Speed:</strong> Dramatic reduction in total processing time</li>
+                    <li><strong>Multiple Perspectives:</strong> Different agents bring diverse approaches</li>
+                    <li><strong>Reliability:</strong> Consensus reduces individual agent errors</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>When to Use</h3>
+                <ul class="list">
+                    <li>Subtasks are independent and don't rely on each other</li>
+                    <li>Speed improvement is valuable (latency reduction)</li>
+                    <li>Multiple perspectives enhance quality or creativity</li>
+                    <li>Consensus or voting improves reliability</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Real-World Example</div>
+                <div class="example-content">
+                    <strong>Market Research Report:</strong>
+                    <ul style="margin: 12px 0 0 20px; color: #616161;">
+                        <li><strong>Agent 1:</strong> Analyzes competitor pricing strategies</li>
+                        <li><strong>Agent 2:</strong> Summarizes customer reviews and sentiment</li>
+                        <li><strong>Agent 3:</strong> Identifies industry trends and forecasts</li>
+                        <li><strong>Synthesis Agent:</strong> Combines findings into comprehensive report with cross-referenced insights</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pattern 4: Evaluator-Optimizer -->
+        <section id="pattern-4" class="pattern-section pattern-4">
+            <div class="pattern-header">
+                <div class="pattern-number">Pattern 4</div>
+                <h2 class="pattern-title">Evaluator-Optimizer</h2>
+                <p class="pattern-definition">Iterative refinement through evaluate-critique-improve loops until quality standards are met</p>
+            </div>
+
+            <div class="diagram">
+                <div class="loop-diagram">
+                    <div class="flow-box">Input Task</div>
+                    <span class="loop-arrow-down">↓</span>
+                    <div class="flow-box">Generator Agent<br/>Creates Output</div>
+                    <span class="loop-arrow-down">↓</span>
+                    <div class="flow-box" style="border-color: #0066FF; font-weight: 700;">Evaluator Agent<br/>Assesses Quality</div>
+                    <span class="loop-arrow-down">↓</span>
+                    <div class="flow-box">Quality Check</div>
+                    <div class="loop-row">
+                        <div class="flow-box" style="background: #E8FFF1; border-color: #22C55E;">✓ Pass<br/>Final Output</div>
+                        <div class="flow-box" style="background: #FFF4E6; border-color: #F59E0B;">✗ Fail<br/>Refine & Retry ↑</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-block">
+                <h3>How It Works</h3>
+                <ul class="list">
+                    <li><strong>Generate:</strong> Generator agent creates initial output</li>
+                    <li><strong>Evaluate:</strong> Evaluator agent assesses quality against criteria</li>
+                    <li><strong>Decide:</strong> Check if output meets standards</li>
+                    <li><strong>Refine:</strong> If not, provide feedback and regenerate</li>
+                    <li><strong>Loop:</strong> Repeat until quality threshold met or max iterations reached</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>Evaluation Criteria Types</h3>
+                <p><strong>Task-Specific:</strong> Accuracy, completeness, relevance to requirements</p>
+                <p><strong>Quality Attributes:</strong> Clarity, grammar, tone, formatting</p>
+                <p><strong>Constraints:</strong> Length limits, keyword inclusion, structural requirements</p>
+            </div>
+
+            <div class="warning-box info-box">
+                <div class="info-box-title">⚠️ Critical: Define Stopping Conditions</div>
+                <p>Always set maximum iterations (e.g., 3-5 attempts) to prevent infinite loops. Balance quality improvement against computational cost.</p>
+            </div>
+
+            <div class="content-block">
+                <h3>When to Use</h3>
+                <ul class="list">
+                    <li>High-quality output is critical and worth iteration</li>
+                    <li>Complex requirements must be satisfied</li>
+                    <li>Iterative refinement demonstrably adds value</li>
+                    <li>Self-correction capability improves reliability</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Real-World Example</div>
+                <div class="example-content">
+                    <strong>Blog Post Creation:</strong>
+                    <ol style="margin-left: 20px; color: #616161;">
+                        <li><strong>Generator:</strong> Creates draft blog post on specified topic</li>
+                        <li><strong>Evaluator:</strong> Checks for: SEO keywords, readability score, structure, tone consistency, factual accuracy</li>
+                        <li><strong>Feedback Loop:</strong> "Missing keyword 'automation' in first 100 words. Intro lacks hook. Technical jargon too dense for target audience."</li>
+                        <li><strong>Refinement:</strong> Generator revises based on specific critiques</li>
+                        <li><strong>Iteration:</strong> Process repeats until all quality criteria satisfied</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pattern 5: Orchestrator-Workers -->
+        <section id="pattern-5" class="pattern-section pattern-5">
+            <div class="pattern-header">
+                <div class="pattern-number">Pattern 5</div>
+                <h2 class="pattern-title">Orchestrator-Workers</h2>
+                <p class="pattern-definition">Central planning agent dynamically coordinates specialized worker agents to solve complex, unpredictable problems</p>
+            </div>
+
+            <div class="diagram">
+                <div class="flow-vertical">
+                    <div class="flow-box">Complex Task</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box" style="border-color: #22C55E; font-weight: 700; font-size: 1rem;">Orchestrator Agent<br/>(Planning & Coordination)</div>
+                    <span class="flow-arrow">↓</span>
+                    <div style="text-align: center; margin: 16px 0; font-size: 0.875rem; color: #616161; font-style: italic;">Dynamic Task Assignment</div>
+                    <div class="flow-container" style="gap: 12px;">
+                        <div class="flow-box" style="min-width: 100px;">Worker A</div>
+                        <div class="flow-box" style="min-width: 100px;">Worker B</div>
+                        <div class="flow-box" style="min-width: 100px;">Worker C</div>
+                        <div class="flow-box" style="min-width: 100px;">Worker D</div>
+                    </div>
+                    <div style="text-align: center; margin: 16px 0; font-size: 0.875rem; color: #616161; font-style: italic;">Results & Feedback ↑↓</div>
+                    <div class="flow-box" style="border-color: #22C55E; font-weight: 700;">Orchestrator<br/>Adapts Plan</div>
+                    <span class="flow-arrow">↓</span>
+                    <div class="flow-box">Final Solution</div>
+                </div>
+            </div>
+
+            <div class="content-block">
+                <h3>How It Works</h3>
+                <ul class="list">
+                    <li><strong>Analyze:</strong> Orchestrator assesses the complex problem</li>
+                    <li><strong>Plan:</strong> Creates strategy and breaks down into subtasks</li>
+                    <li><strong>Delegate:</strong> Assigns subtasks to appropriate specialist workers</li>
+                    <li><strong>Monitor:</strong> Tracks progress and worker outputs</li>
+                    <li><strong>Adapt:</strong> Adjusts plan based on results and new information</li>
+                    <li><strong>Iterate:</strong> Continues until problem is solved or goals achieved</li>
+                </ul>
+            </div>
+
+            <div class="content-block">
+                <h3>Key Characteristics</h3>
+                <p><strong>Dynamic Planning:</strong> Unlike fixed workflows, the orchestrator can change its approach mid-execution based on intermediate results.</p>
+                <p><strong>Adaptive Coordination:</strong> The orchestrator decides which workers to use, when, and in what order—adapting to the problem's evolving state.</p>
+                <p><strong>Maximum Autonomy:</strong> This is the most "agentic" pattern, with the orchestrator making high-level strategic decisions independently.</p>
+            </div>
+
+            <div class="success-box info-box">
+                <div class="info-box-title">✅ Maximum Flexibility</div>
+                <p>This pattern handles problems where you don't know the solution path in advance. The orchestrator figures it out dynamically, making it ideal for open-ended, exploratory, or highly variable tasks.</p>
+            </div>
+
+            <div class="content-block">
+                <h3>When to Use</h3>
+                <ul class="list">
+                    <li>Task is complex and solution path isn't known in advance</li>
+                    <li>Problem requires dynamic planning and adaptation</li>
+                    <li>Multiple specialized capabilities needed in unpredictable order</li>
+                    <li>Maximum flexibility and autonomous decision-making required</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Real-World Example</div>
+                <div class="example-content">
+                    <strong>Business Strategy Consultant:</strong>
+                    <ul style="margin: 12px 0 0 20px; color: #616161;">
+                        <li><strong>Orchestrator:</strong> Senior consultant agent analyzes "Help us enter Asian markets"</li>
+                        <li><strong>Initial Plan:</strong> Research → Analysis → Recommendations</li>
+                        <li><strong>Worker 1 (Research):</strong> Gathers market data for Asian regions</li>
+                        <li><strong>Orchestrator Adapts:</strong> Sees high regulatory complexity in China, assigns Worker 2 (Legal) to investigate</li>
+                        <li><strong>Worker 3 (Financial):</strong> Analyzes investment requirements based on legal findings</li>
+                        <li><strong>Orchestrator Pivots:</strong> Regulatory burden too high, shifts focus to Southeast Asia</li>
+                        <li><strong>Worker 4 (Competitive):</strong> Analyzes competitors in Thailand, Vietnam, Singapore</li>
+                        <li><strong>Final Synthesis:</strong> Orchestrator compiles strategic recommendation with adaptive insights</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="margin-top: 80px; padding-top: 40px; border-top: 2px solid #E0E0E0; text-align: center; color: #616161;">
+            <p style="margin-bottom: 12px;">
+                <strong>Pattern Selection Quick Guide</strong>
+            </p>
+            <p style="font-size: 0.875rem; max-width: 700px; margin: 0 auto;">
+                Sequential dependencies? → <strong>Chaining</strong> | Diverse request types? → <strong>Routing</strong> | Independent subtasks? → <strong>Parallelization</strong> | Need iteration? → <strong>Evaluator-Optimizer</strong> | Unknown path? → <strong>Orchestrator-Workers</strong>
+            </p>
+        </footer>
+    </div>
+
+    <a href="#" class="back-to-top">↑</a>
+</body>
+</html>

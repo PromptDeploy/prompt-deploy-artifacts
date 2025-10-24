@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Workflow Design Playbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #FFFFFF;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 20px 0;
+            z-index: 100;
+            border-bottom: 2px solid #E0E0E0;
+            margin-bottom: 40px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #E0E0E0;
+            z-index: 1;
+        }
+
+        .progress-line-fill {
+            height: 100%;
+            background: #0066FF;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-step {
+            background: white;
+            border: 3px solid #E0E0E0;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: #9E9E9E;
+            z-index: 2;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active {
+            border-color: #0066FF;
+            color: #0066FF;
+            background: #E8F4FF;
+        }
+
+        .progress-step.completed {
+            border-color: #22C55E;
+            background: #22C55E;
+            color: white;
+        }
+
+        /* Phase Sections */
+        .phase-section {
+            margin-bottom: 80px;
+            scroll-margin-top: 120px;
+        }
+
+        .phase-header {
+            margin-bottom: 32px;
+        }
+
+        .phase-number {
+            display: inline-block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .phase-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .phase-description {
+            font-size: 1.125rem;
+            color: #616161;
+            margin-bottom: 24px;
+        }
+
+        /* Content Blocks */
+        .content-block {
+            margin: 32px 0;
+        }
+
+        .content-block h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #212121;
+        }
+
+        .content-block p {
+            color: #616161;
+            margin-bottom: 12px;
+        }
+
+        /* Checklist */
+        .checklist {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .checklist-title {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #212121;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checklist-items {
+            list-style: none;
+        }
+
+        .checklist-items li {
+            padding: 12px 12px 12px 40px;
+            position: relative;
+            color: #616161;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .checklist-items li:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-items li:before {
+            content: "☐";
+            position: absolute;
+            left: 12px;
+            font-size: 1.25rem;
+            color: #9E9E9E;
+        }
+
+        /* Visual Diagram */
+        .visual-diagram {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 32px 0;
+            overflow-x: auto;
+        }
+
+        .diagram-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #212121;
+        }
+
+        .flow-horizontal {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px 24px;
+            min-width: 140px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #616161;
+        }
+
+        /* Decision Tree */
+        .decision-tree {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 32px;
+            margin: 24px 0;
+        }
+
+        .decision-node {
+            background: #E8F4FF;
+            border: 2px solid #0066FF;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .decision-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .decision-option {
+            background: #F5F5F5;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .decision-option:hover {
+            border-color: #0066FF;
+            background: #E8F4FF;
+        }
+
+        .option-label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #212121;
+        }
+
+        .option-description {
+            font-size: 0.85rem;
+            color: #616161;
+        }
+
+        /* Example Box */
+        .example-box {
+            background: white;
+            border-left: 4px solid #22C55E;
+            border-radius: 0 12px 12px 0;
+            padding: 24px;
+            margin: 24px 0;
+            background: #E8FFF1;
+        }
+
+        .example-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #22C55E;
+            margin-bottom: 12px;
+        }
+
+        .example-content {
+            color: #616161;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: #FFF4E6;
+            border-left: 4px solid #F59E0B;
+            border-radius: 0 12px 12px 0;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .warning-title {
+            font-weight: 600;
+            color: #F59E0B;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-content {
+            color: #616161;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #E8F4FF;
+            border-left: 4px solid #0066FF;
+            border-radius: 0 12px 12px 0;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #0066FF;
+            margin-bottom: 8px;
+        }
+
+        .info-content {
+            color: #616161;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: #F5F5F5;
+            font-weight: 600;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        .table-header > div {
+            padding: 16px 24px;
+            text-align: center;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .table-row:last-child {
+            border-bottom: none;
+        }
+
+        .table-cell {
+            padding: 16px 24px;
+            color: #616161;
+        }
+
+        .table-cell:first-child {
+            border-right: 1px solid #E0E0E0;
+        }
+
+        /* Code Structure */
+        .code-structure {
+            background: #212121;
+            color: #E0E0E0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .code-comment {
+            color: #9E9E9E;
+        }
+
+        .code-keyword {
+            color: #22C55E;
+        }
+
+        .code-function {
+            color: #0066FF;
+        }
+
+        /* Phase Colors */
+        .phase-1 .phase-number { background: #E8F4FF; color: #0066FF; }
+        .phase-2 .phase-number { background: #E8FFF1; color: #22C55E; }
+        .phase-3 .phase-number { background: #FFF4E6; color: #F59E0B; }
+        .phase-4 .phase-number { background: #E8F4FF; color: #0066FF; }
+        .phase-5 .phase-number { background: #E8FFF1; color: #22C55E; }
+        .phase-6 .phase-number { background: #FFF4E6; color: #F59E0B; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .phase-title {
+                font-size: 1.5rem;
+            }
+
+            .progress-bar {
+                gap: 8px;
+            }
+
+            .progress-step {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+
+            .flow-horizontal {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .decision-options {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+            }
+
+            .table-cell:first-child {
+                border-right: none;
+                border-bottom: 1px solid #E0E0E0;
+            }
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #0066FF;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic Workflow Design Playbook</h1>
+            <p class="subtitle">A step-by-step guide to designing and implementing intelligent AI systems from concept to production</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-line">
+                    <div class="progress-line-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-step active" data-phase="1">1</div>
+                <div class="progress-step" data-phase="2">2</div>
+                <div class="progress-step" data-phase="3">3</div>
+                <div class="progress-step" data-phase="4">4</div>
+                <div class="progress-step" data-phase="5">5</div>
+                <div class="progress-step" data-phase="6">6</div>
+            </div>
+        </div>
+
+        <!-- Phase 1: Start with Deterministic -->
+        <section id="phase-1" class="phase-section phase-1">
+            <div class="phase-header">
+                <div class="phase-number">Phase 1</div>
+                <h2 class="phase-title">Start with a Deterministic Process</h2>
+                <p class="phase-description">Begin with a well-documented, fixed workflow that you understand completely</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Why Start Here?</h3>
+                <p>Every agentic workflow begins as a deterministic process. Before adding intelligence and flexibility, you need a solid foundation of understanding what the workflow should accomplish and how it currently works.</p>
+            </div>
+
+            <div class="visual-diagram">
+                <div class="diagram-title">Typical Deterministic Workflow</div>
+                <div class="flow-horizontal">
+                    <div class="flow-box">Input</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 1</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 2</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Step 3</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box">Output</div>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 1 Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Document the current process:</strong> Write down every step in detail</li>
+                    <li><strong>Identify inputs and outputs:</strong> What data goes in? What comes out?</li>
+                    <li><strong>Map dependencies:</strong> Which steps must happen in order?</li>
+                    <li><strong>Note decision points:</strong> Where do choices get made?</li>
+                    <li><strong>Understand success criteria:</strong> How do you know it worked?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Customer Support Ticket Routing</div>
+                <div class="example-content">
+                    <strong>Current Deterministic Process:</strong>
+                    <ol style="margin: 12px 0 0 20px;">
+                        <li>Ticket arrives via email</li>
+                        <li>Check subject line for keywords ("billing", "technical", "sales")</li>
+                        <li>Route based on keyword match</li>
+                        <li>If no keyword match, send to general queue</li>
+                        <li>Assigned agent receives notification</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 2: Identify Agent Opportunities -->
+        <section id="phase-2" class="phase-section phase-2">
+            <div class="phase-header">
+                <div class="phase-number">Phase 2</div>
+                <h2 class="phase-title">Identify Opportunities for "Agenticness"</h2>
+                <p class="phase-description">Find where intelligence, flexibility, and adaptation would add value</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Where Can Agents Help?</h3>
+                <p>Look for these patterns in your deterministic workflow that signal opportunities for agentic enhancement:</p>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">🔍 Agenticness Indicators</div>
+                <div class="info-content">
+                    <ul style="margin-top: 8px; margin-left: 20px; color: #616161;">
+                        <li><strong>Manual interpretation required:</strong> Steps that need human judgment</li>
+                        <li><strong>Context-dependent decisions:</strong> Choices that vary based on situation</li>
+                        <li><strong>Complex pattern matching:</strong> Beyond simple keyword detection</li>
+                        <li><strong>Need for reasoning:</strong> Tasks requiring understanding, not just rules</li>
+                        <li><strong>Variable inputs:</strong> Data that comes in unpredictable forms</li>
+                        <li><strong>Quality assessment:</strong> Subjective evaluation of outputs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <div class="table-header">
+                    <div>Deterministic (Rule-Based)</div>
+                    <div>Agentic (LLM-Powered)</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell">Keyword matching in subject line</div>
+                    <div class="table-cell">Semantic understanding of ticket content</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell">Fixed routing rules</div>
+                    <div class="table-cell">Intelligent classification based on context</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell">One-size-fits-all responses</div>
+                    <div class="table-cell">Personalized, context-aware replies</div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell">Breaks on edge cases</div>
+                    <div class="table-cell">Adapts to unexpected situations</div>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 2 Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Identify brittle steps:</strong> Where does the process frequently break?</li>
+                    <li><strong>Find interpretation needs:</strong> Which steps require understanding meaning?</li>
+                    <li><strong>Spot adaptation opportunities:</strong> Where would flexibility help?</li>
+                    <li><strong>Note quality issues:</strong> Where do outputs need improvement?</li>
+                    <li><strong>Consider similar processes:</strong> Could this generalize to other workflows?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Enhancing Ticket Routing</div>
+                <div class="example-content">
+                    <strong>Agentic Opportunities Identified:</strong>
+                    <ul style="margin: 12px 0 0 20px;">
+                        <li><strong>Better Classification:</strong> LLM can understand actual issue beyond keywords ("my payment didn't go through" → billing, even without "billing" keyword)</li>
+                        <li><strong>Urgency Detection:</strong> Agent can identify urgent tone and prioritize</li>
+                        <li><strong>Context Extraction:</strong> Pull relevant customer history and product details</li>
+                        <li><strong>Quality Routing:</strong> Match complex issues to experienced agents</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 3: Select Pattern -->
+        <section id="phase-3" class="phase-section phase-3">
+            <div class="phase-header">
+                <div class="phase-number">Phase 3</div>
+                <h2 class="phase-title">Select the Right Workflow Pattern</h2>
+                <p class="phase-description">Choose the pattern that best fits your problem structure and requirements</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Pattern Selection Decision Tree</h3>
+                <p>Use these questions to determine which pattern(s) to apply:</p>
+            </div>
+
+            <div class="decision-tree">
+                <div class="decision-node">What is your primary challenge?</div>
+                <div class="decision-options">
+                    <div class="decision-option">
+                        <div class="option-label">🔗 Sequential Steps</div>
+                        <div class="option-description">Tasks must happen in order, each building on the previous → <strong>Chaining</strong></div>
+                    </div>
+                    <div class="decision-option">
+                        <div class="option-label">🔀 Diverse Requests</div>
+                        <div class="option-description">Different types of inputs need specialized handling → <strong>Routing</strong></div>
+                    </div>
+                    <div class="decision-option">
+                        <div class="option-label">⚡ Independent Tasks</div>
+                        <div class="option-description">Subtasks can run simultaneously without dependencies → <strong>Parallelization</strong></div>
+                    </div>
+                </div>
+                <div class="decision-options" style="margin-top: 8px;">
+                    <div class="decision-option">
+                        <div class="option-label">🔄 Need Iteration</div>
+                        <div class="option-description">Output quality improves through refinement → <strong>Evaluator-Optimizer</strong></div>
+                    </div>
+                    <div class="decision-option">
+                        <div class="option-label">🎯 Unknown Path</div>
+                        <div class="option-description">Solution requires dynamic planning and adaptation → <strong>Orchestrator-Workers</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Important: Patterns Can Combine</div>
+                <div class="warning-content">
+                    Real-world systems often use multiple patterns together. For example:
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li><strong>Routing + Chaining:</strong> Route to specialized agent, then chain steps</li>
+                        <li><strong>Parallelization + Evaluator:</strong> Generate multiple options in parallel, then evaluate and refine best one</li>
+                        <li><strong>Orchestrator + All Patterns:</strong> Orchestrator dynamically uses any pattern as needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 3 Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Analyze task structure:</strong> Sequential, parallel, or dynamic?</li>
+                    <li><strong>Consider input diversity:</strong> One type or many?</li>
+                    <li><strong>Evaluate quality needs:</strong> Is iteration valuable?</li>
+                    <li><strong>Assess predictability:</strong> Known path or exploratory?</li>
+                    <li><strong>Plan for combinations:</strong> Will you need multiple patterns?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Ticket Routing Pattern Selection</div>
+                <div class="example-content">
+                    <strong>Chosen Pattern: Routing (with optional Chaining)</strong>
+                    <ul style="margin: 12px 0 0 20px;">
+                        <li><strong>Why Routing:</strong> Different ticket types (billing, technical, sales) need specialized agents</li>
+                        <li><strong>Why not Parallelization:</strong> Only need one response, not multiple perspectives</li>
+                        <li><strong>Why not Orchestrator:</strong> Path is predictable once classified</li>
+                        <li><strong>Enhancement:</strong> Could add Chaining after routing (classify → extract context → route → generate response)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 4: Design Agents -->
+        <section id="phase-4" class="phase-section phase-4">
+            <div class="phase-header">
+                <div class="phase-number">Phase 4</div>
+                <h2 class="phase-title">Design Your Agents</h2>
+                <p class="phase-description">Define persona, knowledge, prompting strategy, tools, and interaction for each agent</p>
+            </div>
+
+            <div class="content-block">
+                <h3>The 5 Agent Components</h3>
+                <p>For each agent in your workflow, you need to specify:</p>
+            </div>
+
+            <div class="visual-diagram">
+                <div class="diagram-title">Agent Design Template</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+                    <div class="flow-box" style="border-color: #0066FF;">🎭 Persona<br/><span style="font-size: 0.75rem; font-weight: normal;">Identity & Role</span></div>
+                    <div class="flow-box" style="border-color: #0066FF;">📚 Knowledge<br/><span style="font-size: 0.75rem; font-weight: normal;">Information Sources</span></div>
+                    <div class="flow-box" style="border-color: #0066FF;">💬 Prompting<br/><span style="font-size: 0.75rem; font-weight: normal;">Strategy & Style</span></div>
+                    <div class="flow-box" style="border-color: #0066FF;">🔧 Tools<br/><span style="font-size: 0.75rem; font-weight: normal;">Execution Abilities</span></div>
+                    <div class="flow-box" style="border-color: #0066FF;">🔄 Interaction<br/><span style="font-size: 0.75rem; font-weight: normal;">Input/Output</span></div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">💡 Design Guidelines</div>
+                <div class="info-content">
+                    <ul style="margin-top: 8px; margin-left: 20px; color: #616161;">
+                        <li><strong>Clear, specific personas:</strong> "Expert billing specialist" not "helpful assistant"</li>
+                        <li><strong>Relevant knowledge:</strong> Only what the agent needs for its specific role</li>
+                        <li><strong>Appropriate prompting:</strong> Few-shot examples for consistency, CoT for reasoning</li>
+                        <li><strong>Minimal necessary tools:</strong> Don't overload agents with capabilities they won't use</li>
+                        <li><strong>Structured interaction:</strong> Define clear input/output formats (JSON, specific fields)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 4 Checklist (Per Agent)</div>
+                <ul class="checklist-items">
+                    <li><strong>Define persona:</strong> Write system prompt with role, expertise, boundaries</li>
+                    <li><strong>Specify knowledge:</strong> What data sources does this agent need?</li>
+                    <li><strong>Choose prompting approach:</strong> Zero-shot, few-shot, CoT, ReAct?</li>
+                    <li><strong>List required tools:</strong> APIs, databases, calculations, other agents?</li>
+                    <li><strong>Design I/O format:</strong> How will data flow in and out?</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Router Agent Design</div>
+                <div class="example-content">
+                    <strong>Agent Specification:</strong>
+                    <ul style="margin: 12px 0 0 20px;">
+                        <li><strong>Persona:</strong> "Expert customer support classifier with deep product knowledge"</li>
+                        <li><strong>Knowledge:</strong> Product documentation, common issues database, team specialties</li>
+                        <li><strong>Prompting:</strong> Few-shot classification with examples of each category</li>
+                        <li><strong>Tools:</strong> Customer history lookup, urgency scoring function</li>
+                        <li><strong>Interaction:</strong> Input: ticket text + metadata; Output: JSON with category, urgency, reasoning</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 5: Add Validation -->
+        <section id="phase-5" class="phase-section phase-5">
+            <div class="phase-header">
+                <div class="phase-number">Phase 5</div>
+                <h2 class="phase-title">Implement Validation & Error Handling</h2>
+                <p class="phase-description">Build quality gates and error recovery to ensure reliable outputs</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Why Validation Matters</h3>
+                <p>LLMs are powerful but unpredictable. Validation prevents errors from propagating through your workflow and ensures consistent quality.</p>
+            </div>
+
+            <div class="visual-diagram">
+                <div class="diagram-title">Validation Points in Workflow</div>
+                <div class="flow-horizontal">
+                    <div class="flow-box">Agent Output</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-box" style="border-color: #22C55E; background: #E8FFF1;">✓ Validate</div>
+                    <span class="flow-arrow">→</span>
+                    <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+                        <div class="flow-box" style="background: #E8FFF1; border-color: #22C55E;">Pass → Next Step</div>
+                        <div class="flow-box" style="background: #FFF4E6; border-color: #F59E0B;">Fail → Retry/Fix</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">🛡️ Validation Strategies</div>
+                <div class="info-content">
+                    <p style="margin-bottom: 8px;"><strong>1. Programmatic Checks:</strong> Verify format, length, required fields, data types</p>
+                    <p style="margin-bottom: 8px;"><strong>2. LLM-based Validation:</strong> Another agent evaluates quality, accuracy, relevance</p>
+                    <p style="margin-bottom: 8px;"><strong>3. Rule-based Validation:</strong> Check against business rules and constraints</p>
+                    <p><strong>4. Confidence Scoring:</strong> Use model confidence to flag uncertain outputs</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Error Handling Strategies</div>
+                <div class="warning-content">
+                    <strong>When validation fails:</strong>
+                    <ul style="margin-top: 8px; margin-left: 20px;">
+                        <li><strong>Retry:</strong> Run the same prompt again (works for randomness issues)</li>
+                        <li><strong>Re-prompt with feedback:</strong> Include validation errors in revised prompt</li>
+                        <li><strong>Fallback:</strong> Use default response or escalate to human</li>
+                        <li><strong>Critique & refine:</strong> Agent critiques its own output and improves</li>
+                        <li><strong>Log for analysis:</strong> Track failures to improve prompts over time</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 5 Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Identify critical outputs:</strong> Which results must be validated?</li>
+                    <li><strong>Define success criteria:</strong> What makes an output "good"?</li>
+                    <li><strong>Choose validation methods:</strong> Programmatic, LLM-based, or rules?</li>
+                    <li><strong>Set retry limits:</strong> Maximum attempts before fallback</li>
+                    <li><strong>Design fallback paths:</strong> What happens when all retries fail?</li>
+                    <li><strong>Implement logging:</strong> Track validation results for improvement</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Router Validation</div>
+                <div class="example-content">
+                    <strong>Validation Implementation:</strong>
+                    <ul style="margin: 12px 0 0 20px;">
+                        <li><strong>Programmatic:</strong> Check that category is one of ["billing", "technical", "sales"]</li>
+                        <li><strong>Programmatic:</strong> Verify urgency score is 1-5</li>
+                        <li><strong>Programmatic:</strong> Ensure reasoning field is not empty</li>
+                        <li><strong>LLM-based:</strong> Evaluator agent checks if reasoning aligns with category</li>
+                        <li><strong>Fallback:</strong> If validation fails 3 times, route to general queue with flag for human review</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phase 6: Implement & Test -->
+        <section id="phase-6" class="phase-section phase-6">
+            <div class="phase-header">
+                <div class="phase-number">Phase 6</div>
+                <h2 class="phase-title">Implement, Test, and Iterate</h2>
+                <p class="phase-description">Build your system in code, test thoroughly, and refine based on results</p>
+            </div>
+
+            <div class="content-block">
+                <h3>Implementation Structure</h3>
+                <p>A typical Python implementation follows this structure:</p>
+            </div>
+
+            <div class="code-structure">
+<span class="code-comment"># 1. Define Agent Classes</span>
+<span class="code-keyword">class</span> <span class="code-function">Agent</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self, persona, knowledge, tools):
+        self.persona = persona
+        self.knowledge = knowledge
+        self.tools = tools
+    
+    <span class="code-keyword">def</span> <span class="code-function">run</span>(self, input_data):
+        <span class="code-comment"># Construct prompt with persona + knowledge + input</span>
+        prompt = self.<span class="code-function">build_prompt</span>(input_data)
+        response = self.<span class="code-function">call_llm</span>(prompt)
+        <span class="code-keyword">return</span> self.<span class="code-function">process_response</span>(response)
+
+<span class="code-comment"># 2. Implement Workflow Pattern</span>
+<span class="code-keyword">class</span> <span class="code-function">RoutingWorkflow</span>:
+    <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self, router, workers):
+        self.router = router
+        self.workers = workers
+    
+    <span class="code-keyword">def</span> <span class="code-function">execute</span>(self, input_data):
+        category = self.router.<span class="code-function">run</span>(input_data)
+        worker = self.workers[category]
+        result = worker.<span class="code-function">run</span>(input_data)
+        <span class="code-keyword">return</span> result
+
+<span class="code-comment"># 3. Add Validation Layer</span>
+<span class="code-keyword">def</span> <span class="code-function">validate_output</span>(output, criteria):
+    <span class="code-keyword">for</span> check <span class="code-keyword">in</span> criteria:
+        <span class="code-keyword">if not</span> check(output):
+            <span class="code-keyword">return</span> <span class="code-keyword">False</span>
+    <span class="code-keyword">return</span> <span class="code-keyword">True</span>
+            </div>
+
+            <div class="content-block">
+                <h3>Testing Strategy</h3>
+                <p>Comprehensive testing is critical for production readiness:</p>
+            </div>
+
+            <div class="info-box">
+                <div class="info-title">🧪 Testing Approach</div>
+                <div class="info-content">
+                    <p style="margin-bottom: 8px;"><strong>Unit Tests:</strong> Test individual agents with known inputs</p>
+                    <p style="margin-bottom: 8px;"><strong>Integration Tests:</strong> Test complete workflow end-to-end</p>
+                    <p style="margin-bottom: 8px;"><strong>Edge Case Tests:</strong> Malformed input, ambiguous cases, boundary conditions</p>
+                    <p style="margin-bottom: 8px;"><strong>Performance Tests:</strong> Latency, throughput, resource usage</p>
+                    <p><strong>A/B Testing:</strong> Compare against baseline or alternative approaches</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div class="warning-title">⚠️ Common Implementation Pitfalls</div>
+                <div class="warning-content">
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Context overload:</strong> Passing too much information to LLM, degrading performance</li>
+                        <li><strong>Infinite loops:</strong> Forgetting to set maximum iterations in evaluator-optimizer patterns</li>
+                        <li><strong>Poor error messages:</strong> Not logging enough detail to debug failures</li>
+                        <li><strong>Hardcoded values:</strong> Magic numbers and strings that should be configuration</li>
+                        <li><strong>No monitoring:</strong> Running in production without observability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="checklist">
+                <div class="checklist-title">✓ Phase 6 Checklist</div>
+                <ul class="checklist-items">
+                    <li><strong>Implement agent classes:</strong> Code the 5 components for each agent</li>
+                    <li><strong>Build workflow orchestration:</strong> Connect agents according to pattern</li>
+                    <li><strong>Add validation logic:</strong> Implement checks and error handling</li>
+                    <li><strong>Create test cases:</strong> Cover happy path and edge cases</li>
+                    <li><strong>Add logging/monitoring:</strong> Track performance and failures</li>
+                    <li><strong>Run production pilot:</strong> Test with real data at small scale</li>
+                    <li><strong>Iterate based on results:</strong> Refine prompts, add validation, adjust patterns</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <div class="example-label">Example: Iterative Improvement</div>
+                <div class="example-content">
+                    <strong>Iteration Cycle:</strong>
+                    <ol style="margin: 12px 0 0 20px;">
+                        <li><strong>V1:</strong> Basic routing with keyword matching (85% accuracy)</li>
+                        <li><strong>V2:</strong> Add LLM classification (92% accuracy, but slow)</li>
+                        <li><strong>V3:</strong> Add few-shot examples to prompts (95% accuracy)</li>
+                        <li><strong>V4:</strong> Implement evaluation agent for edge cases (97% accuracy)</li>
+                        <li><strong>V5:</strong> Add customer context to improve personalization (98% accuracy + better satisfaction)</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <section style="margin-top: 80px; padding: 40px; background: #F5F5F5; border-radius: 12px;">
+            <h2 style="font-size: 1.75rem; margin-bottom: 16px; color: #212121; text-align: center;">🎯 Design Principles Summary</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-top: 32px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📋</div>
+                    <strong style="color: #212121;">Start Simple</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Begin with deterministic processes you understand</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🎯</div>
+                    <strong style="color: #212121;">Be Intentional</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Add agenticness where it provides clear value</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🔧</div>
+                    <strong style="color: #212121;">Right Pattern</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Match workflow pattern to problem structure</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🛡️</div>
+                    <strong style="color: #212121;">Validate Early</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Build quality gates from the start</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🔄</div>
+                    <strong style="color: #212121;">Iterate Rapidly</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Test, learn, refine continuously</p>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">📊</div>
+                    <strong style="color: #212121;">Monitor Always</strong>
+                    <p style="font-size: 0.9rem; color: #616161; margin-top: 8px;">Track performance and failure modes</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <a href="#" class="back-to-top" id="backToTop">↑</a>
+
+    <script>
+        // Progress tracking
+        const progressFill = document.getElementById('progressFill');
+        const progressSteps = document.querySelectorAll('.progress-step');
+        const phaseSections = document.querySelectorAll('.phase-section');
+
+        // Update progress based on scroll
+        function updateProgress() {
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+            
+            phaseSections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    // Update active step
+                    progressSteps.forEach((step, stepIndex) => {
+                        if (stepIndex < index) {
+                            step.classList.add('completed');
+                            step.classList.remove('active');
+                        } else if (stepIndex === index) {
+                            step.classList.add('active');
+                            step.classList.remove('completed');
+                        } else {
+                            step.classList.remove('active', 'completed');
+                        }
+                    });
+                    
+                    // Update progress bar
+                    const progress = ((index) / (phaseSections.length - 1)) * 100;
+                    progressFill.style.width = progress + '%';
+                }
+            });
+        }
+
+        // Click on progress steps to navigate
+        progressSteps.forEach((step, index) => {
+            step.addEventListener('click', () => {
+                const targetSection = document.getElementById(`phase-${index + 1}`);
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Back to top button
+        const backToTop = document.getElementById('backToTop');
+        
+        function updateBackToTop() {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        }
+
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateProgress();
+            updateBackToTop();
+        });
+
+        // Initialize
+        updateProgress();
+        updateBackToTop();
+    </script>
+</body>
+</html>

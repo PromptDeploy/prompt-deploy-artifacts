@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Architecture Stack - Mental Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #FFFFFF;
+            padding: 40px 20px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .stack {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+        
+        .layer {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 32px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .layer:hover {
+            border-color: #0066FF;
+            box-shadow: 0 8px 24px rgba(0, 102, 255, 0.12);
+            transform: translateX(4px);
+        }
+        
+        .layer-number {
+            position: absolute;
+            top: -12px;
+            left: 24px;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #616161;
+            border: 2px solid #E0E0E0;
+        }
+        
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .layer-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .layer-title {
+            flex: 1;
+        }
+        
+        .layer-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .layer-subtitle {
+            font-size: 0.875rem;
+            color: #616161;
+            font-style: italic;
+        }
+        
+        .layer-description {
+            font-size: 1rem;
+            color: #424242;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+        
+        .layer-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .component {
+            background: #F5F5F5;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: #424242;
+            border-left: 3px solid;
+        }
+        
+        /* Layer-specific colors */
+        .layer-1 .layer-icon { background: rgba(0, 102, 255, 0.1); color: #0066FF; }
+        .layer-1 .component { border-left-color: #0066FF; }
+        
+        .layer-2 .layer-icon { background: rgba(34, 197, 94, 0.1); color: #22C55E; }
+        .layer-2 .component { border-left-color: #22C55E; }
+        
+        .layer-3 .layer-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+        .layer-3 .component { border-left-color: #F59E0B; }
+        
+        .layer-4 .layer-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+        .layer-4 .component { border-left-color: #8B5CF6; }
+        
+        .layer-5 .layer-icon { background: rgba(236, 72, 153, 0.1); color: #EC4899; }
+        .layer-5 .component { border-left-color: #EC4899; }
+        
+        .layer-6 .layer-icon { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+        .layer-6 .component { border-left-color: #EF4444; }
+        
+        .data-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 0;
+            color: #616161;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .arrow {
+            color: #0066FF;
+            font-size: 1.5rem;
+        }
+        
+        .key-insights {
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8F4FF 100%);
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 40px;
+        }
+        
+        .key-insights h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+        
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .insight {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #0066FF;
+        }
+        
+        .insight-title {
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+        
+        .insight-text {
+            font-size: 0.875rem;
+            color: #616161;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .layer {
+                padding: 24px;
+            }
+            
+            .layer-components {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The Agent Architecture Stack</h1>
+            <p>A comprehensive mental model showing how AI agents are built from foundational components to production-ready systems</p>
+        </div>
+        
+        <div class="stack">
+            <!-- Layer 6: Evaluation & Monitoring -->
+            <div class="layer layer-6">
+                <div class="layer-number">LAYER 6</div>
+                <div class="layer-header">
+                    <div class="layer-icon">📊</div>
+                    <div class="layer-title">
+                        <h2>Evaluation & Monitoring</h2>
+                        <div class="layer-subtitle">Feedback Loop for Continuous Improvement</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    Systematic measurement and tracking of agent performance across task completion, quality, tool usage, and system metrics. Enables iterative enhancement through data-driven insights.
+                </div>
+                <div class="layer-components">
+                    <div class="component">🎯 Task Completion Metrics</div>
+                    <div class="component">✨ Quality Assessment</div>
+                    <div class="component">🔧 Tool Interaction Analysis</div>
+                    <div class="component">⚡ System Performance (latency, tokens)</div>
+                    <div class="component">🤖 LLM-as-Judge Evaluation</div>
+                    <div class="component">📈 Trajectory Tracing</div>
+                </div>
+            </div>
+            
+            <div class="data-flow">
+                <span class="arrow">↓</span>
+                <span>Measured outputs inform improvements</span>
+                <span class="arrow">↓</span>
+            </div>
+            
+            <!-- Layer 5: External Integrations -->
+            <div class="layer layer-5">
+                <div class="layer-number">LAYER 5</div>
+                <div class="layer-header">
+                    <div class="layer-icon">🌐</div>
+                    <div class="layer-title">
+                        <h2>External Integrations</h2>
+                        <div class="layer-subtitle">Real-World Data & Action Capabilities</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    Connect agents to external systems for dynamic data access and action execution. Includes APIs, databases, search engines, and emerging standardized protocols.
+                </div>
+                <div class="layer-components">
+                    <div class="component">🔍 Web Search (SerpAPI, Tavily, Bing)</div>
+                    <div class="component">🗄️ SQL Databases (PostgreSQL, MySQL)</div>
+                    <div class="component">📚 Vector Databases (Chroma, Pinecone)</div>
+                    <div class="component">🔌 REST APIs & Webhooks</div>
+                    <div class="component">🔐 OAuth & API Key Authentication</div>
+                    <div class="component">🔗 Model Context Protocol (MCP)</div>
+                </div>
+            </div>
+            
+            <div class="data-flow">
+                <span class="arrow">↓</span>
+                <span>External data feeds agent decisions</span>
+                <span class="arrow">↓</span>
+            </div>
+            
+            <!-- Layer 4: Memory Systems -->
+            <div class="layer layer-4">
+                <div class="layer-number">LAYER 4</div>
+                <div class="layer-header">
+                    <div class="layer-icon">🧠</div>
+                    <div class="layer-title">
+                        <h2>Memory Systems</h2>
+                        <div class="layer-subtitle">Context Continuity Across Time</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    Create the illusion of memory by managing context across interactions. Enables coherent multi-turn conversations and personalized experiences over time.
+                </div>
+                <div class="layer-components">
+                    <div class="component">💬 Short-Term Memory (session-level)</div>
+                    <div class="component">📖 Long-Term Memory (cross-session)</div>
+                    <div class="component">🔄 Full Conversation History</div>
+                    <div class="component">🪟 Sliding Window Strategy</div>
+                    <div class="component">📝 Summarization Techniques</div>
+                    <div class="component">💾 Vector Storage for Retrieval</div>
+                </div>
+            </div>
+            
+            <div class="data-flow">
+                <span class="arrow">↓</span>
+                <span>Memory informs current execution</span>
+                <span class="arrow">↓</span>
+            </div>
+            
+            <!-- Layer 3: State Management -->
+            <div class="layer layer-3">
+                <div class="layer-number">LAYER 3</div>
+                <div class="layer-header">
+                    <div class="layer-icon">🔄</div>
+                    <div class="layer-title">
+                        <h2>State Management</h2>
+                        <div class="layer-subtitle">Tracking Progress During Execution</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    Manage ephemeral execution context that exists during a single task. State machines provide predictable, testable workflows with clear transition logic.
+                </div>
+                <div class="layer-components">
+                    <div class="component">📋 Original User Query</div>
+                    <div class="component">⚙️ System Instructions</div>
+                    <div class="component">💬 Message History Buffer</div>
+                    <div class="component">🛠️ Tool Calls (pending/completed)</div>
+                    <div class="component">📊 Intermediate Results</div>
+                    <div class="component">🔀 Conditional Transitions</div>
+                </div>
+            </div>
+            
+            <div class="data-flow">
+                <span class="arrow">↓</span>
+                <span>State coordinates execution flow</span>
+                <span class="arrow">↓</span>
+            </div>
+            
+            <!-- Layer 2: Function Calling & Tools -->
+            <div class="layer layer-2">
+                <div class="layer-number">LAYER 2</div>
+                <div class="layer-header">
+                    <div class="layer-icon">🔧</div>
+                    <div class="layer-title">
+                        <h2>Function Calling & Tool Integration</h2>
+                        <div class="layer-subtitle">The "Glue" Between Reasoning and Action</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    Extend agent capabilities through programmatic interfaces. Function calling enables models to recognize when tools are needed, format structured requests, and execute external actions.
+                </div>
+                <div class="layer-components">
+                    <div class="component">📐 Math & Computation Functions</div>
+                    <div class="component">🔍 Search & Retrieval Tools</div>
+                    <div class="component">💻 Code Execution (Python)</div>
+                    <div class="component">📊 Data Transformation Tools</div>
+                    <div class="component">🎯 Structured Output Schemas</div>
+                    <div class="component">✅ Pydantic Validation</div>
+                </div>
+            </div>
+            
+            <div class="data-flow">
+                <span class="arrow">↓</span>
+                <span>Tools execute based on LLM decisions</span>
+                <span class="arrow">↓</span>
+            </div>
+            
+            <!-- Layer 1: LLM Core -->
+            <div class="layer layer-1">
+                <div class="layer-number">LAYER 1</div>
+                <div class="layer-header">
+                    <div class="layer-icon">🤖</div>
+                    <div class="layer-title">
+                        <h2>LLM Core (Foundation)</h2>
+                        <div class="layer-subtitle">Stateless Reasoning Engine</div>
+                    </div>
+                </div>
+                <div class="layer-description">
+                    The foundational large language model that provides reasoning, language understanding, and generation capabilities. By default, it's stateless—treating each prompt independently without memory or context.
+                </div>
+                <div class="layer-components">
+                    <div class="component">🧩 Natural Language Understanding</div>
+                    <div class="component">💭 Reasoning & Planning</div>
+                    <div class="component">✍️ Text Generation</div>
+                    <div class="component">🎯 Instruction Following</div>
+                    <div class="component">🔍 Pattern Recognition</div>
+                    <div class="component">📊 Structured Output Generation</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key Insights Section -->
+        <div class="key-insights">
+            <h3>🎯 Key Architectural Insights</h3>
+            <div class="insights-grid">
+                <div class="insight">
+                    <div class="insight-title">Foundation is Stateless</div>
+                    <div class="insight-text">The LLM core has no inherent memory or state. All higher layers exist to add these capabilities.</div>
+                </div>
+                <div class="insight">
+                    <div class="insight-title">Tools Transform Agents</div>
+                    <div class="insight-text">Function calling (Layer 2) is the critical "glue" that turns passive language models into active problem-solvers.</div>
+                </div>
+                <div class="insight">
+                    <div class="insight-title">State ≠ Memory</div>
+                    <div class="insight-text">State (Layer 3) is ephemeral execution context. Memory (Layer 4) persists across tasks and sessions.</div>
+                </div>
+                <div class="insight">
+                    <div class="insight-title">External Integration Enables Reality</div>
+                    <div class="insight-text">Layer 5 connects reasoning to real-world systems—APIs, databases, search—making agents practical.</div>
+                </div>
+                <div class="insight">
+                    <div class="insight-title">Evaluation Drives Improvement</div>
+                    <div class="insight-text">Layer 6 closes the feedback loop, revealing where agents succeed or fail and enabling iterative enhancement.</div>
+                </div>
+                <div class="insight">
+                    <div class="insight-title">Each Layer Depends on Below</div>
+                    <div class="insight-text">You can't have memory without state, or external integrations without tools. Build progressively from Layer 1 up.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

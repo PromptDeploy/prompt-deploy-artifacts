@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools Taxonomy & Integration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #FFFFFF;
+            padding: 40px 20px;
+            color: #1A1A1A;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Tool Categories Grid */
+        .categories-section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212121;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            border: 3px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .category-search {
+            border-color: #0066FF;
+            background: linear-gradient(135deg, #F5F9FF 0%, #EBF4FF 100%);
+        }
+        
+        .category-data {
+            border-color: #22C55E;
+            background: linear-gradient(135deg, #F8FFF9 0%, #F0FFF4 100%);
+        }
+        
+        .category-compute {
+            border-color: #F59E0B;
+            background: linear-gradient(135deg, #FFFBF5 0%, #FFF9F0 100%);
+        }
+        
+        .category-action {
+            border-color: #8B5CF6;
+            background: linear-gradient(135deg, #F8F7FF 0%, #F3F0FF 100%);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .category-icon {
+            font-size: 48px;
+        }
+        
+        .category-title-group {
+            flex: 1;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+        
+        .category-subtitle {
+            font-size: 0.875rem;
+            color: #616161;
+            font-style: italic;
+        }
+        
+        .category-description {
+            font-size: 0.9375rem;
+            color: #424242;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+        
+        .category-tools {
+            margin-bottom: 20px;
+        }
+        
+        .category-tools-title {
+            font-weight: 700;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #212121;
+            margin-bottom: 12px;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .tool-item {
+            background: white;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: #424242;
+            border-left: 3px solid;
+            transition: all 0.2s ease;
+        }
+        
+        .tool-item:hover {
+            transform: translateX(4px);
+        }
+        
+        .category-search .tool-item { border-left-color: #0066FF; }
+        .category-data .tool-item { border-left-color: #22C55E; }
+        .category-compute .tool-item { border-left-color: #F59E0B; }
+        .category-action .tool-item { border-left-color: #8B5CF6; }
+        
+        .category-when {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: #424242;
+        }
+        
+        .category-when strong {
+            color: #212121;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        /* Decision Framework */
+        .decision-section {
+            background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .decision-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .decision-node {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid #E0E0E0;
+            transition: all 0.3s ease;
+        }
+        
+        .decision-node:hover {
+            border-color: #0066FF;
+            box-shadow: 0 4px 16px rgba(0, 102, 255, 0.1);
+        }
+        
+        .decision-question {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .decision-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .decision-option {
+            background: #F5F5F5;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            font-size: 0.875rem;
+        }
+        
+        .decision-option strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #212121;
+        }
+        
+        .option-search { border-left-color: #0066FF; }
+        .option-data { border-left-color: #22C55E; }
+        .option-compute { border-left-color: #F59E0B; }
+        .option-action { border-left-color: #8B5CF6; }
+        
+        /* Characteristics Matrix */
+        .matrix-section {
+            margin-bottom: 60px;
+        }
+        
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .matrix-table thead {
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+            color: white;
+        }
+        
+        .matrix-table th {
+            padding: 20px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.9375rem;
+            letter-spacing: 0.02em;
+        }
+        
+        .matrix-table td {
+            padding: 20px;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 0.875rem;
+            color: #424242;
+        }
+        
+        .matrix-table tbody tr:hover {
+            background: #F5F5F5;
+        }
+        
+        .matrix-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .tool-name {
+            font-weight: 700;
+            color: #212121;
+            font-size: 0.9375rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        
+        .badge-deterministic {
+            background: #D1FFE2;
+            color: #166534;
+        }
+        
+        .badge-nondeterministic {
+            background: #FFE4CC;
+            color: #92400E;
+        }
+        
+        .badge-api {
+            background: #D1E9FF;
+            color: #1E40AF;
+        }
+        
+        .badge-oauth {
+            background: #E9D5FF;
+            color: #6B21A8;
+        }
+        
+        .badge-none {
+            background: #E0E0E0;
+            color: #424242;
+        }
+        
+        /* Integration Patterns */
+        .patterns-section {
+            margin-bottom: 60px;
+        }
+        
+        .patterns-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        
+        .pattern-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            padding: 28px;
+            transition: all 0.3s ease;
+        }
+        
+        .pattern-card:hover {
+            border-color: #0066FF;
+            box-shadow: 0 4px 16px rgba(0, 102, 255, 0.1);
+        }
+        
+        .pattern-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .pattern-icon {
+            font-size: 36px;
+        }
+        
+        .pattern-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #212121;
+        }
+        
+        .pattern-description {
+            font-size: 0.9375rem;
+            color: #424242;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        
+        .pattern-code {
+            background: #F5F5F5;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8125rem;
+            color: #424242;
+            border-left: 3px solid #0066FF;
+            overflow-x: auto;
+        }
+        
+        /* MCP Section */
+        .mcp-section {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+            border: 3px solid #F59E0B;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 60px;
+            position: relative;
+        }
+        
+        .mcp-badge {
+            position: absolute;
+            top: -16px;
+            left: 40px;
+            background: #F59E0B;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+        
+        .mcp-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 20px;
+        }
+        
+        .mcp-subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+        
+        .mcp-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        
+        .mcp-box {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            border-left: 4px solid #F59E0B;
+        }
+        
+        .mcp-box-title {
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .mcp-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .mcp-box li {
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.875rem;
+            color: #424242;
+        }
+        
+        .mcp-box li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #F59E0B;
+            font-weight: 700;
+        }
+        
+        /* Best Practices */
+        .practices-section {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 16px;
+            padding: 40px;
+        }
+        
+        .practices-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        .practice-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: #F5F5F5;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .practice-item:hover {
+            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
+        }
+        
+        .practice-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+        
+        .practice-content {
+            flex: 1;
+        }
+        
+        .practice-title {
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 6px;
+            font-size: 0.9375rem;
+        }
+        
+        .practice-description {
+            font-size: 0.875rem;
+            color: #424242;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 1024px) {
+            .categories-grid,
+            .patterns-grid,
+            .mcp-content,
+            .practices-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .matrix-table {
+                font-size: 0.75rem;
+            }
+            
+            .matrix-table th,
+            .matrix-table td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Tools Taxonomy & Integration</h1>
+            <p>A comprehensive guide to agent tool categories, selection frameworks, integration patterns, and the emerging Model Context Protocol (MCP)</p>
+        </div>
+        
+        <!-- Tool Categories -->
+        <div class="categories-section">
+            <h2 class="section-title">🔧 Four Core Tool Categories</h2>
+            
+            <div class="categories-grid">
+                <!-- Search & Retrieval -->
+                <div class="category-card category-search">
+                    <div class="category-header">
+                        <div class="category-icon">🔍</div>
+                        <div class="category-title-group">
+                            <div class="category-title">Search & Retrieval</div>
+                            <div class="category-subtitle">Finding Information</div>
+                        </div>
+                    </div>
+                    <div class="category-description">
+                        Tools that locate and retrieve information from structured or unstructured sources. Essential for grounding agent responses in real data.
+                    </div>
+                    <div class="category-tools">
+                        <div class="category-tools-title">Example Tools</div>
+                        <div class="tools-grid">
+                            <div class="tool-item">SerpAPI (web search)</div>
+                            <div class="tool-item">Tavily (LLM-optimized)</div>
+                            <div class="tool-item">Bing Search API</div>
+                            <div class="tool-item">Vector DB search</div>
+                            <div class="tool-item">Chroma (embeddings)</div>
+                            <div class="tool-item">Pinecone (semantic)</div>
+                        </div>
+                    </div>
+                    <div class="category-when">
+                        <strong>When to Use:</strong>
+                        Need current information beyond training data, semantic search across documents, grounding responses in verifiable sources, or accessing real-time web content.
+                    </div>
+                </div>
+                
+                <!-- Data Access -->
+                <div class="category-card category-data">
+                    <div class="category-header">
+                        <div class="category-icon">🗄️</div>
+                        <div class="category-title-group">
+                            <div class="category-title">Data Access</div>
+                            <div class="category-subtitle">Structured Data Operations</div>
+                        </div>
+                    </div>
+                    <div class="category-description">
+                        Tools that read from and write to databases. Enable agents to interact with internal systems and structured datasets.
+                    </div>
+                    <div class="category-tools">
+                        <div class="category-tools-title">Example Tools</div>
+                        <div class="tools-grid">
+                            <div class="tool-item">PostgreSQL (relational)</div>
+                            <div class="tool-item">MySQL (relational)</div>
+                            <div class="tool-item">MongoDB (NoSQL)</div>
+                            <div class="tool-item">SQLAlchemy (ORM)</div>
+                            <div class="tool-item">Text2SQL parsers</div>
+                            <div class="tool-item">Weaviate (hybrid)</div>
+                        </div>
+                    </div>
+                    <div class="category-when">
+                        <strong>When to Use:</strong>
+                        Querying internal data (CRM, tickets, inventory), generating reports, updating records, combining SQL filters with semantic search, or accessing private company data.
+                    </div>
+                </div>
+                
+                <!-- Computation -->
+                <div class="category-card category-compute">
+                    <div class="category-header">
+                        <div class="category-icon">🧮</div>
+                        <div class="category-title-group">
+                            <div class="category-title">Computation & Processing</div>
+                            <div class="category-subtitle">Mathematical & Code Execution</div>
+                        </div>
+                    </div>
+                    <div class="category-description">
+                        Tools that perform calculations, execute code, or transform data. Provide precision that LLMs alone cannot guarantee.
+                    </div>
+                    <div class="category-tools">
+                        <div class="category-tools-title">Example Tools</div>
+                        <div class="tools-grid">
+                            <div class="tool-item">Python interpreter</div>
+                            <div class="tool-item">Math functions</div>
+                            <div class="tool-item">NumPy/Pandas</div>
+                            <div class="tool-item">Data transformations</div>
+                            <div class="tool-item">Unit converters</div>
+                            <div class="tool-item">Statistical analysis</div>
+                        </div>
+                    </div>
+                    <div class="category-when">
+                        <strong>When to Use:</strong>
+                        Complex calculations requiring precision, data transformations, scientific computing, code generation and execution, or any task where LLM approximations aren't sufficient.
+                    </div>
+                </div>
+                
+                <!-- External Actions -->
+                <div class="category-card category-action">
+                    <div class="category-header">
+                        <div class="category-icon">⚡</div>
+                        <div class="category-title-group">
+                            <div class="category-title">External Actions</div>
+                            <div class="category-subtitle">Real-World Interactions</div>
+                        </div>
+                    </div>
+                    <div class="category-description">
+                        Tools that perform actions in external systems. Transform agents from information processors to active doers.
+                    </div>
+                    <div class="category-tools">
+                        <div class="category-tools-title">Example Tools</div>
+                        <div class="tools-grid">
+                            <div class="tool-item">Slack messaging</div>
+                            <div class="tool-item">Email APIs (SendGrid)</div>
+                            <div class="tool-item">CRM updates</div>
+                            <div class="tool-item">Booking systems</div>
+                            <div class="tool-item">Payment APIs (Stripe)</div>
+                            <div class="tool-item">Webhooks</div>
+                        </div>
+                    </div>
+                    <div class="category-when">
+                        <strong>When to Use:</strong>
+                        Sending messages, creating tickets, booking appointments, processing payments, triggering workflows, or any action that modifies state in external systems.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Decision Framework -->
+        <div class="decision-section">
+            <h2 class="section-title">🎯 Tool Selection Decision Framework</h2>
+            
+            <div class="decision-flow">
+                <div class="decision-node">
+                    <div class="decision-question">
+                        <span>1️⃣</span>
+                        What does the agent need to DO?
+                    </div>
+                    <div class="decision-options">
+                        <div class="decision-option option-search">
+                            <strong>Find Information</strong>
+                            Use Search & Retrieval tools (web search, vector DB, semantic search)
+                        </div>
+                        <div class="decision-option option-data">
+                            <strong>Access Internal Data</strong>
+                            Use Data Access tools (SQL, NoSQL, text2SQL)
+                        </div>
+                        <div class="decision-option option-compute">
+                            <strong>Calculate/Transform</strong>
+                            Use Computation tools (Python, math functions, data processing)
+                        </div>
+                        <div class="decision-option option-action">
+                            <strong>Take Action</strong>
+                            Use External Action tools (APIs, webhooks, messaging)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-node">
+                    <div class="decision-question">
+                        <span>2️⃣</span>
+                        Is precision required, or is approximation acceptable?
+                    </div>
+                    <div class="decision-options">
+                        <div class="decision-option option-compute">
+                            <strong>Precision Required</strong>
+                            LLMs can hallucinate numbers. Use computation tools for exact calculations.
+                        </div>
+                        <div class="decision-option option-search">
+                            <strong>Approximation OK</strong>
+                            LLMs can estimate or reason. Consider if a tool is truly needed.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-node">
+                    <div class="decision-question">
+                        <span>3️⃣</span>
+                        Is the data public or private?
+                    </div>
+                    <div class="decision-options">
+                        <div class="decision-option option-search">
+                            <strong>Public Data</strong>
+                            Use web search APIs for internet-accessible information.
+                        </div>
+                        <div class="decision-option option-data">
+                            <strong>Private/Internal Data</strong>
+                            Use database tools or internal APIs with proper authentication.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="decision-node">
+                    <div class="decision-question">
+                        <span>4️⃣</span>
+                        Does the tool need authentication?
+                    </div>
+                    <div class="decision-options">
+                        <div class="decision-option option-search">
+                            <strong>API Key Sufficient</strong>
+                            Simple authentication. Store securely, pass in headers.
+                        </div>
+                        <div class="decision-option option-action">
+                            <strong>OAuth Required</strong>
+                            User-specific data. Implement OAuth flow, store tokens securely.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Characteristics Matrix -->
+        <div class="matrix-section">
+            <h2 class="section-title">📊 Tool Characteristics Matrix</h2>
+            
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th>Tool Type</th>
+                        <th>Deterministic?</th>
+                        <th>Authentication</th>
+                        <th>Primary Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tool-name">Math Functions</span></td>
+                        <td><span class="badge badge-deterministic">Deterministic</span></td>
+                        <td><span class="badge badge-none">None</span></td>
+                        <td>Precise calculations (e.g., "sqrt(144)" always returns 12)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Web Search</span></td>
+                        <td><span class="badge badge-nondeterministic">Non-deterministic</span></td>
+                        <td><span class="badge badge-api">API Key</span></td>
+                        <td>Current events, changing information (results vary by time)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">SQL Database</span></td>
+                        <td><span class="badge badge-deterministic">Deterministic</span></td>
+                        <td><span class="badge badge-api">API Key</span></td>
+                        <td>Structured data queries (same query = same result, if data unchanged)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Vector Search</span></td>
+                        <td><span class="badge badge-deterministic">Deterministic</span></td>
+                        <td><span class="badge badge-api">API Key</span></td>
+                        <td>Semantic similarity (same query = same top-k results)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Weather API</span></td>
+                        <td><span class="badge badge-nondeterministic">Non-deterministic</span></td>
+                        <td><span class="badge badge-api">API Key</span></td>
+                        <td>Real-time conditions (changes hourly)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Slack Messaging</span></td>
+                        <td><span class="badge badge-deterministic">Deterministic</span></td>
+                        <td><span class="badge badge-oauth">OAuth</span></td>
+                        <td>Send messages (action succeeds or fails)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Stock Price API</span></td>
+                        <td><span class="badge badge-nondeterministic">Non-deterministic</span></td>
+                        <td><span class="badge badge-api">API Key</span></td>
+                        <td>Market data (changes by second)</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tool-name">Code Execution</span></td>
+                        <td><span class="badge badge-deterministic">Deterministic</span></td>
+                        <td><span class="badge badge-none">None</span></td>
+                        <td>Run Python code (same code = same output)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Integration Patterns -->
+        <div class="patterns-section">
+            <h2 class="section-title">🔗 Common Integration Patterns</h2>
+            
+            <div class="patterns-grid">
+                <div class="pattern-card">
+                    <div class="pattern-header">
+                        <div class="pattern-icon">🔄</div>
+                        <div class="pattern-title">Retry with Backoff</div>
+                    </div>
+                    <div class="pattern-description">
+                        Handle API failures gracefully by retrying failed requests with exponential backoff. Essential for production resilience.
+                    </div>
+                    <div class="pattern-code">
+for attempt in range(3):<br>
+&nbsp;&nbsp;try:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;result = api_call()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;break<br>
+&nbsp;&nbsp;except:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;wait(2 ** attempt)<br>
+                    </div>
+                </div>
+                
+                <div class="pattern-card">
+                    <div class="pattern-header">
+                        <div class="pattern-icon">🛡️</div>
+                        <div class="pattern-title">Validation Before Execution</div>
+                    </div>
+                    <div class="pattern-description">
+                        Validate tool arguments with schemas (Pydantic) before executing to catch errors early and provide helpful feedback.
+                    </div>
+                    <div class="pattern-code">
+class ToolInput(BaseModel):<br>
+&nbsp;&nbsp;query: str<br>
+&nbsp;&nbsp;max_results: int = 5<br>
+<br>
+validated = ToolInput(**args)<br>
+result = tool.execute(validated)
+                    </div>
+                </div>
+                
+                <div class="pattern-card">
+                    <div class="pattern-header">
+                        <div class="pattern-icon">⚠️</div>
+                        <div class="pattern-title">Fallback Strategies</div>
+                    </div>
+                    <div class="pattern-description">
+                        When primary tool fails, switch to alternative tool or return partial results rather than complete failure.
+                    </div>
+                    <div class="pattern-code">
+try:<br>
+&nbsp;&nbsp;result = primary_search()<br>
+except Timeout:<br>
+&nbsp;&nbsp;result = cached_results()<br>
+&nbsp;&nbsp;warn_user("using cached data")
+                    </div>
+                </div>
+                
+                <div class="pattern-card">
+                    <div class="pattern-header">
+                        <div class="pattern-icon">📊</div>
+                        <div class="pattern-title">Observability & Logging</div>
+                    </div>
+                    <div class="pattern-description">
+                        Log every tool call with inputs, outputs, latency, and errors. Critical for debugging and monitoring agent behavior.
+                    </div>
+                    <div class="pattern-code">
+logger.info({<br>
+&nbsp;&nbsp;"tool": "web_search",<br>
+&nbsp;&nbsp;"input": query,<br>
+&nbsp;&nbsp;"latency_ms": 234,<br>
+&nbsp;&nbsp;"status": "success"<br>
+})
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MCP Section -->
+        <div class="mcp-section">
+            <div class="mcp-badge">🚀 EMERGING STANDARD</div>
+            <div class="mcp-title">Model Context Protocol (MCP)</div>
+            <div class="mcp-subtitle">Universal Protocol for AI Tool Interoperability</div>
+            
+            <div class="mcp-content">
+                <div class="mcp-box">
+                    <div class="mcp-box-title">🎯 What is MCP?</div>
+                    <ul>
+                        <li>Like USB-C for AI tools—one protocol, any model</li>
+                        <li>Standardized way for LLMs to discover and use tools</li>
+                        <li>Eliminates custom integration per model/tool combination</li>
+                        <li>Developed by Anthropic, growing ecosystem adoption</li>
+                        <li>Transport layer: Streamable HTTP (as of March 2025)</li>
+                    </ul>
+                </div>
+                
+                <div class="mcp-box">
+                    <div class="mcp-box-title">✅ Benefits</div>
+                    <ul>
+                        <li>Write tool once, works across Claude, GPT, others</li>
+                        <li>Improved governance and monitoring</li>
+                        <li>Composability—combine tools seamlessly</li>
+                        <li>Faster agent development cycles</li>
+                        <li>Centralized tool management</li>
+                    </ul>
+                </div>
+                
+                <div class="mcp-box">
+                    <div class="mcp-box-title">🔧 How It Works</div>
+                    <ul>
+                        <li>Tools expose schemas describing capabilities</li>
+                        <li>Models discover tools via standardized API</li>
+                        <li>Models invoke tools using consistent format</li>
+                        <li>Tools return results in standard structure</li>
+                        <li>All communication logged for observability</li>
+                    </ul>
+                </div>
+                
+                <div class="mcp-box">
+                    <div class="mcp-box-title">🌐 Ecosystem</div>
+                    <ul>
+                        <li>Anthropic's Claude (native support)</li>
+                        <li>Growing library of MCP-compatible tools</li>
+                        <li>OpenAI and others evaluating adoption</li>
+                        <li>Similar to OpenAPI for REST APIs</li>
+                        <li>Points toward interoperable multi-agent future</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Best Practices -->
+        <div class="practices-section">
+            <h2 class="section-title">✨ Tool Integration Best Practices</h2>
+            
+            <div class="practices-grid">
+                <div class="practice-item">
+                    <div class="practice-icon">📝</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Write Clear Tool Descriptions</div>
+                        <div class="practice-description">
+                            LLMs choose tools based on descriptions. Be explicit about what each tool does, when to use it, and what arguments it requires.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="practice-item">
+                    <div class="practice-icon">🔒</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Implement Safety Constraints</div>
+                        <div class="practice-description">
+                            Add approval flows for dangerous operations (DELETE, financial transactions). Never trust LLM outputs blindly for critical actions.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="practice-item">
+                    <div class="practice-icon">⚡</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Optimize for Latency</div>
+                        <div class="practice-description">
+                            Set reasonable timeouts. Use caching when appropriate. Consider async execution for slow tools to maintain responsiveness.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="practice-item">
+                    <div class="practice-icon">🎯</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Keep Tools Focused</div>
+                        <div class="practice-description">
+                            One tool, one job. Avoid Swiss Army knife tools that do everything. Focused tools are easier for LLMs to understand and use correctly.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="practice-item">
+                    <div class="practice-icon">📊</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Monitor Tool Usage Patterns</div>
+                        <div class="practice-description">
+                            Track which tools are used most, success rates, and common failure modes. Use data to improve tool design and descriptions.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="practice-item">
+                    <div class="practice-icon">🔄</div>
+                    <div class="practice-content">
+                        <div class="practice-title">Design for Iteration</div>
+                        <div class="practice-description">
+                            Agents often need multiple tool calls. Return structured results that enable follow-up queries or refinements.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

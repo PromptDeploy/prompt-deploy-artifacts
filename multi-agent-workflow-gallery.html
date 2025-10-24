@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent System Workflow Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #F5F5F5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .gallery-nav {
+            display: flex;
+            background: #F5F5F5;
+            padding: 0;
+            border-bottom: 2px solid #E0E0E0;
+            overflow-x: auto;
+        }
+
+        .gallery-tab {
+            padding: 20px 24px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #616161;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .gallery-tab:hover {
+            background: rgba(245, 158, 11, 0.05);
+            color: #F59E0B;
+        }
+
+        .gallery-tab.active {
+            color: #F59E0B;
+            background: white;
+            border-bottom: 3px solid #F59E0B;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .workflow-example {
+            display: none;
+        }
+
+        .workflow-example.active {
+            display: block;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .example-header {
+            margin-bottom: 32px;
+        }
+
+        .example-title {
+            font-size: 1.75rem;
+            color: #212121;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .example-subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            margin-bottom: 16px;
+        }
+
+        .example-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tag.blue { background: #E8F4FF; color: #0066FF; }
+        .tag.green { background: #E8FFF1; color: #22C55E; }
+        .tag.amber { background: #FFF4E6; color: #F59E0B; }
+        .tag.red { background: #FFE8E8; color: #EF4444; }
+
+        .workflow-diagram {
+            background: #F9FAFB;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 32px;
+            margin: 32px 0;
+            position: relative;
+        }
+
+        .diagram-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .flow-node {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 16px 24px;
+            min-width: 200px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .flow-node:hover {
+            border-color: #F59E0B;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .flow-node.user {
+            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
+            border-color: #0066FF;
+        }
+
+        .flow-node.orchestrator {
+            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
+            border-color: #22C55E;
+        }
+
+        .flow-node.agent {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+            border-color: #F59E0B;
+        }
+
+        .flow-node.response {
+            background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%);
+            border-color: #A855F7;
+        }
+
+        .node-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .node-label {
+            font-weight: 600;
+            color: #212121;
+            font-size: 0.95rem;
+        }
+
+        .node-sublabel {
+            font-size: 0.8rem;
+            color: #616161;
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            width: 2px;
+            height: 24px;
+            background: #E0E0E0;
+            position: relative;
+        }
+
+        .flow-arrow::after {
+            content: '▼';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #E0E0E0;
+            font-size: 0.8rem;
+        }
+
+        .parallel-container {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .parallel-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: #F59E0B;
+            color: white;
+            padding: 24px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section h3 {
+            font-size: 1.125rem;
+            color: #212121;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .modal-section p {
+            color: #616161;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #1A1A1A;
+            color: #E0E0E0;
+            padding: 16px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 12px 0;
+        }
+
+        .tool-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tool-item {
+            background: #F5F5F5;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #F59E0B;
+        }
+
+        .tool-item strong {
+            color: #212121;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .info-card {
+            background: #F5F5F5;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #F59E0B;
+        }
+
+        .info-card h4 {
+            color: #212121;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            color: #616161;
+            font-size: 0.85rem;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+            padding: 16px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #616161;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid currentColor;
+        }
+
+        .state-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+
+        .state-indicator.ephemeral {
+            background: #E8F4FF;
+            color: #0066FF;
+        }
+
+        .state-indicator.persistent {
+            background: #E8FFF1;
+            color: #22C55E;
+        }
+
+        .key-insights {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
+            border-left: 4px solid #F59E0B;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .key-insights h3 {
+            color: #D97706;
+            font-size: 1.125rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .insight-list li {
+            padding: 8px 0;
+            color: #616161;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .insight-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #F59E0B;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .gallery-tab {
+                padding: 16px 20px;
+                font-size: 0.85rem;
+            }
+
+            .parallel-container {
+                flex-direction: column;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Multi-Agent Workflow Gallery</h1>
+            <p>Explore complete multi-agent systems in action. Click on any agent to see its system prompt, tools, and responsibilities.</p>
+        </div>
+
+        <div class="gallery-nav">
+            <button class="gallery-tab active" onclick="showExample('example1')">
+                E-commerce Returns
+            </button>
+            <button class="gallery-tab" onclick="showExample('example2')">
+                Market Analysis
+            </button>
+            <button class="gallery-tab" onclick="showExample('example3')">
+                Customer Support
+            </button>
+            <button class="gallery-tab" onclick="showExample('example4')">
+                Network Diagnostics
+            </button>
+            <button class="gallery-tab" onclick="showExample('example5')">
+                Multi-Agent RAG
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- Example 1: E-commerce Return System -->
+            <div class="workflow-example active" id="example1">
+                <div class="example-header">
+                    <h2 class="example-title">E-commerce Return System</h2>
+                    <p class="example-subtitle">Orchestrator pattern with sequential execution for structured return processing</p>
+                    <div class="example-tags">
+                        <span class="tag green">Orchestrator Pattern</span>
+                        <span class="tag blue">Sequential Execution</span>
+                        <span class="tag amber">Content-Based Routing</span>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>💡 Key Insights</h3>
+                    <ul class="insight-list">
+                        <li>Central orchestrator coordinates all steps in a defined sequence</li>
+                        <li>Each agent has a single, clear responsibility</li>
+                        <li>State is passed forward from each agent to the next</li>
+                        <li>Failure at any step triggers compensation of previous actions</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="diagram-title">Request Flow: Customer initiates return request</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-node user" onclick="showModal('user-return')">
+                            <div class="node-icon">👤</div>
+                            <div class="node-label">Customer Request</div>
+                            <div class="node-sublabel">"I want to return my order"</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node orchestrator" onclick="showModal('orchestrator-return')">
+                            <div class="node-icon">🎯</div>
+                            <div class="node-label">Return Orchestrator</div>
+                            <div class="node-sublabel">Coordinates the workflow</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('policy-agent')">
+                            <div class="node-icon">📋</div>
+                            <div class="node-label">Policy Agent</div>
+                            <div class="node-sublabel">Step 1: Check eligibility</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('inventory-agent')">
+                            <div class="node-icon">📦</div>
+                            <div class="node-label">Inventory Agent</div>
+                            <div class="node-sublabel">Step 2: Update stock</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('refund-agent')">
+                            <div class="node-icon">💰</div>
+                            <div class="node-label">Refund Agent</div>
+                            <div class="node-sublabel">Step 3: Process refund</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('communication-agent')">
+                            <div class="node-icon">✉️</div>
+                            <div class="node-label">Communication Agent</div>
+                            <div class="node-sublabel">Step 4: Notify customer</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node response">
+                            <div class="node-icon">✅</div>
+                            <div class="node-label">Return Processed</div>
+                            <div class="node-sublabel">Customer receives confirmation</div>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%); border-color: #0066FF;"></div>
+                            <span>User Input</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%); border-color: #22C55E;"></div>
+                            <span>Orchestrator</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%); border-color: #F59E0B;"></div>
+                            <span>Worker Agent</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%); border-color: #A855F7;"></div>
+                            <span>Final Response</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>State Management</h4>
+                        <p><span class="state-indicator ephemeral">Ephemeral</span> Workflow context passed between agents</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Error Handling</h4>
+                        <p>Compensation pattern - rollback completed steps on failure</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Coordination</h4>
+                        <p>Pessimistic locking for inventory updates</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 2: Market Analysis Report -->
+            <div class="workflow-example" id="example2">
+                <div class="example-header">
+                    <h2 class="example-title">Market Analysis Report</h2>
+                    <p class="example-subtitle">Orchestrator pattern with parallel execution for fast data gathering</p>
+                    <div class="example-tags">
+                        <span class="tag green">Orchestrator Pattern</span>
+                        <span class="tag blue">Parallel Execution</span>
+                        <span class="tag amber">High Performance</span>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>💡 Key Insights</h3>
+                    <ul class="insight-list">
+                        <li>Multiple agents run simultaneously to minimize total execution time</li>
+                        <li>Each agent queries a different data source independently</li>
+                        <li>Synthesis agent combines all results into final report</li>
+                        <li>Ideal when tasks have no dependencies on each other</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="diagram-title">Request Flow: Generate comprehensive market report</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-node user" onclick="showModal('user-analysis')">
+                            <div class="node-icon">👤</div>
+                            <div class="node-label">Analyst Request</div>
+                            <div class="node-sublabel">"Analyze Company X"</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node orchestrator" onclick="showModal('orchestrator-analysis')">
+                            <div class="node-icon">🎯</div>
+                            <div class="node-label">Analysis Orchestrator</div>
+                            <div class="node-sublabel">Splits into parallel tasks</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="parallel-container">
+                            <div class="flow-node agent" onclick="showModal('news-agent')">
+                                <div class="node-icon">📰</div>
+                                <div class="node-label">News Agent</div>
+                                <div class="node-sublabel">Recent news</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('stock-agent')">
+                                <div class="node-icon">📈</div>
+                                <div class="node-label">Stock Agent</div>
+                                <div class="node-sublabel">Price data</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('competitor-agent')">
+                                <div class="node-icon">🔍</div>
+                                <div class="node-label">Competitor Agent</div>
+                                <div class="node-sublabel">Competitor analysis</div>
+                            </div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('synthesis-agent')">
+                            <div class="node-icon">📊</div>
+                            <div class="node-label">Synthesis Agent</div>
+                            <div class="node-sublabel">Combines all results</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node response">
+                            <div class="node-icon">📋</div>
+                            <div class="node-label">Final Report</div>
+                            <div class="node-sublabel">Comprehensive analysis</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>State Management</h4>
+                        <p><span class="state-indicator ephemeral">Ephemeral</span> Results aggregated at synthesis</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Error Handling</h4>
+                        <p>Fallback - use cached data if source unavailable</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Performance</h4>
+                        <p>3x faster than sequential (tasks run simultaneously)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 3: Customer Support Router -->
+            <div class="workflow-example" id="example3">
+                <div class="example-header">
+                    <h2 class="example-title">Customer Support Router</h2>
+                    <p class="example-subtitle">Orchestrator pattern with conditional branching for intelligent routing</p>
+                    <div class="example-tags">
+                        <span class="tag green">Orchestrator Pattern</span>
+                        <span class="tag blue">Conditional Logic</span>
+                        <span class="tag amber">Priority-Based</span>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>💡 Key Insights</h3>
+                    <ul class="insight-list">
+                        <li>Classifier agent determines the type and priority of request</li>
+                        <li>Different paths for different request types (technical, billing, account)</li>
+                        <li>Urgent requests escalate immediately to human agents</li>
+                        <li>Demonstrates decision trees in multi-agent systems</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="diagram-title">Request Flow: Customer submits support ticket</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-node user" onclick="showModal('user-support')">
+                            <div class="node-icon">👤</div>
+                            <div class="node-label">Customer Request</div>
+                            <div class="node-sublabel">"I have a problem..."</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node orchestrator" onclick="showModal('orchestrator-support')">
+                            <div class="node-icon">🎯</div>
+                            <div class="node-label">Support Router</div>
+                            <div class="node-sublabel">Classifies request</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('classifier-agent')">
+                            <div class="node-icon">🔍</div>
+                            <div class="node-label">Classifier Agent</div>
+                            <div class="node-sublabel">Analyzes content & urgency</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div style="text-align: center; color: #616161; font-size: 0.9rem; font-weight: 600; margin: 16px 0;">
+                            ⚠️ Conditional Branching ⚠️
+                        </div>
+
+                        <div class="parallel-container">
+                            <div class="parallel-group">
+                                <div style="font-size: 0.8rem; color: #0066FF; font-weight: 600;">IF TECHNICAL</div>
+                                <div class="flow-node agent" onclick="showModal('tech-agent')">
+                                    <div class="node-icon">🔧</div>
+                                    <div class="node-label">Tech Agent</div>
+                                    <div class="node-sublabel">Bug fixes</div>
+                                </div>
+                            </div>
+
+                            <div class="parallel-group">
+                                <div style="font-size: 0.8rem; color: #22C55E; font-weight: 600;">IF BILLING</div>
+                                <div class="flow-node agent" onclick="showModal('billing-agent')">
+                                    <div class="node-icon">💳</div>
+                                    <div class="node-label">Billing Agent</div>
+                                    <div class="node-sublabel">Payments</div>
+                                </div>
+                            </div>
+
+                            <div class="parallel-group">
+                                <div style="font-size: 0.8rem; color: #F59E0B; font-weight: 600;">IF ACCOUNT</div>
+                                <div class="flow-node agent" onclick="showModal('account-agent')">
+                                    <div class="node-icon">👤</div>
+                                    <div class="node-label">Account Agent</div>
+                                    <div class="node-sublabel">Access issues</div>
+                                </div>
+                            </div>
+
+                            <div class="parallel-group">
+                                <div style="font-size: 0.8rem; color: #EF4444; font-weight: 600;">IF URGENT</div>
+                                <div class="flow-node agent" onclick="showModal('escalation-agent')" style="border-color: #EF4444;">
+                                    <div class="node-icon">🚨</div>
+                                    <div class="node-label">Human Agent</div>
+                                    <div class="node-sublabel">Immediate attention</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node response">
+                            <div class="node-icon">✅</div>
+                            <div class="node-label">Issue Resolved</div>
+                            <div class="node-sublabel">Customer receives solution</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>State Management</h4>
+                        <p><span class="state-indicator persistent">Persistent</span> Ticket history stored</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Error Handling</h4>
+                        <p>Human escalation for low-confidence classifications</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Routing Strategy</h4>
+                        <p>Content-based + priority-based routing</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 4: Network Diagnostics -->
+            <div class="workflow-example" id="example4">
+                <div class="example-header">
+                    <h2 class="example-title">Network Diagnostics System</h2>
+                    <p class="example-subtitle">Peer-to-peer pattern with dynamic agent coordination</p>
+                    <div class="example-tags">
+                        <span class="tag amber">Peer-to-Peer Pattern</span>
+                        <span class="tag blue">Decentralized</span>
+                        <span class="tag green">Dynamic Coordination</span>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>💡 Key Insights</h3>
+                    <ul class="insight-list">
+                        <li>No central orchestrator - agents communicate directly</li>
+                        <li>Monitoring agent decides which other agents to consult</li>
+                        <li>Agents coordinate dynamically based on what they discover</li>
+                        <li>More flexible but harder to trace and debug</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="diagram-title">Request Flow: Anomaly detected in network</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-node user" onclick="showModal('user-network')">
+                            <div class="node-icon">⚠️</div>
+                            <div class="node-label">Network Anomaly</div>
+                            <div class="node-sublabel">High latency detected</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('monitoring-agent')">
+                            <div class="node-icon">📡</div>
+                            <div class="node-label">Monitoring Agent</div>
+                            <div class="node-sublabel">Detects and investigates</div>
+                        </div>
+
+                        <div style="text-align: center; color: #616161; font-size: 0.85rem; margin: 16px 0;">
+                            ↕️ Direct Agent-to-Agent Communication ↕️
+                        </div>
+
+                        <div class="parallel-container">
+                            <div class="flow-node agent" onclick="showModal('topology-agent')">
+                                <div class="node-icon">🗺️</div>
+                                <div class="node-label">Topology Agent</div>
+                                <div class="node-sublabel">Network layout</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('log-agent')">
+                                <div class="node-icon">📝</div>
+                                <div class="node-label">Log Analysis Agent</div>
+                                <div class="node-sublabel">Device logs</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('traffic-agent')">
+                                <div class="node-icon">📊</div>
+                                <div class="node-label">Traffic Agent</div>
+                                <div class="node-sublabel">Pattern analysis</div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; color: #616161; font-size: 0.85rem; margin: 16px 0;">
+                            ↕️ Agents Share Findings Directly ↕️
+                        </div>
+
+                        <div class="flow-node agent" onclick="showModal('diagnosis-agent')">
+                            <div class="node-icon">🔬</div>
+                            <div class="node-label">Diagnosis Agent</div>
+                            <div class="node-sublabel">Synthesizes findings</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node response">
+                            <div class="node-icon">✅</div>
+                            <div class="node-label">Root Cause Found</div>
+                            <div class="node-sublabel">Remediation suggested</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>State Management</h4>
+                        <p><span class="state-indicator ephemeral">Ephemeral</span> Findings shared between agents</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Error Handling</h4>
+                        <p>Retry + fallback for data source failures</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Coordination</h4>
+                        <p>Event broadcasting for state changes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Example 5: Multi-Agent RAG -->
+            <div class="workflow-example" id="example5">
+                <div class="example-header">
+                    <h2 class="example-title">Multi-Agent RAG System</h2>
+                    <p class="example-subtitle">Specialized pattern for complex question answering with multiple sources</p>
+                    <div class="example-tags">
+                        <span class="tag green">Orchestrator Pattern</span>
+                        <span class="tag blue">Parallel Retrieval</span>
+                        <span class="tag amber">Multi-Source</span>
+                    </div>
+                </div>
+
+                <div class="key-insights">
+                    <h3>💡 Key Insights</h3>
+                    <ul class="insight-list">
+                        <li>Coordinator breaks complex questions into sub-questions</li>
+                        <li>Specialized retrieval agents query different knowledge sources</li>
+                        <li>Synthesis agent combines information with source attribution</li>
+                        <li>Critical for questions requiring multiple perspectives or domains</li>
+                    </ul>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="diagram-title">Request Flow: Complex research question</div>
+                    
+                    <div class="flow-container">
+                        <div class="flow-node user" onclick="showModal('user-rag')">
+                            <div class="node-icon">👤</div>
+                            <div class="node-label">Research Question</div>
+                            <div class="node-sublabel">"How does X compare to Y?"</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node orchestrator" onclick="showModal('orchestrator-rag')">
+                            <div class="node-icon">🎯</div>
+                            <div class="node-label">Query Coordinator</div>
+                            <div class="node-sublabel">Decomposes question</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div style="text-align: center; color: #616161; font-size: 0.9rem; font-weight: 600; margin: 16px 0;">
+                            Parallel Retrieval from Multiple Sources
+                        </div>
+
+                        <div class="parallel-container">
+                            <div class="flow-node agent" onclick="showModal('internal-search-agent')">
+                                <div class="node-icon">🗂️</div>
+                                <div class="node-label">Internal Docs Agent</div>
+                                <div class="node-sublabel">Company knowledge</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('web-search-agent')">
+                                <div class="node-icon">🌐</div>
+                                <div class="node-label">Web Search Agent</div>
+                                <div class="node-sublabel">Public sources</div>
+                            </div>
+
+                            <div class="flow-node agent" onclick="showModal('database-agent')">
+                                <div class="node-icon">💾</div>
+                                <div class="node-label">Database Agent</div>
+                                <div class="node-sublabel">Structured data</div>
+                            </div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node agent" onclick="showModal('synthesis-rag-agent')">
+                            <div class="node-icon">📝</div>
+                            <div class="node-label">Synthesis Agent</div>
+                            <div class="node-sublabel">Combines + cites sources</div>
+                        </div>
+
+                        <div class="flow-arrow"></div>
+
+                        <div class="flow-node response">
+                            <div class="node-icon">📚</div>
+                            <div class="node-label">Comprehensive Answer</div>
+                            <div class="node-sublabel">With source citations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>State Management</h4>
+                        <p><span class="state-indicator ephemeral">Ephemeral</span> Query context passed forward</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Error Handling</h4>
+                        <p>Continue with available sources if one fails</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Coordination</h4>
+                        <p>No concurrency issues (read-only operations)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Agent Details -->
+    <div class="modal" id="agentModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Agent Details</div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gallery navigation
+        function showExample(exampleId) {
+            // Hide all examples
+            document.querySelectorAll('.workflow-example').forEach(ex => {
+                ex.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.gallery-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected example
+            document.getElementById(exampleId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Modal management
+        function showModal(agentId) {
+            const modal = document.getElementById('agentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            const agentData = getAgentData(agentId);
+            
+            title.textContent = agentData.name;
+            body.innerHTML = agentData.content;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'agentModal') {
+                const modal = document.getElementById('agentModal');
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Agent data
+        function getAgentData(agentId) {
+            const agents = {
+                'orchestrator-return': {
+                    name: '🎯 Return Orchestrator',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Return Processing Orchestrator.
+
+Your purpose is to coordinate the complete return workflow by delegating tasks to specialized agents in the correct sequence.
+
+You do NOT:
+- Directly check policies or process refunds
+- Make decisions outside of orchestration logic
+- Skip or reorder workflow steps
+
+You coordinate these agents in order:
+1. Policy Agent - verify eligibility
+2. Inventory Agent - update stock
+3. Refund Agent - process payment
+4. Communication Agent - notify customer
+
+If any step fails, initiate compensation for all completed steps.</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>delegate_to_agent</strong> - Send task to specialist agent</li>
+                                <li class="tool-item"><strong>check_agent_status</strong> - Verify agent availability</li>
+                                <li class="tool-item"><strong>initiate_compensation</strong> - Rollback completed steps on failure</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>State Managed</h3>
+                            <p>Tracks workflow progress, completed steps, and maintains context for compensation if needed.</p>
+                        </div>
+                    `
+                },
+                'policy-agent': {
+                    name: '📋 Policy Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Return Policy Agent.
+
+Your sole purpose is to check if a return request meets eligibility criteria based on company policies.
+
+You do NOT:
+- Process refunds or update inventory
+- Communicate with customers
+- Override policy rules
+
+You ONLY have access to the check_return_eligibility tool.
+
+Policy checks:
+1. Return window (within 30 days)
+2. Product condition (unused, original packaging)
+3. Return reason validity
+4. Customer history (not flagged)</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>check_return_eligibility</strong> - Validates return against policy rules</li>
+                                <li class="tool-item"><strong>get_return_policy</strong> - Fetches applicable policy</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Decision Logic</h3>
+                            <p>Returns TRUE if all policy criteria met, FALSE with specific reason if any criteria fail.</p>
+                        </div>
+                    `
+                },
+                'inventory-agent': {
+                    name: '📦 Inventory Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are an Inventory Management Agent.
+
+Your purpose is to update stock levels when products are returned.
+
+You do NOT:
+- Check policies or process refunds
+- Communicate with customers
+- Make purchasing decisions
+
+You ONLY update inventory and manage stock.
+
+Operations:
+1. Increment stock count for returned item
+2. Update inventory status
+3. Flag damaged items separately
+4. Trigger reorder if threshold reached</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>update_stock_level</strong> - Increment/decrement inventory with locking</li>
+                                <li class="tool-item"><strong>flag_damaged_item</strong> - Mark item as damaged/unsellable</li>
+                                <li class="tool-item"><strong>check_reorder_threshold</strong> - Trigger purchasing if needed</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Concurrency Handling</h3>
+                            <p>Uses pessimistic locking (database row locks) to prevent race conditions during stock updates.</p>
+                        </div>
+                    `
+                },
+                'refund-agent': {
+                    name: '💰 Refund Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Refund Processing Agent.
+
+Your purpose is to process payment refunds to customers for approved returns.
+
+You do NOT:
+- Check return policies
+- Update inventory
+- Communicate with customers directly
+
+You ONLY process refunds through payment gateway.
+
+Process:
+1. Retrieve original payment method
+2. Calculate refund amount (including taxes)
+3. Process refund transaction
+4. Generate refund confirmation
+5. Log transaction for accounting</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>process_refund</strong> - Execute refund via payment gateway</li>
+                                <li class="tool-item"><strong>get_payment_details</strong> - Fetch original payment method</li>
+                                <li class="tool-item"><strong>log_transaction</strong> - Record for accounting/audit</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Error Handling</h3>
+                            <p>Retry with exponential backoff for transient payment gateway errors. Escalate to human for persistent failures.</p>
+                        </div>
+                    `
+                },
+                'communication-agent': {
+                    name: '✉️ Communication Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Customer Communication Agent.
+
+Your purpose is to send notifications to customers about return status.
+
+You do NOT:
+- Process returns or refunds
+- Check policies
+- Make decisions about communications
+
+You ONLY send pre-approved message templates.
+
+Notifications sent:
+1. Return received confirmation
+2. Refund processed notification
+3. Expected refund timeline
+4. Any issues or delays</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>send_email</strong> - Email notification</li>
+                                <li class="tool-item"><strong>send_sms</strong> - SMS notification (if opted in)</li>
+                                <li class="tool-item"><strong>get_message_template</strong> - Fetch approved template</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Best Practice</h3>
+                            <p>Even if email fails, workflow continues. Non-critical communication failures shouldn't block return processing.</p>
+                        </div>
+                    `
+                },
+                'orchestrator-analysis': {
+                    name: '🎯 Analysis Orchestrator',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Market Analysis Orchestrator.
+
+Your purpose is to coordinate parallel data gathering from multiple sources and synthesize results into a comprehensive report.
+
+You do NOT:
+- Gather data directly
+- Analyze data yourself
+- Make investment recommendations
+
+You coordinate these agents IN PARALLEL:
+1. News Agent - recent news
+2. Stock Agent - financial data
+3. Competitor Agent - competitive analysis
+
+Then delegate synthesis to the Synthesis Agent.</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>run_parallel_agents</strong> - Execute multiple agents simultaneously</li>
+                                <li class="tool-item"><strong>gather_results</strong> - Collect all parallel results</li>
+                                <li class="tool-item"><strong>delegate_synthesis</strong> - Send to synthesis agent</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Performance Optimization</h3>
+                            <p>Parallel execution reduces total time from ~15 seconds (sequential) to ~5 seconds (parallel).</p>
+                        </div>
+                    `
+                },
+                'news-agent': {
+                    name: '📰 News Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a News Analysis Agent.
+
+Your purpose is to gather and summarize recent news about a company from reliable sources.
+
+You do NOT:
+- Analyze stock prices
+- Make recommendations
+- Access internal databases
+
+You ONLY search news sources and summarize findings.
+
+Sources to check:
+1. Major financial news sites
+2. Company press releases
+3. Industry publications
+4. Regulatory filings</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>search_news_api</strong> - Query news aggregators</li>
+                                <li class="tool-item"><strong>fetch_press_releases</strong> - Company announcements</li>
+                                <li class="tool-item"><strong>summarize_articles</strong> - Extract key points</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'stock-agent': {
+                    name: '📈 Stock Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Stock Data Agent.
+
+Your purpose is to retrieve current and historical stock price data for analysis.
+
+You do NOT:
+- Provide investment advice
+- Analyze news or fundamentals
+- Make predictions
+
+You ONLY fetch and format stock data.
+
+Data retrieved:
+1. Current price and volume
+2. Historical price trends
+3. Key financial metrics (P/E, etc.)
+4. Market capitalization</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>get_stock_price</strong> - Current market data</li>
+                                <li class="tool-item"><strong>get_historical_data</strong> - Price history</li>
+                                <li class="tool-item"><strong>get_financial_metrics</strong> - Ratios and indicators</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'competitor-agent': {
+                    name: '🔍 Competitor Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Competitor Analysis Agent.
+
+Your purpose is to gather information about competitors and compare key metrics.
+
+You do NOT:
+- Access confidential data
+- Make strategic recommendations
+- Contact competitor companies
+
+You ONLY analyze publicly available information.
+
+Analysis areas:
+1. Market share comparisons
+2. Product portfolio
+3. Recent strategic moves
+4. Financial performance</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>identify_competitors</strong> - Find similar companies</li>
+                                <li class="tool-item"><strong>compare_metrics</strong> - Side-by-side comparison</li>
+                                <li class="tool-item"><strong>analyze_strategy</strong> - Strategic positioning</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'synthesis-agent': {
+                    name: '📊 Synthesis Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Synthesis Agent.
+
+Your purpose is to combine information from multiple sources into a coherent, comprehensive report.
+
+You do NOT:
+- Gather data yourself
+- Make final investment decisions
+- Override source findings
+
+You ONLY synthesize and cite sources.
+
+Process:
+1. Review all inputs from specialist agents
+2. Identify key themes and patterns
+3. Reconcile conflicting information
+4. Create structured report with citations
+5. Highlight gaps in information</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>generate_report</strong> - Create formatted document</li>
+                                <li class="tool-item"><strong>cite_sources</strong> - Add source attribution</li>
+                                <li class="tool-item"><strong>identify_conflicts</strong> - Flag contradictions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Key Responsibility</h3>
+                            <p>Always cite sources for claims. If sources conflict, present both perspectives and note the discrepancy.</p>
+                        </div>
+                    `
+                },
+                'classifier-agent': {
+                    name: '🔍 Classifier Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Request Classification Agent.
+
+Your purpose is to analyze customer requests and determine their type and urgency for proper routing.
+
+You do NOT:
+- Solve the customer's problem
+- Escalate directly
+- Route requests yourself
+
+You ONLY classify and return routing information.
+
+Classification categories:
+1. Technical (bugs, errors, system issues)
+2. Billing (payments, invoices, charges)
+3. Account (login, password, access)
+4. General (other inquiries)
+
+Urgency levels:
+- URGENT: System down, security issue
+- HIGH: Account locked, payment failed
+- MEDIUM: General questions
+- LOW: Feature requests</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>analyze_content</strong> - Extract keywords and intent</li>
+                                <li class="tool-item"><strong>determine_urgency</strong> - Assess priority level</li>
+                                <li class="tool-item"><strong>get_confidence_score</strong> - Classification certainty</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Escalation Logic</h3>
+                            <p>If confidence < 70%, escalate to human for classification. Better to ask than route incorrectly.</p>
+                        </div>
+                    `
+                },
+                'tech-agent': {
+                    name: '🔧 Technical Support Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Technical Support Agent.
+
+Your purpose is to diagnose and resolve technical issues reported by customers.
+
+You do NOT:
+- Handle billing or account issues
+- Make system changes without approval
+- Access customer payment information
+
+You ONLY troubleshoot technical problems.
+
+Capabilities:
+1. Check system status
+2. Review error logs
+3. Test user account
+4. Provide troubleshooting steps
+5. Escalate to engineering if needed</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>check_system_status</strong> - Verify service health</li>
+                                <li class="tool-item"><strong>query_error_logs</strong> - Find relevant errors</li>
+                                <li class="tool-item"><strong>run_diagnostic</strong> - Test user setup</li>
+                                <li class="tool-item"><strong>escalate_to_engineering</strong> - For bugs</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'billing-agent': {
+                    name: '💳 Billing Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Billing Support Agent.
+
+Your purpose is to resolve billing inquiries and payment issues.
+
+You do NOT:
+- Process refunds without approval
+- Access technical systems
+- Make account changes
+
+You ONLY handle billing matters.
+
+Services provided:
+1. Explain charges
+2. Update payment methods
+3. Process approved refunds
+4. Resolve payment failures
+5. Generate invoices</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>get_billing_history</strong> - Fetch past charges</li>
+                                <li class="tool-item"><strong>update_payment_method</strong> - Change card on file</li>
+                                <li class="tool-item"><strong>process_refund</strong> - Issue approved refunds</li>
+                                <li class="tool-item"><strong>generate_invoice</strong> - Create billing document</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'account-agent': {
+                    name: '👤 Account Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are an Account Management Agent.
+
+Your purpose is to help customers with account access and profile issues.
+
+You do NOT:
+- Handle technical bugs
+- Process payments
+- Make policy exceptions
+
+You ONLY manage account access and settings.
+
+Services:
+1. Reset passwords
+2. Unlock accounts
+3. Update profile information
+4. Manage security settings
+5. Handle 2FA issues</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>reset_password</strong> - Send reset link</li>
+                                <li class="tool-item"><strong>unlock_account</strong> - Remove security lock</li>
+                                <li class="tool-item"><strong>update_profile</strong> - Change account details</li>
+                                <li class="tool-item"><strong>manage_2fa</strong> - Two-factor settings</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'monitoring-agent': {
+                    name: '📡 Monitoring Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Network Monitoring Agent.
+
+Your purpose is to detect anomalies and coordinate investigation with other specialist agents.
+
+You do NOT:
+- Fix issues directly
+- Modify network configuration
+- Make decisions about remediation
+
+You detect, investigate, and coordinate diagnosis.
+
+When anomaly detected:
+1. Assess severity
+2. Query Topology Agent for layout
+3. Ask Log Agent to check relevant logs
+4. Request Traffic Agent for pattern analysis
+5. Coordinate with Diagnosis Agent for root cause</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>detect_anomaly</strong> - Identify unusual patterns</li>
+                                <li class="tool-item"><strong>assess_severity</strong> - Determine impact level</li>
+                                <li class="tool-item"><strong>coordinate_with_agent</strong> - Direct communication with specialists</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Peer-to-Peer Communication</h3>
+                            <p>Directly queries other agents as needed based on findings. No central orchestrator dictates the flow.</p>
+                        </div>
+                    `
+                },
+                'topology-agent': {
+                    name: '🗺️ Topology Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Network Topology Agent.
+
+Your purpose is to provide network layout information to help diagnose issues.
+
+You do NOT:
+- Detect anomalies
+- Make diagnostic decisions
+- Modify network configuration
+
+You ONLY provide topology data when requested.
+
+Information provided:
+1. Device locations
+2. Network segments
+3. Connection paths
+4. Device types and roles
+5. Redundancy paths</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>get_network_map</strong> - Full topology diagram</li>
+                                <li class="tool-item"><strong>get_device_connections</strong> - Specific device links</li>
+                                <li class="tool-item"><strong>find_path</strong> - Route between endpoints</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'log-agent': {
+                    name: '📝 Log Analysis Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Log Analysis Agent.
+
+Your purpose is to search and analyze device logs for errors and warnings.
+
+You do NOT:
+- Detect anomalies
+- Make remediation decisions
+- Modify devices
+
+You ONLY analyze logs when requested.
+
+Analysis capabilities:
+1. Search for errors in time range
+2. Filter by device type
+3. Identify error patterns
+4. Extract relevant log entries
+5. Correlate related events</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>search_logs</strong> - Query log database</li>
+                                <li class="tool-item"><strong>filter_by_severity</strong> - Focus on critical errors</li>
+                                <li class="tool-item"><strong>correlate_events</strong> - Find related log entries</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'traffic-agent': {
+                    name: '📊 Traffic Analysis Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Traffic Analysis Agent.
+
+Your purpose is to analyze network traffic patterns to identify issues.
+
+You do NOT:
+- Detect initial anomalies
+- Make diagnostic conclusions
+- Block traffic
+
+You ONLY analyze traffic when requested.
+
+Analysis types:
+1. Traffic volume trends
+2. Protocol distribution
+3. Unusual patterns
+4. Bandwidth utilization
+5. Connection statistics</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>analyze_traffic_volume</strong> - Traffic over time</li>
+                                <li class="tool-item"><strong>identify_patterns</strong> - Detect anomalies</li>
+                                <li class="tool-item"><strong>get_bandwidth_stats</strong> - Utilization metrics</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'diagnosis-agent': {
+                    name: '🔬 Diagnosis Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Network Diagnosis Agent.
+
+Your purpose is to synthesize findings from all specialist agents and determine root cause.
+
+You do NOT:
+- Gather data yourself
+- Implement fixes
+- Modify network
+
+You ONLY synthesize findings and recommend actions.
+
+Process:
+1. Receive findings from all agents
+2. Correlate information
+3. Identify root cause
+4. Suggest remediation
+5. Estimate impact
+6. Recommend monitoring</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>correlate_findings</strong> - Connect related data</li>
+                                <li class="tool-item"><strong>determine_root_cause</strong> - Identify primary issue</li>
+                                <li class="tool-item"><strong>generate_remediation</strong> - Create action plan</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'orchestrator-rag': {
+                    name: '🎯 Query Coordinator',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Query Coordination Agent for Multi-Agent RAG.
+
+Your purpose is to decompose complex questions into sub-queries and coordinate retrieval across multiple sources.
+
+You do NOT:
+- Retrieve information yourself
+- Generate final answers
+- Make judgments about source quality
+
+You ONLY decompose queries and coordinate retrieval.
+
+Process:
+1. Analyze the research question
+2. Break into focused sub-questions
+3. Determine which agents to query
+4. Execute parallel retrieval
+5. Pass results to Synthesis Agent</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>decompose_query</strong> - Break into sub-questions</li>
+                                <li class="tool-item"><strong>identify_required_sources</strong> - Determine which agents needed</li>
+                                <li class="tool-item"><strong>execute_parallel_retrieval</strong> - Query all sources at once</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'internal-search-agent': {
+                    name: '🗂️ Internal Documents Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are an Internal Knowledge Search Agent.
+
+Your purpose is to retrieve relevant information from company's internal knowledge base.
+
+You do NOT:
+- Search external sources
+- Synthesize information
+- Make recommendations
+
+You ONLY search internal documents and return relevant sections.
+
+Sources accessed:
+1. Internal wikis
+2. Product documentation
+3. Engineering notes
+4. Historical decisions
+5. Best practices guides</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>search_knowledge_base</strong> - Vector similarity search</li>
+                                <li class="tool-item"><strong>retrieve_document</strong> - Fetch full document</li>
+                                <li class="tool-item"><strong>extract_relevant_sections</strong> - Get specific passages</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'web-search-agent': {
+                    name: '🌐 Web Search Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Web Search Agent.
+
+Your purpose is to search public web sources for relevant information.
+
+You do NOT:
+- Access internal systems
+- Generate answers
+- Make recommendations
+
+You ONLY search and retrieve from public sources.
+
+Sources searched:
+1. Academic papers
+2. Industry blogs
+3. Technical documentation
+4. News articles
+5. Forum discussions</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>search_web</strong> - Query search engines</li>
+                                <li class="tool-item"><strong>fetch_webpage</strong> - Retrieve full content</li>
+                                <li class="tool-item"><strong>extract_citations</strong> - Get source attribution</li>
+                            </ul>
+                        </div>
+                    `
+                },
+                'database-agent': {
+                    name: '💾 Database Agent',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Database Query Agent.
+
+Your purpose is to retrieve structured data from databases to answer specific factual queries.
+
+You do NOT:
+- Search unstructured documents
+- Synthesize information
+- Write to databases
+
+You ONLY execute read-only SELECT queries.
+
+Data accessed:
+1. Product catalogs
+2. Customer records
+3. Transaction history
+4. Analytics tables
+5. Metrics databases</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>execute_query</strong> - Run parameterized SQL</li>
+                                <li class="tool-item"><strong>format_results</strong> - Structure output</li>
+                                <li class="tool-item"><strong>get_schema</strong> - Understand table structure</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Security</h3>
+                            <p>Only SELECT queries allowed. All queries parameterized to prevent SQL injection.</p>
+                        </div>
+                    `
+                },
+                'synthesis-rag-agent': {
+                    name: '📝 Synthesis Agent (RAG)',
+                    content: `
+                        <div class="modal-section">
+                            <h3>System Prompt</h3>
+                            <div class="code-block">You are a Synthesis Agent for Multi-Agent RAG.
+
+Your purpose is to combine information from multiple retrieval agents into a coherent, well-cited answer.
+
+You do NOT:
+- Retrieve information yourself
+- Make claims without sources
+- Prefer one source over others
+
+You ONLY synthesize and cite sources.
+
+Process:
+1. Review retrieved chunks from all agents
+2. Identify relevant information
+3. Synthesize into coherent answer
+4. Cite sources for every claim
+5. Note gaps in information
+6. Acknowledge contradictions</div>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Tools Available</h3>
+                            <ul class="tool-list">
+                                <li class="tool-item"><strong>generate_answer</strong> - Create synthesized response</li>
+                                <li class="tool-item"><strong>add_citations</strong> - Link claims to sources</li>
+                                <li class="tool-item"><strong>identify_gaps</strong> - Note missing information</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="modal-section">
+                            <h3>Critical Rule</h3>
+                            <p>NEVER make a claim without a citation. If sources conflict, present both perspectives and note the discrepancy.</p>
+                        </div>
+                    `
+                }
+            };
+            
+            // Generic fallback
+            return agents[agentId] || {
+                name: 'Agent Details',
+                content: '<p>Information not available for this agent.</p>'
+            };
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

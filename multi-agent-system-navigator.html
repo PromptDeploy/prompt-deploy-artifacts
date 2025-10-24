@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent System Navigator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #F5F5F5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            color: white;
+            padding: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .decision-step {
+            display: none;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        .decision-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        .step-number {
+            background: #22C55E;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-title {
+            flex: 1;
+        }
+
+        .step-title h2 {
+            font-size: 1.5rem;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+
+        .step-title p {
+            color: #616161;
+            font-size: 0.95rem;
+        }
+
+        .question {
+            background: #F5F5F5;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border-left: 4px solid #22C55E;
+        }
+
+        .question h3 {
+            font-size: 1.25rem;
+            color: #212121;
+            margin-bottom: 12px;
+        }
+
+        .question p {
+            color: #616161;
+            line-height: 1.7;
+        }
+
+        .options {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-card:hover {
+            border-color: #22C55E;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: #22C55E;
+            background: #E8FFF1;
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .option-icon {
+            font-size: 1.5rem;
+        }
+
+        .option-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #212121;
+        }
+
+        .option-description {
+            color: #616161;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .option-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag.blue { background: #E8F4FF; color: #0066FF; }
+        .tag.green { background: #E8FFF1; color: #22C55E; }
+        .tag.amber { background: #FFF4E6; color: #F59E0B; }
+        .tag.red { background: #FFE8E8; color: #EF4444; }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #22C55E;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #16A34A;
+        }
+
+        .btn-primary:disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #616161;
+            border: 2px solid #E0E0E0;
+        }
+
+        .btn-secondary:hover {
+            border-color: #22C55E;
+            color: #22C55E;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
+            border-left: 4px solid #22C55E;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .recommendation-box h3 {
+            color: #16A34A;
+            font-size: 1.25rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendation-item {
+            background: white;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .recommendation-item h4 {
+            color: #212121;
+            font-size: 1.125rem;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-item p {
+            color: #616161;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .final-summary {
+            display: none;
+        }
+
+        .final-summary.active {
+            display: block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #F5F5F5;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #22C55E;
+        }
+
+        .summary-card h4 {
+            color: #212121;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .summary-card p {
+            color: #616161;
+            font-size: 0.9rem;
+        }
+
+        .architecture-diagram {
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .diagram-content {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #616161;
+            line-height: 1.8;
+            white-space: pre;
+            text-align: left;
+            overflow-x: auto;
+        }
+
+        .info-box {
+            background: #E8F4FF;
+            border-left: 4px solid #0066FF;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+
+        .info-box p {
+            color: #0066FF;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: #FFF4E6;
+            border-left: 4px solid #F59E0B;
+            padding: 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+
+        .warning-box p {
+            color: #F59E0B;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 12px 16px;
+            background: #F5F5F5;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item {
+            color: #616161;
+        }
+
+        .breadcrumb-item.active {
+            color: #22C55E;
+            font-weight: 600;
+        }
+
+        .breadcrumb-separator {
+            color: #E0E0E0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .step-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧭 Multi-Agent System Navigator</h1>
+            <p>Answer a few questions to get personalized recommendations for your multi-agent system architecture.</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Step 1: Architecture Pattern -->
+            <div class="decision-step active" id="step1">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <div class="step-title">
+                        <h2>Architecture Pattern</h2>
+                        <p>Choose the foundational structure for your system</p>
+                    </div>
+                </div>
+
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item active">Architecture</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Orchestration</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Routing</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">State</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Errors</span>
+                </div>
+
+                <div class="question">
+                    <h3>Is your workflow predictable with clear sequential steps?</h3>
+                    <p>Consider whether you know in advance which agents need to run and in what order, or if the flow is dynamic and depends on runtime conditions.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="selectOption(this, 'step1', 'orchestrator')">
+                        <div class="option-header">
+                            <span class="option-icon">🎯</span>
+                            <span class="option-title">Yes - Predictable & Sequential</span>
+                        </div>
+                        <div class="option-description">
+                            My workflow has clear steps that need to happen in a specific order. I know which agents to use and when.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Orchestrator Pattern</span>
+                            <span class="tag green">Centralized Control</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step1', 'peer-to-peer')">
+                        <div class="option-header">
+                            <span class="option-icon">🕸️</span>
+                            <span class="option-title">No - Dynamic & Flexible</span>
+                        </div>
+                        <div class="option-description">
+                            My workflow is unpredictable. Agents need to decide at runtime which other agents to coordinate with based on the situation.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag amber">Peer-to-Peer Pattern</span>
+                            <span class="tag green">Decentralized</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step1', 'hybrid')">
+                        <div class="option-header">
+                            <span class="option-icon">🔀</span>
+                            <span class="option-title">Mixed - Some Predictable, Some Dynamic</span>
+                        </div>
+                        <div class="option-description">
+                            Parts of my workflow are predictable, but other parts require dynamic agent coordination based on results.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Hybrid Pattern</span>
+                            <span class="tag amber">Best of Both</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" onclick="nextStep(2)" id="step1Next" disabled>
+                        Continue →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Orchestration Strategy -->
+            <div class="decision-step" id="step2">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <div class="step-title">
+                        <h2>Orchestration Strategy</h2>
+                        <p>How should tasks be coordinated?</p>
+                    </div>
+                </div>
+
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">Architecture</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item active">Orchestration</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Routing</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">State</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Errors</span>
+                </div>
+
+                <div class="question">
+                    <h3>What's the relationship between your tasks?</h3>
+                    <p>Think about whether tasks depend on each other, can run simultaneously, or require conditional branching.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="selectOption(this, 'step2', 'sequential')">
+                        <div class="option-header">
+                            <span class="option-icon">➡️</span>
+                            <span class="option-title">Sequential - One After Another</span>
+                        </div>
+                        <div class="option-description">
+                            Each task depends on the previous one. Task B needs the output from Task A to proceed.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Sequential Execution</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step2', 'parallel')">
+                        <div class="option-header">
+                            <span class="option-icon">⚡</span>
+                            <span class="option-title">Parallel - All at Once</span>
+                        </div>
+                        <div class="option-description">
+                            Tasks are independent and can run simultaneously to save time. No task depends on another.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag green">Parallel Execution</span>
+                            <span class="tag blue">Fast</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step2', 'conditional')">
+                        <div class="option-header">
+                            <span class="option-icon">🔀</span>
+                            <span class="option-title">Conditional - Branch Based on Results</span>
+                        </div>
+                        <div class="option-description">
+                            Different paths based on outcomes. If condition X is true, do Y; otherwise do Z.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag amber">Conditional Logic</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step2', 'hybrid-orchestration')">
+                        <div class="option-header">
+                            <span class="option-icon">🎭</span>
+                            <span class="option-title">Hybrid - Combination of All</span>
+                        </div>
+                        <div class="option-description">
+                            Complex workflows that combine sequential, parallel, and conditional patterns.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Sequential</span>
+                            <span class="tag green">Parallel</span>
+                            <span class="tag amber">Conditional</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="previousStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)" id="step2Next" disabled>
+                        Continue →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Routing Strategy -->
+            <div class="decision-step" id="step3">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <div class="step-title">
+                        <h2>Routing Strategy</h2>
+                        <p>How should requests be directed to agents?</p>
+                    </div>
+                </div>
+
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">Architecture</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Orchestration</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item active">Routing</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">State</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Errors</span>
+                </div>
+
+                <div class="question">
+                    <h3>How should incoming requests be distributed?</h3>
+                    <p>Consider the nature of your requests and how they should be matched to agents.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="selectOption(this, 'step3', 'content-based')">
+                        <div class="option-header">
+                            <span class="option-icon">🔍</span>
+                            <span class="option-title">Content-Based - By Request Type</span>
+                        </div>
+                        <div class="option-description">
+                            Route based on keywords, topics, or request content. Technical questions go to tech support, billing to finance, etc.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Content Analysis</span>
+                            <span class="tag green">Intelligent</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step3', 'round-robin')">
+                        <div class="option-header">
+                            <span class="option-icon">🔄</span>
+                            <span class="option-title">Round-Robin - Distribute Evenly</span>
+                        </div>
+                        <div class="option-description">
+                            Spread requests evenly across multiple identical agents for load balancing.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag green">Load Balancing</span>
+                            <span class="tag blue">Simple</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step3', 'priority-based')">
+                        <div class="option-header">
+                            <span class="option-icon">⚡</span>
+                            <span class="option-title">Priority-Based - By Urgency</span>
+                        </div>
+                        <div class="option-description">
+                            Route urgent requests immediately, queue normal requests. Handle critical issues first.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag amber">Priority Queues</span>
+                            <span class="tag red">Urgent First</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step3', 'capability-based')">
+                        <div class="option-header">
+                            <span class="option-icon">🎯</span>
+                            <span class="option-title">Capability-Based - By Agent Skills</span>
+                        </div>
+                        <div class="option-description">
+                            Match requests to agents based on their specific capabilities and current availability.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Skill Matching</span>
+                            <span class="tag green">Optimized</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="previousStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(4)" id="step3Next" disabled>
+                        Continue →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: State Management -->
+            <div class="decision-step" id="step4">
+                <div class="step-header">
+                    <div class="step-number">4</div>
+                    <div class="step-title">
+                        <h2>State Management</h2>
+                        <p>How should your system remember information?</p>
+                    </div>
+                </div>
+
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">Architecture</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Orchestration</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Routing</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item active">State</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Errors</span>
+                </div>
+
+                <div class="question">
+                    <h3>Does your system need to remember information across sessions?</h3>
+                    <p>Consider whether state is temporary (just for one workflow) or needs to persist long-term.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="selectOption(this, 'step4', 'ephemeral')">
+                        <div class="option-header">
+                            <span class="option-icon">💨</span>
+                            <span class="option-title">Ephemeral Only - Temporary State</span>
+                        </div>
+                        <div class="option-description">
+                            State only needed during workflow execution. Can be discarded when done.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">In-Memory</span>
+                            <span class="tag green">Fast</span>
+                            <span class="tag amber">Temporary</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step4', 'persistent')">
+                        <div class="option-header">
+                            <span class="option-icon">💾</span>
+                            <span class="option-title">Persistent - Long-Term Storage</span>
+                        </div>
+                        <div class="option-description">
+                            Need to save user data, transaction history, or system state across multiple sessions and restarts.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Database</span>
+                            <span class="tag green">Durable</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step4', 'both')">
+                        <div class="option-header">
+                            <span class="option-icon">🔄</span>
+                            <span class="option-title">Both - Hybrid State</span>
+                        </div>
+                        <div class="option-description">
+                            Use ephemeral state for workflow context and persistent state for important data that must survive.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Ephemeral</span>
+                            <span class="tag green">Persistent</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question" style="margin-top: 32px;">
+                    <h3>Will multiple agents access the same data simultaneously?</h3>
+                    <p>If yes, you'll need state coordination to prevent conflicts.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="selectOption(this, 'step4-coordination', 'no-concurrent')">
+                        <div class="option-header">
+                            <span class="option-icon">1️⃣</span>
+                            <span class="option-title">No - Sequential Access</span>
+                        </div>
+                        <div class="option-description">
+                            Only one agent accesses data at a time. No concurrency concerns.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag green">Simple</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step4-coordination', 'low-concurrent')">
+                        <div class="option-header">
+                            <span class="option-icon">🔒</span>
+                            <span class="option-title">Yes - Low Concurrency</span>
+                        </div>
+                        <div class="option-description">
+                            Occasional concurrent access. Use pessimistic locking (database locks) for critical sections.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Database Locks</span>
+                            <span class="tag amber">Safe</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="selectOption(this, 'step4-coordination', 'high-concurrent')">
+                        <div class="option-header">
+                            <span class="option-icon">⚡</span>
+                            <span class="option-title">Yes - High Concurrency</span>
+                        </div>
+                        <div class="option-description">
+                            Frequent concurrent access. Use optimistic concurrency control (version checking) for better performance.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag green">Version Control</span>
+                            <span class="tag blue">High Performance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="previousStep(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="nextStep(5)" id="step4Next" disabled>
+                        Continue →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Error Handling -->
+            <div class="decision-step" id="step5">
+                <div class="step-header">
+                    <div class="step-number">5</div>
+                    <div class="step-title">
+                        <h2>Error Handling</h2>
+                        <p>How should your system handle failures?</p>
+                    </div>
+                </div>
+
+                <div class="breadcrumb">
+                    <span class="breadcrumb-item">Architecture</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Orchestration</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">Routing</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item">State</span>
+                    <span class="breadcrumb-separator">→</span>
+                    <span class="breadcrumb-item active">Errors</span>
+                </div>
+
+                <div class="question">
+                    <h3>What types of failures are most likely?</h3>
+                    <p>Select all that apply to help determine your error handling strategy.</p>
+                </div>
+
+                <div class="options">
+                    <div class="option-card" onclick="toggleMultiSelect(this, 'step5', 'transient')">
+                        <div class="option-header">
+                            <span class="option-icon">🔄</span>
+                            <span class="option-title">Transient Errors (Network, Timeouts)</span>
+                        </div>
+                        <div class="option-description">
+                            Temporary issues that usually resolve themselves. Use retry with exponential backoff.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag blue">Retry Logic</span>
+                            <span class="tag green">Exponential Backoff</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleMultiSelect(this, 'step5', 'service-failure')">
+                        <div class="option-header">
+                            <span class="option-icon">🔀</span>
+                            <span class="option-title">Service Failures</span>
+                        </div>
+                        <div class="option-description">
+                            External services or APIs may be down. Need fallback alternatives or cached data.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag amber">Fallback Pattern</span>
+                            <span class="tag blue">Circuit Breaker</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleMultiSelect(this, 'step5', 'partial-completion')">
+                        <div class="option-header">
+                            <span class="option-icon">↩️</span>
+                            <span class="option-title">Partial Workflow Failures</span>
+                        </div>
+                        <div class="option-description">
+                            Some steps complete but later ones fail. Need to undo completed actions (compensation).
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag amber">Compensation</span>
+                            <span class="tag red">Rollback</span>
+                        </div>
+                    </div>
+
+                    <div class="option-card" onclick="toggleMultiSelect(this, 'step5', 'ambiguous')">
+                        <div class="option-header">
+                            <span class="option-icon">👤</span>
+                            <span class="option-title">Ambiguous or Critical Situations</span>
+                        </div>
+                        <div class="option-description">
+                            Complex failures requiring human judgment. Implement escalation workflows.
+                        </div>
+                        <div class="option-tags">
+                            <span class="tag red">Human Escalation</span>
+                            <span class="tag amber">Manual Review</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <p><strong>💡 Tip:</strong> Most production systems need multiple error handling strategies. Select all that apply to your use case.</p>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="previousStep(4)">← Back</button>
+                    <button class="btn btn-primary" onclick="generateRecommendations()" id="step5Next" disabled>
+                        Generate Recommendations →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Final Summary -->
+            <div class="final-summary" id="finalSummary">
+                <div class="step-header">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">
+                        <h2>Your Personalized Architecture</h2>
+                        <p>Based on your answers, here's your recommended system design</p>
+                    </div>
+                </div>
+
+                <div class="recommendation-box">
+                    <h3>🎯 Architecture Overview</h3>
+                    <div id="architectureOverview"></div>
+                </div>
+
+                <div class="architecture-diagram">
+                    <div class="diagram-title">System Architecture Diagram</div>
+                    <div class="diagram-content" id="diagramContent"></div>
+                </div>
+
+                <div class="summary-grid" id="summaryGrid"></div>
+
+                <div class="recommendation-box">
+                    <h3>📋 Implementation Checklist</h3>
+                    <div id="implementationChecklist"></div>
+                </div>
+
+                <div class="recommendation-box">
+                    <h3>⚠️ Critical Considerations</h3>
+                    <div id="criticalConsiderations"></div>
+                </div>
+
+                <div class="recommendation-box">
+                    <h3>🔗 Next Steps & Resources</h3>
+                    <div id="nextSteps"></div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-secondary" onclick="resetNavigator()">← Start Over</button>
+                    <button class="btn btn-primary" onclick="exportRecommendations()">Export as PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        const state = {
+            architecture: null,
+            orchestration: null,
+            routing: null,
+            stateManagement: null,
+            stateCoordination: null,
+            errorHandling: [],
+            currentStep: 1
+        };
+
+        // Track selections
+        function selectOption(element, step, value) {
+            // Remove selected class from all options in this step
+            const options = element.parentElement.querySelectorAll('.option-card');
+            options.forEach(opt => opt.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            
+            // Store selection
+            if (step === 'step1') state.architecture = value;
+            if (step === 'step2') state.orchestration = value;
+            if (step === 'step3') state.routing = value;
+            if (step === 'step4') state.stateManagement = value;
+            if (step === 'step4-coordination') state.stateCoordination = value;
+            
+            // Enable next button
+            const nextButton = document.getElementById(step + 'Next');
+            if (nextButton) {
+                if (step === 'step4') {
+                    // Step 4 requires both selections
+                    if (state.stateManagement && state.stateCoordination) {
+                        nextButton.disabled = false;
+                    }
+                } else {
+                    nextButton.disabled = false;
+                }
+            }
+        }
+
+        // Multi-select for error handling
+        function toggleMultiSelect(element, step, value) {
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                if (!state.errorHandling.includes(value)) {
+                    state.errorHandling.push(value);
+                }
+            } else {
+                state.errorHandling = state.errorHandling.filter(v => v !== value);
+            }
+            
+            // Enable button if at least one is selected
+            const nextButton = document.getElementById('step5Next');
+            if (nextButton) {
+                nextButton.disabled = state.errorHandling.length === 0;
+            }
+        }
+
+        // Navigation
+        function nextStep(stepNumber) {
+            // Hide current step
+            document.querySelectorAll('.decision-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show next step
+            document.getElementById('step' + stepNumber).classList.add('active');
+            state.currentStep = stepNumber;
+            
+            // Update progress bar
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function previousStep(stepNumber) {
+            nextStep(stepNumber);
+        }
+
+        function updateProgress() {
+            const progress = (state.currentStep / 5) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Generate recommendations
+        function generateRecommendations() {
+            // Hide all steps
+            document.querySelectorAll('.decision-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // Show final summary
+            document.getElementById('finalSummary').classList.add('active');
+            
+            // Update progress to 100%
+            document.getElementById('progressBar').style.width = '100%';
+            
+            // Generate content
+            generateArchitectureOverview();
+            generateDiagram();
+            generateSummaryCards();
+            generateChecklist();
+            generateConsiderations();
+            generateNextSteps();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function generateArchitectureOverview() {
+            const container = document.getElementById('architectureOverview');
+            
+            let archType = '';
+            if (state.architecture === 'orchestrator') {
+                archType = 'Orchestrator Pattern (Centralized)';
+            } else if (state.architecture === 'peer-to-peer') {
+                archType = 'Peer-to-Peer Pattern (Decentralized)';
+            } else {
+                archType = 'Hybrid Pattern (Mixed Centralized/Decentralized)';
+            }
+            
+            container.innerHTML = `
+                <div class="recommendation-item">
+                    <h4>${archType}</h4>
+                    <p>${getArchitectureDescription()}</p>
+                </div>
+            `;
+        }
+
+        function getArchitectureDescription() {
+            if (state.architecture === 'orchestrator') {
+                return 'Your system uses a central orchestrator that coordinates all agent activities. This provides clear control flow, easier debugging, and comprehensive audit trails. Best for predictable workflows with defined sequences.';
+            } else if (state.architecture === 'peer-to-peer') {
+                return 'Your system allows agents to communicate directly with each other as needed. This provides flexibility and avoids central bottlenecks. Best for dynamic, unpredictable workflows where agents need to self-coordinate.';
+            } else {
+                return 'Your system combines centralized orchestration for predictable parts with peer-to-peer coordination for dynamic parts. This balances control with flexibility.';
+            }
+        }
+
+        function generateDiagram() {
+            const container = document.getElementById('diagramContent');
+            let diagram = '';
+            
+            if (state.architecture === 'orchestrator') {
+                diagram = `
+User Request
+     ↓
+Orchestrator Agent
+     ↓
+     ├→ ${getOrchestrationFlow()}
+     ↓
+Final Response`;
+            } else if (state.architecture === 'peer-to-peer') {
+                diagram = `
+User Request → Router
+     ↓
+Primary Agent ←→ Specialist Agents
+     ↓
+Final Response`;
+            } else {
+                diagram = `
+User Request
+     ↓
+Main Orchestrator
+     ↓
+     ├→ Coordinated Agents (Sequential/Parallel)
+     └→ Autonomous Agents (Peer-to-Peer)
+     ↓
+Final Response`;
+            }
+            
+            container.textContent = diagram;
+        }
+
+        function getOrchestrationFlow() {
+            if (state.orchestration === 'sequential') {
+                return 'Agent A → Agent B → Agent C';
+            } else if (state.orchestration === 'parallel') {
+                return 'Agent A, Agent B, Agent C (parallel) → Synthesis';
+            } else if (state.orchestration === 'conditional') {
+                return 'Classifier → [if X: Agent A | else: Agent B]';
+            } else {
+                return 'Mixed: Sequential + Parallel + Conditional';
+            }
+        }
+
+        function generateSummaryCards() {
+            const container = document.getElementById('summaryGrid');
+            
+            const cards = [
+                {
+                    title: 'Orchestration',
+                    value: formatOrchestration(state.orchestration)
+                },
+                {
+                    title: 'Routing',
+                    value: formatRouting(state.routing)
+                },
+                {
+                    title: 'State Management',
+                    value: formatState(state.stateManagement, state.stateCoordination)
+                },
+                {
+                    title: 'Error Handling',
+                    value: formatErrorHandling(state.errorHandling)
+                }
+            ];
+            
+            container.innerHTML = cards.map(card => `
+                <div class="summary-card">
+                    <h4>${card.title}</h4>
+                    <p>${card.value}</p>
+                </div>
+            `).join('');
+        }
+
+        function formatOrchestration(value) {
+            const map = {
+                'sequential': 'Sequential execution - one after another',
+                'parallel': 'Parallel execution - all at once',
+                'conditional': 'Conditional branching - based on results',
+                'hybrid-orchestration': 'Hybrid - combining multiple patterns'
+            };
+            return map[value] || value;
+        }
+
+        function formatRouting(value) {
+            const map = {
+                'content-based': 'Content-based - by request type',
+                'round-robin': 'Round-robin - even distribution',
+                'priority-based': 'Priority-based - by urgency',
+                'capability-based': 'Capability-based - by agent skills'
+            };
+            return map[value] || value;
+        }
+
+        function formatState(mgmt, coord) {
+            const mgmtMap = {
+                'ephemeral': 'Ephemeral (in-memory)',
+                'persistent': 'Persistent (database)',
+                'both': 'Hybrid (ephemeral + persistent)'
+            };
+            
+            const coordMap = {
+                'no-concurrent': 'No concurrency concerns',
+                'low-concurrent': 'Pessimistic locking',
+                'high-concurrent': 'Optimistic concurrency control'
+            };
+            
+            return `${mgmtMap[mgmt] || mgmt} with ${coordMap[coord] || coord}`;
+        }
+
+        function formatErrorHandling(errors) {
+            const map = {
+                'transient': 'Retry with backoff',
+                'service-failure': 'Fallback & circuit breaker',
+                'partial-completion': 'Compensation',
+                'ambiguous': 'Human escalation'
+            };
+            
+            if (errors.length === 0) return 'None selected';
+            return errors.map(e => map[e] || e).join(', ');
+        }
+
+        function generateChecklist() {
+            const container = document.getElementById('implementationChecklist');
+            
+            const items = [
+                'Define agent system prompts with clear responsibilities',
+                'Implement robust tools with error handling',
+                `Set up ${state.orchestration} orchestration logic`,
+                `Configure ${state.routing} routing mechanism`,
+                `Implement ${state.stateManagement} state management`,
+                state.stateCoordination !== 'no-concurrent' ? `Add ${state.stateCoordination} coordination` : null,
+                ...state.errorHandling.map(e => `Add ${formatErrorHandling([e])} pattern`),
+                'Add comprehensive logging',
+                'Set up monitoring and alerts',
+                'Write tests for concurrent scenarios'
+            ].filter(Boolean);
+            
+            container.innerHTML = items.map((item, i) => `
+                <div class="recommendation-item">
+                    <h4>Step ${i + 1}</h4>
+                    <p>${item}</p>
+                </div>
+            `).join('');
+        }
+
+        function generateConsiderations() {
+            const container = document.getElementById('criticalConsiderations');
+            
+            const considerations = [];
+            
+            if (state.architecture === 'orchestrator') {
+                considerations.push({
+                    title: 'Bottleneck Risk',
+                    text: 'The orchestrator can become a bottleneck. Monitor its performance and consider scaling if needed.'
+                });
+            }
+            
+            if (state.orchestration === 'parallel') {
+                considerations.push({
+                    title: 'Resource Usage',
+                    text: 'Parallel execution increases resource usage. Ensure your infrastructure can handle concurrent operations.'
+                });
+            }
+            
+            if (state.stateCoordination === 'high-concurrent') {
+                considerations.push({
+                    title: 'Retry Budgets',
+                    text: 'With optimistic concurrency, implement retry limits to prevent infinite loops during high contention.'
+                });
+            }
+            
+            if (state.errorHandling.includes('partial-completion')) {
+                considerations.push({
+                    title: 'Idempotency',
+                    text: 'Ensure compensation actions are idempotent - safe to execute multiple times.'
+                });
+            }
+            
+            container.innerHTML = considerations.map(c => `
+                <div class="recommendation-item">
+                    <h4>${c.title}</h4>
+                    <p>${c.text}</p>
+                </div>
+            `).join('');
+        }
+
+        function generateNextSteps() {
+            const container = document.getElementById('nextSteps');
+            
+            container.innerHTML = `
+                <div class="recommendation-item">
+                    <h4>1. Review Implementation Patterns Library</h4>
+                    <p>Open the Implementation Patterns Library artifact to find complete code examples for each component you need.</p>
+                </div>
+                <div class="recommendation-item">
+                    <h4>2. Start with System Prompts</h4>
+                    <p>Define clear system prompts for each agent using the 4-part structure (Identity, Purpose, Boundaries, Capabilities).</p>
+                </div>
+                <div class="recommendation-item">
+                    <h4>3. Build Core Tools</h4>
+                    <p>Implement robust, error-resistant tools following the patterns in the library.</p>
+                </div>
+                <div class="recommendation-item">
+                    <h4>4. Test Each Component</h4>
+                    <p>Test agents individually before integrating them into the complete workflow.</p>
+                </div>
+                <div class="recommendation-item">
+                    <h4>5. Add Observability</h4>
+                    <p>Implement comprehensive logging and monitoring before deploying to production.</p>
+                </div>
+            `;
+        }
+
+        function resetNavigator() {
+            // Reset state
+            state.architecture = null;
+            state.orchestration = null;
+            state.routing = null;
+            state.stateManagement = null;
+            state.stateCoordination = null;
+            state.errorHandling = [];
+            state.currentStep = 1;
+            
+            // Reset UI
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.btn-primary').forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // Show first step
+            nextStep(1);
+        }
+
+        function exportRecommendations() {
+            alert('Export functionality would generate a PDF with your architecture recommendations. This would be implemented with a library like jsPDF in production.');
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>

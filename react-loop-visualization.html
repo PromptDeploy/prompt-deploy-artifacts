@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReAct Framework - Interactive Loop Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #F5F5F5;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1A1A1A;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .framework-intro {
+            background: linear-gradient(135deg, #F0F7FF 0%, #E8F4FF 100%);
+            border-left: 4px solid #0066FF;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .framework-intro h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0066FF;
+            margin-bottom: 12px;
+        }
+
+        .framework-intro p {
+            font-size: 0.9375rem;
+            color: #212121;
+            line-height: 1.6;
+        }
+
+        .example-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .example-btn {
+            background: white;
+            border: 2px solid #E0E0E0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .example-btn:hover {
+            border-color: #0066FF;
+            background: #F0F7FF;
+        }
+
+        .example-btn.active {
+            border-color: #0066FF;
+            background: #0066FF;
+            color: white;
+        }
+
+        .visualization-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .loop-diagram {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            background: #FAFAFA;
+            border-radius: 12px;
+            padding: 40px;
+        }
+
+        .loop-center {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: white;
+            border: 3px solid #0066FF;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .loop-center-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .loop-center-text {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0066FF;
+            text-align: center;
+        }
+
+        .loop-step {
+            position: absolute;
+            width: 140px;
+            padding: 16px;
+            background: white;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .loop-step.active {
+            border-color: #22C55E;
+            background: #F0FDF4;
+            transform: scale(1.1);
+            box-shadow: 0 8px 16px rgba(34, 197, 94, 0.2);
+        }
+
+        .loop-step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .loop-step-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .loop-step-desc {
+            font-size: 0.75rem;
+            color: #616161;
+            line-height: 1.4;
+        }
+
+        .step-thought {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .step-thought .loop-step-label { color: #7C3AED; }
+        .step-thought.active { border-color: #7C3AED; background: #F5F3FF; }
+
+        .step-action {
+            bottom: 20px;
+            left: 20px;
+        }
+
+        .step-action .loop-step-label { color: #22C55E; }
+        .step-action.active { border-color: #22C55E; background: #F0FDF4; }
+
+        .step-observation {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .step-observation .loop-step-label { color: #F59E0B; }
+        .step-observation.active { border-color: #F59E0B; background: #FFFBEB; }
+
+        .loop-arrows {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .arrow {
+            stroke: #E0E0E0;
+            stroke-width: 3;
+            fill: none;
+            transition: stroke 0.3s;
+        }
+
+        .arrow.active {
+            stroke: #22C55E;
+            animation: dash 1s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .execution-panel {
+            background: #FAFAFA;
+            border-radius: 12px;
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        .iteration-badge {
+            display: inline-block;
+            background: #0066FF;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .step-content {
+            background: white;
+            border-left: 4px solid;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInStep 0.4s forwards;
+        }
+
+        @keyframes fadeInStep {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-content.thought {
+            border-color: #7C3AED;
+            background: #F5F3FF;
+        }
+
+        .step-content.action {
+            border-color: #22C55E;
+            background: #F0FDF4;
+        }
+
+        .step-content.observation {
+            border-color: #F59E0B;
+            background: #FFFBEB;
+        }
+
+        .step-content.final {
+            border-color: #0066FF;
+            background: #F0F7FF;
+        }
+
+        .step-header {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .step-content.thought .step-header { color: #7C3AED; }
+        .step-content.action .step-header { color: #22C55E; }
+        .step-content.observation .step-header { color: #F59E0B; }
+        .step-content.final .step-header { color: #0066FF; }
+
+        .step-text {
+            font-size: 0.875rem;
+            color: #212121;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 24px;
+        }
+
+        .control-btn {
+            background: #0066FF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #0052CC;
+            transform: translateY(-2px);
+        }
+
+        .control-btn:disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-btn.secondary {
+            background: white;
+            color: #0066FF;
+            border: 2px solid #0066FF;
+        }
+
+        .control-btn.secondary:hover {
+            background: #F0F7FF;
+        }
+
+        .key-concepts {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .key-concepts h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #22C55E;
+            margin-bottom: 16px;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .concept-item {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #22C55E;
+        }
+
+        .concept-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #212121;
+            margin-bottom: 8px;
+        }
+
+        .concept-text {
+            font-size: 0.8125rem;
+            color: #616161;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+            color: #616161;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 968px) {
+            .visualization-container {
+                grid-template-columns: 1fr;
+            }
+
+            .loop-diagram {
+                min-height: 350px;
+            }
+
+            .loop-step {
+                width: 120px;
+                padding: 12px;
+            }
+
+            .step-thought {
+                top: 10px;
+            }
+
+            .step-action {
+                bottom: 10px;
+                left: 10px;
+            }
+
+            .step-observation {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>The ReAct Framework: Reason + Act</h1>
+            <p>An interactive visualization of how AI agents interleave reasoning and action to solve real-world tasks</p>
+        </div>
+
+        <div class="framework-intro">
+            <h2>What is ReAct?</h2>
+            <p><strong>ReAct (Reason + Act)</strong> is a prompting framework that synergizes reasoning and acting by interleaving thought steps with action steps in an iterative loop. Instead of just thinking or just acting, the agent alternates between reasoning about what it needs and executing tools to get information, creating a dynamic problem-solving cycle.</p>
+        </div>
+
+        <div class="example-selector">
+            <button class="example-btn active" onclick="loadExample('weather')">🌤️ Weather Query</button>
+            <button class="example-btn" onclick="loadExample('research')">📚 Research Task</button>
+            <button class="example-btn" onclick="loadExample('data')">💰 Data Analysis</button>
+        </div>
+
+        <div class="visualization-container">
+            <div class="loop-diagram">
+                <svg class="loop-arrows" viewBox="0 0 400 400">
+                    <!-- Arrow from THOUGHT to ACTION -->
+                    <path id="arrow1" class="arrow" d="M 200 120 Q 150 200 100 280" 
+                          stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+                    <!-- Arrow from ACTION to OBSERVATION -->
+                    <path id="arrow2" class="arrow" d="M 120 300 Q 200 320 280 300" 
+                          stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+                    <!-- Arrow from OBSERVATION to THOUGHT -->
+                    <path id="arrow3" class="arrow" d="M 300 280 Q 250 200 200 120" 
+                          stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+                            <polygon points="0 0, 10 5, 0 10" fill="#E0E0E0"/>
+                        </marker>
+                    </defs>
+                </svg>
+
+                <div class="loop-center">
+                    <div class="loop-center-icon">🔄</div>
+                    <div class="loop-center-text">ReAct<br>Loop</div>
+                </div>
+
+                <div class="loop-step step-thought" id="stepThought">
+                    <div class="loop-step-icon">🤔</div>
+                    <div class="loop-step-label">Thought</div>
+                    <div class="loop-step-desc">Plan next action</div>
+                </div>
+
+                <div class="loop-step step-action" id="stepAction">
+                    <div class="loop-step-icon">⚡</div>
+                    <div class="loop-step-label">Action</div>
+                    <div class="loop-step-desc">Execute tool</div>
+                </div>
+
+                <div class="loop-step step-observation" id="stepObservation">
+                    <div class="loop-step-icon">👁️</div>
+                    <div class="loop-step-label">Observation</div>
+                    <div class="loop-step-desc">Process results</div>
+                </div>
+            </div>
+
+            <div class="execution-panel" id="executionPanel">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn secondary" onclick="resetExample()">↻ Reset</button>
+            <button class="control-btn" id="nextBtn" onclick="nextStep()">Next Step →</button>
+            <button class="control-btn" id="autoBtn" onclick="autoPlay()">▶ Auto Play</button>
+        </div>
+
+        <div class="key-concepts">
+            <h3>Why ReAct is Powerful</h3>
+            <div class="concept-grid">
+                <div class="concept-item">
+                    <div class="concept-title">🔄 Dynamic Adaptation</div>
+                    <div class="concept-text">The agent adjusts its approach based on what it discovers, enabling flexible problem-solving</div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-title">🌐 Real-World Access</div>
+                    <div class="concept-text">Overcomes LLM limitations by accessing current data through external tools and APIs</div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-title">🔍 Transparent Reasoning</div>
+                    <div class="concept-text">Every decision is visible, making it easy to debug and understand the agent's thought process</div>
+                </div>
+                <div class="concept-item">
+                    <div class="concept-title">✅ Reduced Hallucination</div>
+                    <div class="concept-text">Grounds responses in actual data rather than relying on potentially outdated training knowledge</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Prompt Deploy Newsletter</strong> | Course 1: ReAct Framework Deep Dive</p>
+            <p style="margin-top: 8px; font-size: 0.75rem;">Click example buttons to explore different scenarios • Use Next Step to walk through the loop</p>
+        </div>
+    </div>
+
+    <script>
+        const examples = {
+            weather: {
+                title: "Weather Query",
+                query: "What's the weather like in San Francisco today?",
+                steps: [
+                    {
+                        type: 'thought',
+                        text: 'I need to get current weather information for San Francisco. I should use the weather API tool to fetch real-time data.'
+                    },
+                    {
+                        type: 'action',
+                        text: 'get_weather(location="San Francisco")'
+                    },
+                    {
+                        type: 'observation',
+                        text: 'Weather API returned: Temperature: 72°F, Conditions: Partly cloudy, Humidity: 65%, Wind: 8 mph'
+                    },
+                    {
+                        type: 'thought',
+                        text: 'I have all the weather information needed to answer the user\'s question. I can now provide a complete response.'
+                    },
+                    {
+                        type: 'final',
+                        text: 'final_answer("The weather in San Francisco today is partly cloudy with a temperature of 72°F. Humidity is at 65% with winds at 8 mph. It\'s a pleasant day!")'
+                    }
+                ]
+            },
+            research: {
+                title: "Research Task",
+                query: "What are the main causes of climate change according to recent scientific consensus?",
+                steps: [
+                    {
+                        type: 'thought',
+                        text: 'I need to search for authoritative scientific sources on climate change causes. I\'ll start with a web search to find recent research.'
+                    },
+                    {
+                        type: 'action',
+                        text: 'web_search(query="scientific consensus climate change causes 2024")'
+                    },
+                    {
+                        type: 'observation',
+                        text: 'Search returned 3 relevant sources: IPCC report, NASA climate page, peer-reviewed Nature article. All mention greenhouse gas emissions as primary cause.'
+                    },
+                    {
+                        type: 'thought',
+                        text: 'Good sources found. Let me fetch the IPCC report details to get specific information about greenhouse gases and their sources.'
+                    },
+                    {
+                        type: 'action',
+                        text: 'fetch_url(url="https://ipcc.ch/latest-report")'
+                    },
+                    {
+                        type: 'observation',
+                        text: 'IPCC report confirms: CO2 from fossil fuels (75%), methane from agriculture (18%), deforestation (10%), industrial processes (5%). Human activity is unequivocal cause.'
+                    },
+                    {
+                        type: 'thought',
+                        text: 'I now have comprehensive, authoritative information to answer the question with specific percentages and sources.'
+                    },
+                    {
+                        type: 'final',
+                        text: 'final_answer("According to the latest IPCC scientific consensus, the main causes of climate change are: 1) CO2 emissions from fossil fuels (75%), 2) Methane from agriculture (18%), 3) Deforestation (10%), and 4) Industrial processes (5%). Human activity is confirmed as the unequivocal driver of recent climate change.")'
+                    }
+                ]
+            },
+            data: {
+                title: "Data Analysis",
+                query: "What was Apple's revenue last quarter and how does it compare to analyst expectations?",
+                steps: [
+                    {
+                        type: 'thought',
+                        text: 'I need to find Apple\'s latest quarterly earnings. I\'ll search for their most recent earnings report.'
+                    },
+                    {
+                        type: 'action',
+                        text: 'get_stock_data(ticker="AAPL", data_type="earnings")'
+                    },
+                    {
+                        type: 'observation',
+                        text: 'Latest quarter (Q4 2024): Revenue = $94.9B, Date: October 2024'
+                    },
+                    {
+                        type: 'thought',
+                        text: 'I have the revenue figure. Now I need to find analyst expectations for that quarter to make a comparison.'
+                    },
+                    {
+                        type: 'action',
+                        text: 'web_search(query="Apple Q4 2024 analyst expectations revenue")'
+                    },
+                    {
+                        type: 'observation',
+                        text: 'Analyst consensus expected $94.5B in revenue for Q4 2024'
+                    },
+                    {
+                        type: 'thought',
+                        text: 'Perfect! I can now calculate the difference and provide a complete answer with context.'
+                    },
+                    {
+                        type: 'final',
+                        text: 'final_answer("Apple\'s revenue last quarter (Q4 2024) was $94.9 billion. This beat analyst expectations of $94.5 billion by $400 million, representing a positive surprise of approximately 0.4%.")'
+                    }
+                ]
+            }
+        };
+
+        let currentExample = 'weather';
+        let currentStep = 0;
+        let isAutoPlaying = false;
+        let autoPlayInterval;
+
+        function loadExample(exampleKey) {
+            currentExample = exampleKey;
+            currentStep = 0;
+            isAutoPlaying = false;
+            clearInterval(autoPlayInterval);
+
+            // Update button states
+            document.querySelectorAll('.example-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Reset visualization
+            resetVisualization();
+            renderStep();
+        }
+
+        function resetVisualization() {
+            document.getElementById('stepThought').classList.remove('active');
+            document.getElementById('stepAction').classList.remove('active');
+            document.getElementById('stepObservation').classList.remove('active');
+            document.querySelectorAll('.arrow').forEach(arrow => arrow.classList.remove('active'));
+        }
+
+        function renderStep() {
+            const example = examples[currentExample];
+            const panel = document.getElementById('executionPanel');
+            const nextBtn = document.getElementById('nextBtn');
+            const autoBtn = document.getElementById('autoBtn');
+
+            // Clear panel
+            panel.innerHTML = '';
+
+            // Add title
+            const titleEl = document.createElement('div');
+            titleEl.style.marginBottom = '16px';
+            titleEl.innerHTML = `<strong style="font-size: 1rem; color: #212121;">Query:</strong> <span style="font-size: 0.9375rem; color: #616161;">${example.query}</span>`;
+            panel.appendChild(titleEl);
+
+            // Render all steps up to current
+            let iteration = 1;
+            for (let i = 0; i <= currentStep && i < example.steps.length; i++) {
+                const step = example.steps[i];
+                
+                // Add iteration badge for thought steps
+                if (step.type === 'thought' && i > 0) {
+                    iteration++;
+                }
+                
+                if (step.type === 'thought') {
+                    const badge = document.createElement('div');
+                    badge.className = 'iteration-badge';
+                    badge.textContent = step.type === 'final' ? 'COMPLETION' : `ITERATION ${iteration}`;
+                    panel.appendChild(badge);
+                }
+
+                const stepEl = document.createElement('div');
+                stepEl.className = `step-content ${step.type}`;
+                stepEl.innerHTML = `
+                    <div class="step-header">${step.type === 'final' ? 'Final Answer' : step.type}</div>
+                    <div class="step-text">${step.text}</div>
+                `;
+                panel.appendChild(stepEl);
+            }
+
+            // Update loop visualization
+            updateLoopVisualization();
+
+            // Update button states
+            if (currentStep >= example.steps.length - 1) {
+                nextBtn.disabled = true;
+                autoBtn.disabled = true;
+                if (isAutoPlaying) {
+                    clearInterval(autoPlayInterval);
+                    isAutoPlaying = false;
+                    autoBtn.textContent = '▶ Auto Play';
+                }
+            } else {
+                nextBtn.disabled = false;
+                autoBtn.disabled = false;
+            }
+
+            // Scroll to bottom
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        function updateLoopVisualization() {
+            const example = examples[currentExample];
+            const currentStepData = example.steps[currentStep];
+
+            resetVisualization();
+
+            if (!currentStepData) return;
+
+            switch (currentStepData.type) {
+                case 'thought':
+                    document.getElementById('stepThought').classList.add('active');
+                    document.getElementById('arrow1').classList.add('active');
+                    break;
+                case 'action':
+                    document.getElementById('stepAction').classList.add('active');
+                    document.getElementById('arrow2').classList.add('active');
+                    break;
+                case 'observation':
+                    document.getElementById('stepObservation').classList.add('active');
+                    document.getElementById('arrow3').classList.add('active');
+                    break;
+                case 'final':
+                    // All steps glow for final answer
+                    break;
+            }
+        }
+
+        function nextStep() {
+            const example = examples[currentExample];
+            if (currentStep < example.steps.length - 1) {
+                currentStep++;
+                renderStep();
+            }
+        }
+
+        function resetExample() {
+            currentStep = 0;
+            isAutoPlaying = false;
+            clearInterval(autoPlayInterval);
+            document.getElementById('autoBtn').textContent = '▶ Auto Play';
+            renderStep();
+        }
+
+        function autoPlay() {
+            const autoBtn = document.getElementById('autoBtn');
+            
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                isAutoPlaying = false;
+                autoBtn.textContent = '▶ Auto Play';
+            } else {
+                isAutoPlaying = true;
+                autoBtn.textContent = '⏸ Pause';
+                
+                autoPlayInterval = setInterval(() => {
+                    if (currentStep < examples[currentExample].steps.length - 1) {
+                        nextStep();
+                    } else {
+                        clearInterval(autoPlayInterval);
+                        isAutoPlaying = false;
+                        autoBtn.textContent = '▶ Auto Play';
+                    }
+                }, 2000);
+            }
+        }
+
+        // Initialize
+        renderStep();
+    </script>
+</body>
+</html>

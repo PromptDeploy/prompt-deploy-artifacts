@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic System Architecture Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: #FFFFFF;
+            color: #1A1A1A;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+            color: #212121;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #616161;
+            max-width: 700px;
+            margin: 0 auto 32px;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            padding: 24px;
+            background: #F5F5F5;
+            border-radius: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .legend-circle {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid;
+        }
+
+        .legend-foundation { background: #212121; border-color: #212121; }
+        .legend-components { background: #0066FF; border-color: #0066FF; }
+        .legend-types { background: #22C55E; border-color: #22C55E; }
+        .legend-patterns { background: #F59E0B; border-color: #F59E0B; }
+
+        /* Architecture Diagram */
+        .architecture-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .architecture-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Center - LLM */
+        .center-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, #212121 0%, #424242 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            z-index: 10;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .center-node:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .center-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .center-label {
+            font-size: 1.125rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        /* Ring Nodes */
+        .ring-node {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        .ring-node:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+        }
+
+        .node-icon {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .node-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #212121;
+            margin-bottom: 4px;
+        }
+
+        .node-sublabel {
+            font-size: 0.75rem;
+            color: #616161;
+            display: none;
+        }
+
+        .ring-node:hover .node-sublabel {
+            display: block;
+        }
+
+        /* Component Nodes (Ring 1) */
+        .component-node {
+            border-color: #0066FF;
+        }
+
+        .component-node:hover {
+            background: #E8F4FF;
+        }
+
+        /* Agent Type Nodes (Ring 2) */
+        .type-node {
+            border-color: #22C55E;
+        }
+
+        .type-node:hover {
+            background: #E8FFF1;
+        }
+
+        /* Pattern Nodes (Ring 3) */
+        .pattern-node {
+            border-color: #F59E0B;
+        }
+
+        .pattern-node:hover {
+            background: #FFF4E6;
+        }
+
+        /* Connection Lines */
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: #E0E0E0;
+            transform-origin: left center;
+            z-index: 1;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .connection-line.active {
+            background: #0066FF;
+            opacity: 1;
+            height: 3px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: #212121;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            max-width: 300px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .tooltip-description {
+            line-height: 1.5;
+            color: #E0E0E0;
+        }
+
+        /* Info Panels */
+        .info-panels {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .info-panel {
+            background: #F5F5F5;
+            border-radius: 12px;
+            padding: 24px;
+            border-left: 4px solid;
+        }
+
+        .info-panel.foundation { border-color: #212121; }
+        .info-panel.components { border-color: #0066FF; }
+        .info-panel.types { border-color: #22C55E; }
+        .info-panel.patterns { border-color: #F59E0B; }
+
+        .panel-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #212121;
+        }
+
+        .panel-description {
+            font-size: 0.9rem;
+            color: #616161;
+            line-height: 1.6;
+        }
+
+        .panel-list {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: #616161;
+        }
+
+        .panel-list li {
+            margin-bottom: 6px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .panel-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: #0066FF;
+        }
+
+        /* Instructions */
+        .instructions {
+            text-align: center;
+            padding: 24px;
+            background: #E8F4FF;
+            border-radius: 12px;
+            margin: 40px auto;
+            max-width: 600px;
+        }
+
+        .instructions-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0066FF;
+        }
+
+        .instructions-text {
+            font-size: 0.9rem;
+            color: #616161;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .architecture-container {
+                max-width: 100%;
+            }
+
+            .center-node {
+                width: 120px;
+                height: 120px;
+            }
+
+            .center-icon {
+                font-size: 36px;
+            }
+
+            .center-label {
+                font-size: 0.95rem;
+            }
+
+            .ring-node {
+                min-width: 100px;
+                padding: 12px 16px;
+            }
+
+            .node-icon {
+                font-size: 20px;
+            }
+
+            .node-label {
+                font-size: 0.85rem;
+            }
+
+            .legend {
+                gap: 16px;
+            }
+
+            .info-panels {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic System Architecture</h1>
+            <p class="subtitle">A visual map showing how LLMs, agent components, agent types, and workflow patterns interconnect to create intelligent AI systems</p>
+        </header>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-circle legend-foundation"></div>
+                <span>Foundation (LLM)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle legend-components"></div>
+                <span>Agent Components</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle legend-types"></div>
+                <span>Agent Types</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-circle legend-patterns"></div>
+                <span>Workflow Patterns</span>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <div class="instructions-title">💡 How to Use This Map</div>
+            <div class="instructions-text">Hover over any node to see detailed descriptions. The architecture flows from center outward: LLM → Components → Types → Patterns</div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="architecture-wrapper">
+            <div class="architecture-container" id="architectureContainer">
+                <!-- Center: LLM -->
+                <div class="center-node" data-tooltip="foundation">
+                    <div class="center-icon">🧠</div>
+                    <div class="center-label">LLM</div>
+                </div>
+
+                <!-- Ring 1: Components (Blue) -->
+                <div class="ring-node component-node" id="component-1" data-tooltip="persona">
+                    <div class="node-icon">🎭</div>
+                    <div class="node-label">Persona</div>
+                    <div class="node-sublabel">Identity & Role</div>
+                </div>
+
+                <div class="ring-node component-node" id="component-2" data-tooltip="knowledge">
+                    <div class="node-icon">📚</div>
+                    <div class="node-label">Knowledge</div>
+                    <div class="node-sublabel">Information Access</div>
+                </div>
+
+                <div class="ring-node component-node" id="component-3" data-tooltip="prompting">
+                    <div class="node-icon">💬</div>
+                    <div class="node-label">Prompting</div>
+                    <div class="node-sublabel">Communication Strategy</div>
+                </div>
+
+                <div class="ring-node component-node" id="component-4" data-tooltip="tools">
+                    <div class="node-icon">🔧</div>
+                    <div class="node-label">Tools</div>
+                    <div class="node-sublabel">Execution Capabilities</div>
+                </div>
+
+                <div class="ring-node component-node" id="component-5" data-tooltip="interaction">
+                    <div class="node-icon">🔄</div>
+                    <div class="node-label">Interaction</div>
+                    <div class="node-sublabel">Input/Output</div>
+                </div>
+
+                <!-- Ring 2: Agent Types (Green) -->
+                <div class="ring-node type-node" id="type-1" data-tooltip="direct">
+                    <div class="node-icon">➡️</div>
+                    <div class="node-label">Direct</div>
+                    <div class="node-sublabel">Simple Relay</div>
+                </div>
+
+                <div class="ring-node type-node" id="type-2" data-tooltip="augmented">
+                    <div class="node-icon">➕</div>
+                    <div class="node-label">Augmented</div>
+                    <div class="node-sublabel">Enhanced Context</div>
+                </div>
+
+                <div class="ring-node type-node" id="type-3" data-tooltip="dynamic">
+                    <div class="node-icon">⚡</div>
+                    <div class="node-label">Dynamic</div>
+                    <div class="node-sublabel">Real-time Adaptation</div>
+                </div>
+
+                <div class="ring-node type-node" id="type-4" data-tooltip="autonomous">
+                    <div class="node-icon">🤖</div>
+                    <div class="node-label">Autonomous</div>
+                    <div class="node-sublabel">Full Reasoning</div>
+                </div>
+
+                <!-- Ring 3: Workflow Patterns (Amber) -->
+                <div class="ring-node pattern-node" id="pattern-1" data-tooltip="chaining">
+                    <div class="node-icon">🔗</div>
+                    <div class="node-label">Chaining</div>
+                    <div class="node-sublabel">Sequential Steps</div>
+                </div>
+
+                <div class="ring-node pattern-node" id="pattern-2" data-tooltip="routing">
+                    <div class="node-icon">🔀</div>
+                    <div class="node-label">Routing</div>
+                    <div class="node-sublabel">Smart Direction</div>
+                </div>
+
+                <div class="ring-node pattern-node" id="pattern-3" data-tooltip="parallel">
+                    <div class="node-icon">⚡</div>
+                    <div class="node-label">Parallelization</div>
+                    <div class="node-sublabel">Concurrent Work</div>
+                </div>
+
+                <div class="ring-node pattern-node" id="pattern-4" data-tooltip="evaluator">
+                    <div class="node-icon">🔄</div>
+                    <div class="node-label">Evaluator</div>
+                    <div class="node-sublabel">Iterative Refinement</div>
+                </div>
+
+                <div class="ring-node pattern-node" id="pattern-5" data-tooltip="orchestrator">
+                    <div class="node-icon">🎯</div>
+                    <div class="node-label">Orchestrator</div>
+                    <div class="node-sublabel">Dynamic Planning</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tooltip -->
+        <div class="tooltip" id="tooltip">
+            <div class="tooltip-title" id="tooltipTitle"></div>
+            <div class="tooltip-description" id="tooltipDescription"></div>
+        </div>
+
+        <!-- Information Panels -->
+        <div class="info-panels">
+            <div class="info-panel foundation">
+                <div class="panel-title">🧠 Foundation: LLM</div>
+                <div class="panel-description">The Large Language Model serves as the "brain" of every agent, providing core knowledge, reasoning capabilities, and natural language understanding. All agent capabilities flow from this foundation.</div>
+            </div>
+
+            <div class="info-panel components">
+                <div class="panel-title">🔵 Agent Components</div>
+                <div class="panel-description">The 5 building blocks that define how an agent operates:</div>
+                <ul class="panel-list">
+                    <li><strong>Persona:</strong> Identity, role, tone, boundaries</li>
+                    <li><strong>Knowledge:</strong> Training data, fine-tuning, tools, memory</li>
+                    <li><strong>Prompting:</strong> Zero-shot, few-shot, Chain-of-Thought</li>
+                    <li><strong>Tools:</strong> APIs, databases, external systems</li>
+                    <li><strong>Interaction:</strong> How input/output is handled</li>
+                </ul>
+            </div>
+
+            <div class="info-panel types">
+                <div class="panel-title">🟢 Agent Types</div>
+                <div class="panel-description">Agents exist on a spectrum of sophistication:</div>
+                <ul class="panel-list">
+                    <li><strong>Direct:</strong> Simple relay to LLM</li>
+                    <li><strong>Augmented:</strong> Adds context before LLM call</li>
+                    <li><strong>Dynamic:</strong> Adapts context in real-time</li>
+                    <li><strong>Autonomous:</strong> Full planning & decision-making</li>
+                </ul>
+            </div>
+
+            <div class="info-panel patterns">
+                <div class="panel-title">🟡 Workflow Patterns</div>
+                <div class="panel-description">How multiple agents coordinate to solve problems:</div>
+                <ul class="panel-list">
+                    <li><strong>Chaining:</strong> Sequential dependent steps</li>
+                    <li><strong>Routing:</strong> Direct to specialized agents</li>
+                    <li><strong>Parallelization:</strong> Concurrent execution</li>
+                    <li><strong>Evaluator-Optimizer:</strong> Iterative refinement</li>
+                    <li><strong>Orchestrator-Workers:</strong> Dynamic coordination</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tooltip data
+        const tooltipData = {
+            foundation: {
+                title: "🧠 Large Language Model (LLM)",
+                description: "The core intelligence engine. Provides knowledge, reasoning, and language understanding. Every agent capability builds on top of this foundation."
+            },
+            persona: {
+                title: "🎭 Persona",
+                description: "Defines the agent's identity, role, tone, and boundaries. Sets expectations for behavior and output format through system prompts."
+            },
+            knowledge: {
+                title: "📚 Knowledge",
+                description: "Information sources the agent can access: pre-trained knowledge, fine-tuning, external tools (APIs, databases), and memory (short-term and long-term)."
+            },
+            prompting: {
+                title: "💬 Prompting Strategy",
+                description: "How the agent communicates with the LLM: zero-shot, few-shot, Chain-of-Thought, ReAct. Includes context incorporation and instruction structuring."
+            },
+            tools: {
+                title: "🔧 Tools/Execution",
+                description: "The agent's hands and feet. Ability to interact with external systems: APIs, databases, calculations, file operations, other agents."
+            },
+            interaction: {
+                title: "🔄 Interaction",
+                description: "How the agent receives input (text, API calls, sensors) and delivers output (responses, structured data, actions, inter-agent communication)."
+            },
+            direct: {
+                title: "➡️ Direct Prompting Agent",
+                description: "Simplest type - acts as a direct relay. Sends user prompt to LLM and returns response without modification. Best for basic, single-task workflows."
+            },
+            augmented: {
+                title: "➕ Prompt Augmentation Agent",
+                description: "Enhances prompts before sending to LLM. Adds persona, few-shot examples, or retrieved context. Good for specialized workflow steps."
+            },
+            dynamic: {
+                title: "⚡ Dynamic Context Augmentation",
+                description: "Adapts during interaction using tools and memory. Updates LLM context in real-time based on tool outputs and conversation state."
+            },
+            autonomous: {
+                title: "🤖 Autonomous Agent",
+                description: "Most sophisticated - handles complex planning and decision-making. Creates plans, executes tasks, self-corrects with minimal human intervention."
+            },
+            chaining: {
+                title: "🔗 Prompt Chaining",
+                description: "Breaks complex tasks into sequential dependent steps. Each step's output feeds the next. Reduces complexity and improves accuracy through focused attention."
+            },
+            routing: {
+                title: "🔀 Routing",
+                description: "Intelligently directs tasks to specialized agents. Classifies incoming requests then dispatches to the best-suited worker for optimal results."
+            },
+            parallel: {
+                title: "⚡ Parallelization",
+                description: "Multiple agents work simultaneously on independent subtasks. Results are gathered and synthesized. Dramatically reduces processing time."
+            },
+            evaluator: {
+                title: "🔄 Evaluator-Optimizer",
+                description: "Iterative refinement through evaluate-critique-improve loops. Generator creates output, evaluator assesses quality, feedback drives improvements."
+            },
+            orchestrator: {
+                title: "🎯 Orchestrator-Workers",
+                description: "Central planning agent dynamically coordinates specialist workers. Adapts strategy based on results. Most flexible pattern for unpredictable problems."
+            }
+        };
+
+        // Position nodes in circular rings
+        function positionNodes() {
+            const container = document.getElementById('architectureContainer');
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+
+            // Ring 1: Components (5 nodes)
+            const componentRadius = Math.min(width, height) * 0.28;
+            const componentNodes = document.querySelectorAll('.component-node');
+            positionRing(componentNodes, centerX, centerY, componentRadius, -90);
+
+            // Ring 2: Agent Types (4 nodes)
+            const typeRadius = Math.min(width, height) * 0.42;
+            const typeNodes = document.querySelectorAll('.type-node');
+            positionRing(typeNodes, centerX, centerY, typeRadius, -90);
+
+            // Ring 3: Patterns (5 nodes)
+            const patternRadius = Math.min(width, height) * 0.48;
+            const patternNodes = document.querySelectorAll('.pattern-node');
+            positionRing(patternNodes, centerX, centerY, patternRadius, -90);
+        }
+
+        function positionRing(nodes, centerX, centerY, radius, startAngle) {
+            const angleStep = 360 / nodes.length;
+            nodes.forEach((node, index) => {
+                const angle = (startAngle + (angleStep * index)) * Math.PI / 180;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                node.style.left = x + 'px';
+                node.style.top = y + 'px';
+                node.style.transform = 'translate(-50%, -50%)';
+            });
+        }
+
+        // Tooltip functionality
+        const tooltip = document.getElementById('tooltip');
+        const tooltipTitle = document.getElementById('tooltipTitle');
+        const tooltipDescription = document.getElementById('tooltipDescription');
+
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            element.addEventListener('mouseenter', (e) => {
+                const key = e.currentTarget.getAttribute('data-tooltip');
+                const data = tooltipData[key];
+                
+                if (data) {
+                    tooltipTitle.textContent = data.title;
+                    tooltipDescription.textContent = data.description;
+                    tooltip.classList.add('visible');
+                }
+            });
+
+            element.addEventListener('mousemove', (e) => {
+                tooltip.style.left = (e.clientX + 20) + 'px';
+                tooltip.style.top = (e.clientY + 20) + 'px';
+            });
+
+            element.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('visible');
+            });
+        });
+
+        // Initialize positions
+        positionNodes();
+        window.addEventListener('resize', positionNodes);
+
+        // Add subtle animation on load
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.ring-node').forEach((node, index) => {
+                setTimeout(() => {
+                    node.style.opacity = '0';
+                    node.style.transform = 'translate(-50%, -50%) scale(0.8)';
+                    setTimeout(() => {
+                        node.style.transition = 'all 0.5s ease-out';
+                        node.style.opacity = '1';
+                        node.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }, 50);
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

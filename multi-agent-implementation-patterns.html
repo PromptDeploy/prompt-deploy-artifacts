@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Implementation Patterns Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: #F5F5F5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.125rem;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #F5F5F5;
+            padding: 0;
+            border-bottom: 2px solid #E0E0E0;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 16px 24px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #616161;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            background: rgba(0, 102, 255, 0.05);
+            color: #0066FF;
+        }
+
+        .nav-tab.active {
+            color: #0066FF;
+            background: white;
+            border-bottom: 3px solid #0066FF;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            color: #212121;
+            margin-bottom: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section h3 {
+            font-size: 1.25rem;
+            color: #212121;
+            margin: 32px 0 16px 0;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: #616161;
+            margin-bottom: 16px;
+            line-height: 1.7;
+        }
+
+        .pattern-card {
+            background: #F5F5F5;
+            border-left: 4px solid #0066FF;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+        }
+
+        .pattern-card h4 {
+            font-size: 1.125rem;
+            color: #212121;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .pattern-card p {
+            margin-bottom: 12px;
+        }
+
+        .code-block {
+            background: #1A1A1A;
+            color: #E0E0E0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .code-block code {
+            color: #E0E0E0;
+        }
+
+        .keyword { color: #FF6B9D; }
+        .string { color: #C3E88D; }
+        .comment { color: #616161; font-style: italic; }
+        .function { color: #82AAFF; }
+        .class-name { color: #FFCB6B; }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tag.blue { background: #E8F4FF; color: #0066FF; }
+        .tag.green { background: #E8FFF1; color: #22C55E; }
+        .tag.amber { background: #FFF4E6; color: #F59E0B; }
+
+        .collapsible {
+            cursor: pointer;
+            padding: 16px;
+            background: #F5F5F5;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            margin: 16px 0;
+            transition: all 0.2s;
+        }
+
+        .collapsible:hover {
+            background: #E8F4FF;
+            border-color: #0066FF;
+        }
+
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #212121;
+        }
+
+        .collapsible-icon {
+            transition: transform 0.2s;
+        }
+
+        .collapsible-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.open {
+            max-height: 5000px;
+            padding-top: 16px;
+        }
+
+        .best-practice {
+            background: #E8FFF1;
+            border-left: 4px solid #22C55E;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .best-practice strong {
+            color: #22C55E;
+        }
+
+        .warning {
+            background: #FFF4E6;
+            border-left: 4px solid #F59E0B;
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+        }
+
+        .warning strong {
+            color: #F59E0B;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #E0E0E0;
+        }
+
+        .comparison-table th {
+            background: #F5F5F5;
+            font-weight: 600;
+            color: #212121;
+        }
+
+        .comparison-table tr:hover {
+            background: #F5F5F5;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        ul {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        ul li {
+            margin-bottom: 8px;
+            color: #616161;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .nav-tab {
+                padding: 12px 16px;
+                font-size: 0.85rem;
+            }
+
+            .code-block {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Multi-Agent Implementation Patterns Library</h1>
+            <p>Your tactical reference for building production-ready multi-agent systems. Real code, real patterns, real solutions.</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('prompts')">System Prompts</button>
+            <button class="nav-tab" onclick="showTab('tools')">Tool Design</button>
+            <button class="nav-tab" onclick="showTab('orchestration')">Orchestration</button>
+            <button class="nav-tab" onclick="showTab('routing')">Routing</button>
+            <button class="nav-tab" onclick="showTab('state')">State Management</button>
+            <button class="nav-tab" onclick="showTab('errors')">Error Handling</button>
+            <button class="nav-tab" onclick="showTab('frameworks')">Frameworks</button>
+        </div>
+
+        <div class="content">
+            <!-- SYSTEM PROMPTS TAB -->
+            <div id="prompts" class="tab-content active">
+                <div class="section">
+                    <h2><span class="icon">📝</span> System Prompt Templates</h2>
+                    <p>Well-crafted system prompts are the agent's "job description." They define identity, purpose, boundaries, and capabilities.</p>
+
+                    <h3>The Four-Part Prompt Structure</h3>
+                    <div class="pattern-card">
+                        <h4>Template Formula</h4>
+                        <div class="code-block"><code><span class="comment"># Part 1: Identity (Who you are)</span>
+You are a [Role] Agent.
+
+<span class="comment"># Part 2: Purpose (What you do)</span>
+Your sole purpose is to [specific task/responsibility].
+
+<span class="comment"># Part 3: Boundaries (What you don't do)</span>
+You do NOT [actions outside scope].
+
+<span class="comment"># Part 4: Capabilities (What tools you have)</span>
+You ONLY have access to: [list of tools].</code></div>
+                    </div>
+
+                    <h3>Agent Types & Templates</h3>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🔍 Data Validation Agent</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code>You are a Data Validation Agent.
+
+Your sole purpose is to check incoming user data against predefined schemas 
+and return validation results. You verify data types, required fields, 
+format constraints, and business rules.
+
+You do NOT:
+- Perform calculations or transformations on the data
+- Interact with external APIs or databases
+- Make decisions about what to do with invalid data
+- Store or cache validation results
+
+You ONLY have access to the validate_schema tool.
+
+When you receive data:
+1. Identify the appropriate schema
+2. Validate against all constraints
+3. Return clear validation results with specific error messages
+4. Do not attempt to fix or modify the data</code></div>
+                            
+                            <div class="best-practice">
+                                <strong>✓ Best Practice:</strong> Always specify what the agent should NOT do. This prevents scope creep and unexpected behavior.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🎯 Task Routing Agent</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code>You are a Task Routing Agent.
+
+Your purpose is to analyze incoming requests and route them to the most 
+appropriate specialist agent based on content, urgency, and complexity.
+
+You do NOT:
+- Execute tasks yourself
+- Modify the original request
+- Make decisions outside of routing logic
+- Interact directly with external systems
+
+You have access to these tools:
+- analyze_request_type: Categorizes request content
+- check_agent_availability: Verifies specialist agent status
+- route_to_agent: Sends request to chosen agent
+
+Routing logic:
+- Technical questions → Technical Support Agent
+- Account issues → Account Management Agent  
+- Billing questions → Billing Agent
+- Urgent issues (keywords: "urgent", "emergency") → Priority queue
+- Complex issues requiring multiple steps → Orchestrator Agent</code></div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🔬 Research Agent</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code>You are a Research Agent specialized in gathering and synthesizing information.
+
+Your purpose is to:
+1. Query multiple information sources
+2. Extract relevant facts and data
+3. Synthesize findings into coherent summaries
+4. Cite sources for all claims
+
+You have access to:
+- search_knowledge_base: Query internal documents
+- search_web: Search external sources
+- extract_data: Parse structured data from sources
+- summarize_findings: Create synthesis reports
+
+Research process:
+1. Analyze the research question
+2. Identify key information needs
+3. Query multiple sources in parallel
+4. Cross-reference findings
+5. Synthesize into a clear answer with citations
+
+You do NOT:
+- Make claims without source verification
+- Generate fictional information
+- Make business decisions based on research
+- Modify or store source documents</code></div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🎭 Orchestrator Agent</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code>You are an Orchestrator Agent managing a team of specialist agents.
+
+Your purpose is to:
+1. Break down complex requests into subtasks
+2. Delegate subtasks to appropriate specialist agents
+3. Coordinate the sequence and timing of agent activities
+4. Synthesize results from multiple agents
+5. Handle errors and retry failed operations
+
+You manage these specialist agents:
+- DataAgent: Data retrieval and validation
+- AnalysisAgent: Data analysis and calculations
+- ReportAgent: Report generation
+- NotificationAgent: User communications
+
+Orchestration patterns:
+- Sequential: Execute tasks one after another (use when order matters)
+- Parallel: Execute independent tasks simultaneously (use for speed)
+- Conditional: Branch based on results (use for decision trees)
+
+Tools available:
+- delegate_to_agent: Send task to specialist
+- wait_for_completion: Block until agent finishes
+- gather_results: Collect outputs from multiple agents
+- handle_failure: Implement fallback logic
+
+Always maintain workflow state and provide clear status updates.</code></div>
+                        </div>
+                    </div>
+
+                    <h3>Prompt Engineering Best Practices</h3>
+                    <div class="best-practice">
+                        <strong>✓ Be explicit and unambiguous:</strong> Use clear, definitive language. Avoid "maybe", "sometimes", "usually".
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Define clear boundaries:</strong> Explicitly state what the agent does NOT do to prevent scope creep.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Specify expected behaviors:</strong> Include step-by-step processes when relevant.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Include examples:</strong> Show input/output examples for complex scenarios.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Keep prompts focused:</strong> One clear purpose per agent. Don't overload with responsibilities.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Test and refine:</strong> Iterate based on actual agent behavior in production.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOOL DESIGN TAB -->
+            <div id="tools" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔧</span> Tool Design Patterns</h2>
+                    <p>Tools give agents the ability to perform actions beyond language processing. Well-designed tools are robust, validated, and logged.</p>
+
+                    <h3>Tool Anatomy</h3>
+                    <div class="pattern-card">
+                        <h4>Complete Tool Template</h4>
+                        <div class="code-block"><code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional
+<span class="keyword">import</span> logging
+
+<span class="keyword">def</span> <span class="function">tool_name</span>(
+    param1: <span class="class-name">str</span>,
+    param2: <span class="class-name">int</span>,
+    optional_param: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+) -> <span class="class-name">dict</span>:
+    <span class="string">"""
+    Clear description of what this tool does.
+    
+    Args:
+        param1: Description of parameter 1
+        param2: Description of parameter 2
+        optional_param: Description of optional parameter
+    
+    Returns:
+        dict with 'success' (bool) and 'data' or 'error' fields
+    
+    Example:
+        result = tool_name("example", 42)
+        # Returns: {"success": True, "data": {...}}
+    """</span>
+    <span class="keyword">try</span>:
+        <span class="comment"># 1. Validate inputs</span>
+        <span class="keyword">if not</span> param1 <span class="keyword">or</span> param2 < 0:
+            <span class="keyword">return</span> {
+                <span class="string">"success"</span>: <span class="keyword">False</span>,
+                <span class="string">"error"</span>: <span class="string">"Invalid input parameters"</span>
+            }
+        
+        <span class="comment"># 2. Log the operation</span>
+        logging.info(<span class="string">f"Executing tool_name with param1={param1}"</span>)
+        
+        <span class="comment"># 3. Perform the operation</span>
+        result = perform_operation(param1, param2)
+        
+        <span class="comment"># 4. Return structured response</span>
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"data"</span>: result
+        }
+    
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        <span class="comment"># 5. Handle errors gracefully</span>
+        logging.error(<span class="string">f"Tool error: {str(e)}"</span>)
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">f"Operation failed: {str(e)}"</span>
+        }</code></div>
+                    </div>
+
+                    <h3>Common Tool Patterns</h3>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>💾 Database Query Tool</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code><span class="keyword">import</span> sqlite3
+<span class="keyword">from</span> typing <span class="keyword">import</span> List, Dict
+
+<span class="keyword">def</span> <span class="function">query_database</span>(
+    query: <span class="class-name">str</span>,
+    params: <span class="class-name">tuple</span> = ()
+) -> Dict[<span class="class-name">str</span>, any]:
+    <span class="string">"""
+    Execute a SELECT query on the database.
+    
+    Args:
+        query: SQL SELECT query (validated for safety)
+        params: Query parameters for safe parameterization
+    
+    Returns:
+        dict with results or error
+    """</span>
+    <span class="keyword">try</span>:
+        <span class="comment"># Validation: Only allow SELECT statements</span>
+        <span class="keyword">if not</span> query.strip().upper().startswith(<span class="string">'SELECT'</span>):
+            <span class="keyword">return</span> {
+                <span class="string">"success"</span>: <span class="keyword">False</span>,
+                <span class="string">"error"</span>: <span class="string">"Only SELECT queries allowed"</span>
+            }
+        
+        <span class="comment"># Execute with connection management</span>
+        <span class="keyword">with</span> sqlite3.connect(<span class="string">'database.db'</span>) <span class="keyword">as</span> conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.execute(query, params)
+            
+            <span class="comment"># Convert to list of dicts</span>
+            results = [dict(row) <span class="keyword">for</span> row <span class="keyword">in</span> cursor.fetchall()]
+            
+            <span class="keyword">return</span> {
+                <span class="string">"success"</span>: <span class="keyword">True</span>,
+                <span class="string">"data"</span>: results,
+                <span class="string">"count"</span>: len(results)
+            }
+    
+    <span class="keyword">except</span> sqlite3.Error <span class="keyword">as</span> e:
+        logging.error(<span class="string">f"Database error: {e}"</span>)
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">"Database query failed"</span>
+        }</code></div>
+                            
+                            <div class="warning">
+                                <strong>⚠ Security Warning:</strong> Always validate and parameterize queries to prevent SQL injection. Never concatenate user input directly into queries.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🌐 API Client Tool</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code><span class="keyword">import</span> requests
+<span class="keyword">from</span> typing <span class="keyword">import</span> Dict, Optional
+
+<span class="keyword">def</span> <span class="function">call_external_api</span>(
+    endpoint: <span class="class-name">str</span>,
+    method: <span class="class-name">str</span> = <span class="string">"GET"</span>,
+    data: Optional[<span class="class-name">Dict</span>] = <span class="keyword">None</span>,
+    timeout: <span class="class-name">int</span> = 30
+) -> Dict[<span class="class-name">str</span>, any]:
+    <span class="string">"""
+    Make HTTP request to external API.
+    
+    Args:
+        endpoint: API endpoint URL
+        method: HTTP method (GET, POST, PUT, DELETE)
+        data: Request body data
+        timeout: Request timeout in seconds
+    
+    Returns:
+        dict with response data or error
+    """</span>
+    <span class="keyword">try</span>:
+        <span class="comment"># Validate endpoint</span>
+        <span class="keyword">if not</span> endpoint.startswith(<span class="string">'https://'</span>):
+            <span class="keyword">return</span> {
+                <span class="string">"success"</span>: <span class="keyword">False</span>,
+                <span class="string">"error"</span>: <span class="string">"Only HTTPS endpoints allowed"</span>
+            }
+        
+        <span class="comment"># Make request with timeout</span>
+        response = requests.request(
+            method=method.upper(),
+            url=endpoint,
+            json=data,
+            timeout=timeout,
+            headers={<span class="string">"User-Agent"</span>: <span class="string">"MultiAgentSystem/1.0"</span>}
+        )
+        
+        <span class="comment"># Check status code</span>
+        response.raise_for_status()
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"data"</span>: response.json(),
+            <span class="string">"status_code"</span>: response.status_code
+        }
+    
+    <span class="keyword">except</span> requests.Timeout:
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">"Request timed out"</span>
+        }
+    <span class="keyword">except</span> requests.HTTPError <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">f"HTTP error: {e.response.status_code}"</span>
+        }
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">f"Request failed: {str(e)}"</span>
+        }</code></div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>✅ Data Validation Tool</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel, ValidationError
+<span class="keyword">from</span> typing <span class="keyword">import</span> Dict, Any
+
+<span class="keyword">def</span> <span class="function">validate_data</span>(
+    data: Dict[<span class="class-name">str</span>, <span class="class-name">Any</span>],
+    schema: <span class="class-name">BaseModel</span>
+) -> Dict[<span class="class-name">str</span>, any]:
+    <span class="string">"""
+    Validate data against a Pydantic schema.
+    
+    Args:
+        data: Dictionary of data to validate
+        schema: Pydantic model class
+    
+    Returns:
+        dict with validation results
+    """</span>
+    <span class="keyword">try</span>:
+        <span class="comment"># Attempt validation</span>
+        validated = schema(**data)
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"data"</span>: validated.dict(),
+            <span class="string">"message"</span>: <span class="string">"Validation passed"</span>
+        }
+    
+    <span class="keyword">except</span> ValidationError <span class="keyword">as</span> e:
+        <span class="comment"># Extract validation errors</span>
+        errors = []
+        <span class="keyword">for</span> error <span class="keyword">in</span> e.errors():
+            errors.append({
+                <span class="string">"field"</span>: <span class="string">".".join(str(x) for x in error['loc'])</span>,
+                <span class="string">"message"</span>: error[<span class="string">'msg'</span>],
+                <span class="string">"type"</span>: error[<span class="string">'type'</span>]
+            })
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"errors"</span>: errors,
+            <span class="string">"message"</span>: <span class="string">"Validation failed"</span>
+        }</code></div>
+                            
+                            <div class="best-practice">
+                                <strong>✓ Best Practice:</strong> Use Pydantic for structured validation. It provides clear error messages and automatic type coercion.
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Tool Design Principles</h3>
+                    <div class="best-practice">
+                        <strong>✓ Single Responsibility:</strong> Each tool does one thing well. Don't create Swiss Army knife tools.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Never Crash:</strong> Always return a structured response, even on error. Use try-except blocks.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Validate Inputs:</strong> Check parameters before processing. Fail fast with clear messages.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Log Everything:</strong> Record tool execution for debugging and auditing.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Consistent Interface:</strong> Return similar structures across all tools (success/error pattern).
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORCHESTRATION TAB -->
+            <div id="orchestration" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🎯</span> Orchestration Patterns</h2>
+                    <p>Orchestration coordinates multiple agents to accomplish complex workflows. Different patterns suit different scenarios.</p>
+
+                    <h3>The Four Core Patterns</h3>
+
+                    <div class="pattern-card">
+                        <h4>1. Sequential Orchestration</h4>
+                        <span class="tag blue">Use when order matters</span>
+                        <p>Execute agents one after another, passing results forward. Each step depends on the previous one.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">sequential_workflow</span>(user_request: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Execute agents in sequence, passing data forward."""</span>
+    
+    <span class="comment"># Step 1: Validate input</span>
+    validation_result = validation_agent.run(user_request)
+    <span class="keyword">if not</span> validation_result[<span class="string">"success"</span>]:
+        <span class="keyword">return</span> validation_result
+    
+    <span class="comment"># Step 2: Process validated data</span>
+    processing_result = processing_agent.run(validation_result[<span class="string">"data"</span>])
+    <span class="keyword">if not</span> processing_result[<span class="string">"success"</span>]:
+        <span class="keyword">return</span> processing_result
+    
+    <span class="comment"># Step 3: Generate final output</span>
+    final_result = output_agent.run(processing_result[<span class="string">"data"</span>])
+    
+    <span class="keyword">return</span> final_result</code></div>
+                        
+                        <p><strong>Best for:</strong> Data pipelines, multi-step validations, document processing workflows</p>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>2. Parallel Orchestration</h4>
+                        <span class="tag green">Use for independent tasks</span>
+                        <p>Execute multiple agents simultaneously to improve speed. Tasks don't depend on each other.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">import</span> asyncio
+<span class="keyword">from</span> typing <span class="keyword">import</span> List, Dict
+
+<span class="keyword">async def</span> <span class="function">parallel_workflow</span>(user_request: <span class="class-name">str</span>) -> Dict[<span class="class-name">str</span>, any]:
+    <span class="string">"""Execute multiple agents in parallel."""</span>
+    
+    <span class="comment"># Define tasks to run concurrently</span>
+    tasks = [
+        research_agent.run_async(user_request),
+        data_agent.run_async(user_request),
+        analytics_agent.run_async(user_request)
+    ]
+    
+    <span class="comment"># Wait for all to complete</span>
+    results = <span class="keyword">await</span> asyncio.gather(*tasks, return_exceptions=<span class="keyword">True</span>)
+    
+    <span class="comment"># Combine results</span>
+    combined = {
+        <span class="string">"research"</span>: results[0],
+        <span class="string">"data"</span>: results[1],
+        <span class="string">"analytics"</span>: results[2]
+    }
+    
+    <span class="comment"># Synthesize final output</span>
+    final_result = synthesis_agent.run(combined)
+    <span class="keyword">return</span> final_result</code></div>
+                        
+                        <p><strong>Best for:</strong> Research tasks, multi-source data gathering, independent analyses</p>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>3. Conditional Orchestration</h4>
+                        <span class="tag amber">Use for branching logic</span>
+                        <p>Route to different agents based on conditions or results. Creates decision trees.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">conditional_workflow</span>(user_request: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Route based on request classification."""</span>
+    
+    <span class="comment"># Step 1: Classify the request</span>
+    classification = classifier_agent.run(user_request)
+    request_type = classification[<span class="string">"type"</span>]
+    
+    <span class="comment"># Step 2: Route to appropriate handler</span>
+    <span class="keyword">if</span> request_type == <span class="string">"technical"</span>:
+        result = technical_agent.run(user_request)
+    
+    <span class="keyword">elif</span> request_type == <span class="string">"billing"</span>:
+        result = billing_agent.run(user_request)
+    
+    <span class="keyword">elif</span> request_type == <span class="string">"account"</span>:
+        result = account_agent.run(user_request)
+    
+    <span class="keyword">else</span>:
+        <span class="comment"># Complex request needs orchestrator</span>
+        result = orchestrator_agent.run(user_request)
+    
+    <span class="comment"># Step 3: Post-process if needed</span>
+    <span class="keyword">if</span> result.get(<span class="string">"requires_followup"</span>):
+        result = followup_agent.run(result)
+    
+    <span class="keyword">return</span> result</code></div>
+                        
+                        <p><strong>Best for:</strong> Customer support routing, approval workflows, multi-tier escalation</p>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>4. Hybrid Orchestration</h4>
+                        <span class="tag blue">Use for complex workflows</span>
+                        <p>Combine sequential, parallel, and conditional patterns for sophisticated workflows.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">async def</span> <span class="function">hybrid_workflow</span>(user_request: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Complex workflow combining all patterns."""</span>
+    
+    <span class="comment"># Phase 1: Sequential validation</span>
+    validation = <span class="keyword">await</span> validation_agent.run_async(user_request)
+    <span class="keyword">if not</span> validation[<span class="string">"success"</span>]:
+        <span class="keyword">return</span> validation
+    
+    <span class="comment"># Phase 2: Parallel research</span>
+    research_tasks = [
+        internal_search_agent.run_async(validation[<span class="string">"data"</span>]),
+        external_search_agent.run_async(validation[<span class="string">"data"</span>]),
+        database_agent.run_async(validation[<span class="string">"data"</span>])
+    ]
+    research_results = <span class="keyword">await</span> asyncio.gather(*research_tasks)
+    
+    <span class="comment"># Phase 3: Conditional processing</span>
+    combined_data = combine_results(research_results)
+    
+    <span class="keyword">if</span> combined_data[<span class="string">"confidence"</span>] > 0.8:
+        <span class="comment"># High confidence: direct response</span>
+        result = response_agent.run(combined_data)
+    <span class="keyword">else</span>:
+        <span class="comment"># Low confidence: escalate to human</span>
+        result = escalation_agent.run(combined_data)
+    
+    <span class="keyword">return</span> result</code></div>
+                        
+                        <p><strong>Best for:</strong> Automated sales systems, complex decision engines, intelligent routing systems</p>
+                    </div>
+
+                    <h3>Orchestrator Implementation</h3>
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>Complete Orchestrator Class Example</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="code-block"><code><span class="keyword">from</span> typing <span class="keyword">import</span> Dict, List, Any
+<span class="keyword">import</span> logging
+
+<span class="keyword">class</span> <span class="class-name">WorkflowOrchestrator</span>:
+    <span class="string">"""Orchestrates multi-agent workflows with state tracking."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, agents: Dict[<span class="class-name">str</span>, <span class="class-name">Agent</span>]):
+        <span class="keyword">self</span>.agents = agents
+        <span class="keyword">self</span>.state = {}
+        <span class="keyword">self</span>.history = []
+    
+    <span class="keyword">def</span> <span class="function">execute_workflow</span>(<span class="keyword">self</span>, request: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+        <span class="string">"""Execute the complete workflow."""</span>
+        <span class="keyword">try</span>:
+            <span class="comment"># Initialize state</span>
+            <span class="keyword">self</span>.state = {
+                <span class="string">"request"</span>: request,
+                <span class="string">"status"</span>: <span class="string">"in_progress"</span>,
+                <span class="string">"steps_completed"</span>: []
+            }
+            
+            <span class="comment"># Step 1: Validation (sequential)</span>
+            validation_result = <span class="keyword">self</span>._run_agent(
+                <span class="string">"validator"</span>, 
+                request
+            )
+            
+            <span class="keyword">if not</span> validation_result[<span class="string">"success"</span>]:
+                <span class="keyword">return self</span>._handle_failure(<span class="string">"validation"</span>, validation_result)
+            
+            <span class="comment"># Step 2: Parallel processing</span>
+            parallel_results = <span class="keyword">self</span>._run_parallel([
+                (<span class="string">"researcher"</span>, validation_result[<span class="string">"data"</span>]),
+                (<span class="string">"analyzer"</span>, validation_result[<span class="string">"data"</span>])
+            ])
+            
+            <span class="comment"># Step 3: Synthesis (sequential)</span>
+            final_result = <span class="keyword">self</span>._run_agent(
+                <span class="string">"synthesizer"</span>,
+                parallel_results
+            )
+            
+            <span class="keyword">self</span>.state[<span class="string">"status"</span>] = <span class="string">"completed"</span>
+            <span class="keyword">return</span> final_result
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return self</span>._handle_failure(<span class="string">"orchestration"</span>, str(e))
+    
+    <span class="keyword">def</span> <span class="function">_run_agent</span>(<span class="keyword">self</span>, agent_name: <span class="class-name">str</span>, data: <span class="class-name">Any</span>) -> <span class="class-name">dict</span>:
+        <span class="string">"""Run a single agent with tracking."""</span>
+        logging.info(<span class="string">f"Running agent: {agent_name}"</span>)
+        
+        agent = <span class="keyword">self</span>.agents.get(agent_name)
+        result = agent.run(data)
+        
+        <span class="comment"># Track execution</span>
+        <span class="keyword">self</span>.history.append({
+            <span class="string">"agent"</span>: agent_name,
+            <span class="string">"result"</span>: result
+        })
+        <span class="keyword">self</span>.state[<span class="string">"steps_completed"</span>].append(agent_name)
+        
+        <span class="keyword">return</span> result
+    
+    <span class="keyword">def</span> <span class="function">_run_parallel</span>(<span class="keyword">self</span>, tasks: List[<span class="class-name">tuple</span>]) -> <span class="class-name">dict</span>:
+        <span class="string">"""Run multiple agents in parallel."""</span>
+        results = {}
+        
+        <span class="keyword">for</span> agent_name, data <span class="keyword">in</span> tasks:
+            result = <span class="keyword">self</span>._run_agent(agent_name, data)
+            results[agent_name] = result
+        
+        <span class="keyword">return</span> results
+    
+    <span class="keyword">def</span> <span class="function">_handle_failure</span>(<span class="keyword">self</span>, stage: <span class="class-name">str</span>, error: <span class="class-name">Any</span>) -> <span class="class-name">dict</span>:
+        <span class="string">"""Handle workflow failures."""</span>
+        logging.error(<span class="string">f"Workflow failed at {stage}: {error}"</span>)
+        
+        <span class="keyword">self</span>.state[<span class="string">"status"</span>] = <span class="string">"failed"</span>
+        <span class="keyword">self</span>.state[<span class="string">"error_stage"</span>] = stage
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: error,
+            <span class="string">"state"</span>: <span class="keyword">self</span>.state
+        }</code></div>
+                        </div>
+                    </div>
+
+                    <div class="best-practice">
+                        <strong>✓ Track State:</strong> Maintain workflow state throughout execution for debugging and resume capabilities.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Log Everything:</strong> Record each agent execution, timing, and results.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Handle Partial Failures:</strong> Don't let one agent failure crash the entire workflow.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROUTING TAB -->
+            <div id="routing" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🔀</span> Routing Patterns</h2>
+                    <p>Routing determines which agent handles which request. Choose the right routing strategy for your use case.</p>
+
+                    <h3>Routing Strategies</h3>
+
+                    <div class="pattern-card">
+                        <h4>1. Content-Based Routing</h4>
+                        <span class="tag blue">Route by message content</span>
+                        <p>Analyze the request content and route to the most appropriate agent based on keywords, intent, or classification.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">content_based_routing</span>(request: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+    <span class="string">"""Route based on request content analysis."""</span>
+    
+    <span class="comment"># Extract keywords</span>
+    request_lower = request.lower()
+    
+    <span class="comment"># Define routing rules</span>
+    <span class="keyword">if</span> <span class="keyword">any</span>(word <span class="keyword">in</span> request_lower <span class="keyword">for</span> word <span class="keyword">in</span> 
+           [<span class="string">'bug'</span>, <span class="string">'error'</span>, <span class="string">'broken'</span>, <span class="string">'not working'</span>]):
+        <span class="keyword">return</span> <span class="string">"technical_support_agent"</span>
+    
+    <span class="keyword">elif</span> <span class="keyword">any</span>(word <span class="keyword">in</span> request_lower <span class="keyword">for</span> word <span class="keyword">in</span> 
+             [<span class="string">'bill'</span>, <span class="string">'payment'</span>, <span class="string">'charge'</span>, <span class="string">'invoice'</span>]):
+        <span class="keyword">return</span> <span class="string">"billing_agent"</span>
+    
+    <span class="keyword">elif</span> <span class="keyword">any</span>(word <span class="keyword">in</span> request_lower <span class="keyword">for</span> word <span class="keyword">in</span> 
+             [<span class="string">'account'</span>, <span class="string">'password'</span>, <span class="string">'login'</span>, <span class="string">'access'</span>]):
+        <span class="keyword">return</span> <span class="string">"account_agent"</span>
+    
+    <span class="keyword">else</span>:
+        <span class="comment"># Default to general support</span>
+        <span class="keyword">return</span> <span class="string">"general_support_agent"</span>
+
+<span class="comment"># Advanced: Use ML classification</span>
+<span class="keyword">def</span> <span class="function">ml_based_routing</span>(request: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+    <span class="string">"""Use ML model to classify and route requests."""</span>
+    
+    <span class="comment"># Use a classifier agent</span>
+    classification = classifier_agent.run(request)
+    
+    intent = classification[<span class="string">"intent"</span>]
+    confidence = classification[<span class="string">"confidence"</span>]
+    
+    <span class="keyword">if</span> confidence < 0.7:
+        <span class="comment"># Low confidence: route to human</span>
+        <span class="keyword">return</span> <span class="string">"human_agent"</span>
+    
+    <span class="keyword">return</span> intent_to_agent_mapping[intent]</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>2. Priority-Based Routing</h4>
+                        <span class="tag amber">Route by urgency</span>
+                        <p>Route high-priority requests to faster agents or escalate immediately to humans.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">from</span> enum <span class="keyword">import</span> Enum
+
+<span class="keyword">class</span> <span class="class-name">Priority</span>(Enum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    URGENT = 4
+
+<span class="keyword">def</span> <span class="function">priority_based_routing</span>(request: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Route based on request priority."""</span>
+    
+    <span class="comment"># Determine priority</span>
+    priority = determine_priority(request)
+    
+    <span class="keyword">if</span> priority == Priority.URGENT:
+        <span class="comment"># Urgent: immediate human escalation</span>
+        <span class="keyword">return</span> {
+            <span class="string">"agent"</span>: <span class="string">"human_agent"</span>,
+            <span class="string">"queue"</span>: <span class="string">"urgent"</span>,
+            <span class="string">"sla"</span>: <span class="string">"15_minutes"</span>
+        }
+    
+    <span class="keyword">elif</span> priority == Priority.HIGH:
+        <span class="comment"># High: premium agent with fast response</span>
+        <span class="keyword">return</span> {
+            <span class="string">"agent"</span>: <span class="string">"premium_agent"</span>,
+            <span class="string">"queue"</span>: <span class="string">"high_priority"</span>,
+            <span class="string">"sla"</span>: <span class="string">"1_hour"</span>
+        }
+    
+    <span class="keyword">elif</span> priority == Priority.MEDIUM:
+        <span class="comment"># Medium: standard agent</span>
+        <span class="keyword">return</span> {
+            <span class="string">"agent"</span>: <span class="string">"standard_agent"</span>,
+            <span class="string">"queue"</span>: <span class="string">"normal"</span>,
+            <span class="string">"sla"</span>: <span class="string">"4_hours"</span>
+        }
+    
+    <span class="keyword">else</span>:
+        <span class="comment"># Low: batch processing</span>
+        <span class="keyword">return</span> {
+            <span class="string">"agent"</span>: <span class="string">"batch_agent"</span>,
+            <span class="string">"queue"</span>: <span class="string">"low_priority"</span>,
+            <span class="string">"sla"</span>: <span class="string">"24_hours"</span>
+        }
+
+<span class="keyword">def</span> <span class="function">determine_priority</span>(request: <span class="class-name">str</span>) -> <span class="class-name">Priority</span>:
+    <span class="string">"""Analyze request to determine priority level."""</span>
+    urgent_keywords = [<span class="string">'urgent'</span>, <span class="string">'emergency'</span>, <span class="string">'critical'</span>, <span class="string">'down'</span>]
+    high_keywords = [<span class="string">'asap'</span>, <span class="string">'important'</span>, <span class="string">'escalate'</span>]
+    
+    request_lower = request.lower()
+    
+    <span class="keyword">if</span> <span class="keyword">any</span>(word <span class="keyword">in</span> request_lower <span class="keyword">for</span> word <span class="keyword">in</span> urgent_keywords):
+        <span class="keyword">return</span> Priority.URGENT
+    <span class="keyword">elif</span> <span class="keyword">any</span>(word <span class="keyword">in</span> request_lower <span class="keyword">for</span> word <span class="keyword">in</span> high_keywords):
+        <span class="keyword">return</span> Priority.HIGH
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> Priority.MEDIUM</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>3. Round-Robin Routing</h4>
+                        <span class="tag green">Distribute load evenly</span>
+                        <p>Distribute requests evenly across multiple agents to balance load.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">class</span> <span class="class-name">RoundRobinRouter</span>:
+    <span class="string">"""Distributes requests evenly across agents."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, agents: List[<span class="class-name">str</span>]):
+        <span class="keyword">self</span>.agents = agents
+        <span class="keyword">self</span>.current_index = 0
+    
+    <span class="keyword">def</span> <span class="function">route</span>(<span class="keyword">self</span>, request: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+        <span class="string">"""Get next agent in rotation."""</span>
+        agent = <span class="keyword">self</span>.agents[<span class="keyword">self</span>.current_index]
+        
+        <span class="comment"># Move to next agent</span>
+        <span class="keyword">self</span>.current_index = (<span class="keyword">self</span>.current_index + 1) % len(<span class="keyword">self</span>.agents)
+        
+        <span class="keyword">return</span> agent
+
+<span class="comment"># Usage</span>
+router = RoundRobinRouter([
+    <span class="string">"agent_1"</span>,
+    <span class="string">"agent_2"</span>,
+    <span class="string">"agent_3"</span>
+])
+
+<span class="keyword">for</span> request <span class="keyword">in</span> requests:
+    agent = router.route(request)
+    agent.process(request)</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>4. Capability-Based Routing</h4>
+                        <span class="tag blue">Route by agent capabilities</span>
+                        <p>Match requests to agents based on their specific capabilities and current load.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">class</span> <span class="class-name">CapabilityRouter</span>:
+    <span class="string">"""Routes based on agent capabilities and availability."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.agent_registry = {
+            <span class="string">"sql_agent"</span>: {
+                <span class="string">"capabilities"</span>: [<span class="string">"database"</span>, <span class="string">"sql"</span>, <span class="string">"queries"</span>],
+                <span class="string">"max_concurrent"</span>: 5,
+                <span class="string">"current_load"</span>: 2
+            },
+            <span class="string">"api_agent"</span>: {
+                <span class="string">"capabilities"</span>: [<span class="string">"api"</span>, <span class="string">"rest"</span>, <span class="string">"external"</span>],
+                <span class="string">"max_concurrent"</span>: 10,
+                <span class="string">"current_load"</span>: 7
+            },
+            <span class="string">"analysis_agent"</span>: {
+                <span class="string">"capabilities"</span>: [<span class="string">"analytics"</span>, <span class="string">"statistics"</span>, <span class="string">"reporting"</span>],
+                <span class="string">"max_concurrent"</span>: 3,
+                <span class="string">"current_load"</span>: 1
+            }
+        }
+    
+    <span class="keyword">def</span> <span class="function">route</span>(<span class="keyword">self</span>, required_capability: <span class="class-name">str</span>) -> Optional[<span class="class-name">str</span>]:
+        <span class="string">"""Find best agent for required capability."""</span>
+        candidates = []
+        
+        <span class="comment"># Find agents with required capability</span>
+        <span class="keyword">for</span> agent_name, info <span class="keyword">in self</span>.agent_registry.items():
+            <span class="keyword">if</span> required_capability <span class="keyword">in</span> info[<span class="string">"capabilities"</span>]:
+                <span class="comment"># Check if agent has capacity</span>
+                <span class="keyword">if</span> info[<span class="string">"current_load"</span>] < info[<span class="string">"max_concurrent"</span>]:
+                    load_ratio = info[<span class="string">"current_load"</span>] / info[<span class="string">"max_concurrent"</span>]
+                    candidates.append((agent_name, load_ratio))
+        
+        <span class="keyword">if not</span> candidates:
+            <span class="keyword">return None</span>  <span class="comment"># No available agents</span>
+        
+        <span class="comment"># Select agent with lowest load</span>
+        best_agent = <span class="keyword">min</span>(candidates, key=<span class="keyword">lambda</span> x: x[1])[0]
+        
+        <span class="comment"># Increment load</span>
+        <span class="keyword">self</span>.agent_registry[best_agent][<span class="string">"current_load"</span>] += 1
+        
+        <span class="keyword">return</span> best_agent
+    
+    <span class="keyword">def</span> <span class="function">release_agent</span>(<span class="keyword">self</span>, agent_name: <span class="class-name">str</span>):
+        <span class="string">"""Release agent after task completion."""</span>
+        <span class="keyword">if</span> agent_name <span class="keyword">in self</span>.agent_registry:
+            <span class="keyword">self</span>.agent_registry[agent_name][<span class="string">"current_load"</span>] -= 1</code></div>
+                    </div>
+
+                    <h3>Routing Best Practices</h3>
+                    <div class="best-practice">
+                        <strong>✓ Monitor Agent Load:</strong> Track concurrent requests to prevent overload.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Have Fallback Options:</strong> Define what happens when no agent is available.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Log Routing Decisions:</strong> Record why each routing decision was made.
+                    </div>
+                    <div class="warning">
+                        <strong>⚠ Watch For:</strong> Routing loops where agents keep passing requests back and forth.
+                    </div>
+                </div>
+            </div>
+
+            <!-- STATE MANAGEMENT TAB -->
+            <div id="state" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">💾</span> State Management Patterns</h2>
+                    <p>State management determines what information persists across agent interactions and how conflicts are handled.</p>
+
+                    <h3>Types of State</h3>
+
+                    <div class="pattern-card">
+                        <h4>1. Ephemeral (Short-term) State</h4>
+                        <span class="tag blue">In-memory, temporary</span>
+                        <p>State that exists only during a single workflow execution. Lost when workflow completes.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">class</span> <span class="class-name">EphemeralState</span>:
+    <span class="string">"""Temporary state for single workflow execution."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.data = {}
+        <span class="keyword">self</span>.created_at = datetime.now()
+    
+    <span class="keyword">def</span> <span class="function">set</span>(<span class="keyword">self</span>, key: <span class="class-name">str</span>, value: <span class="class-name">Any</span>):
+        <span class="string">"""Store temporary data."""</span>
+        <span class="keyword">self</span>.data[key] = value
+    
+    <span class="keyword">def</span> <span class="function">get</span>(<span class="keyword">self</span>, key: <span class="class-name">str</span>) -> <span class="class-name">Any</span>:
+        <span class="string">"""Retrieve temporary data."""</span>
+        <span class="keyword">return self</span>.data.get(key)
+    
+    <span class="keyword">def</span> <span class="function">clear</span>(<span class="keyword">self</span>):
+        <span class="string">"""Clear all temporary data."""</span>
+        <span class="keyword">self</span>.data = {}
+
+<span class="comment"># Usage in workflow</span>
+<span class="keyword">def</span> <span class="function">process_request</span>(request: <span class="class-name">str</span>):
+    state = EphemeralState()
+    
+    <span class="comment"># Store intermediate results</span>
+    state.set(<span class="string">"original_request"</span>, request)
+    state.set(<span class="string">"validation_passed"</span>, <span class="keyword">True</span>)
+    
+    <span class="comment"># Use in subsequent steps</span>
+    <span class="keyword">if</span> state.get(<span class="string">"validation_passed"</span>):
+        result = process_agent.run(request)
+    
+    <span class="comment"># State automatically discarded after function returns</span>
+    <span class="keyword">return</span> result</code></div>
+                        
+                        <p><strong>Best for:</strong> Workflow context, intermediate results, temporary calculations</p>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>2. Persistent (Long-term) State</h4>
+                        <span class="tag green">Database-backed, permanent</span>
+                        <p>State that survives across multiple workflows and system restarts.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">import</span> sqlite3
+<span class="keyword">from</span> typing <span class="keyword">import</span> Any, Optional
+
+<span class="keyword">class</span> <span class="class-name">PersistentState</span>:
+    <span class="string">"""Long-term state stored in database."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, db_path: <span class="class-name">str</span> = <span class="string">"state.db"</span>):
+        <span class="keyword">self</span>.conn = sqlite3.connect(db_path)
+        <span class="keyword">self</span>._initialize_db()
+    
+    <span class="keyword">def</span> <span class="function">_initialize_db</span>(<span class="keyword">self</span>):
+        <span class="string">"""Create state table if not exists."""</span>
+        <span class="keyword">self</span>.conn.execute(<span class="string">"""
+            CREATE TABLE IF NOT EXISTS state (
+                key TEXT PRIMARY KEY,
+                value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """</span>)
+        <span class="keyword">self</span>.conn.commit()
+    
+    <span class="keyword">def</span> <span class="function">set</span>(<span class="keyword">self</span>, key: <span class="class-name">str</span>, value: <span class="class-name">Any</span>):
+        <span class="string">"""Store persistent data."""</span>
+        <span class="keyword">import</span> json
+        value_json = json.dumps(value)
+        
+        <span class="keyword">self</span>.conn.execute(<span class="string">"""
+            INSERT OR REPLACE INTO state (key, value, updated_at)
+            VALUES (?, ?, CURRENT_TIMESTAMP)
+        """</span>, (key, value_json))
+        <span class="keyword">self</span>.conn.commit()
+    
+    <span class="keyword">def</span> <span class="function">get</span>(<span class="keyword">self</span>, key: <span class="class-name">str</span>) -> Optional[<span class="class-name">Any</span>]:
+        <span class="string">"""Retrieve persistent data."""</span>
+        <span class="keyword">import</span> json
+        
+        cursor = <span class="keyword">self</span>.conn.execute(
+            <span class="string">"SELECT value FROM state WHERE key = ?"</span>,
+            (key,)
+        )
+        row = cursor.fetchone()
+        
+        <span class="keyword">if</span> row:
+            <span class="keyword">return</span> json.loads(row[0])
+        <span class="keyword">return None</span>
+
+<span class="comment"># Usage for user sessions</span>
+state = PersistentState()
+state.set(<span class="string">f"user:{user_id}:preferences"</span>, user_preferences)
+state.set(<span class="string">f"workflow:{workflow_id}:status"</span>, <span class="string">"completed"</span>)</code></div>
+                        
+                        <p><strong>Best for:</strong> User data, workflow history, configuration, audit logs</p>
+                    </div>
+
+                    <h3>State Coordination Techniques</h3>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🔒 Pessimistic Locking (Database Locks)</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>Lock resources before access to prevent concurrent modifications.</p>
+                            <div class="code-block"><code><span class="keyword">import</span> sqlite3
+
+<span class="keyword">def</span> <span class="function">update_with_lock</span>(user_id: <span class="class-name">int</span>, amount: <span class="class-name">float</span>):
+    <span class="string">"""Update account balance with database lock."""</span>
+    conn = sqlite3.connect(<span class="string">"accounts.db"</span>)
+    
+    <span class="keyword">try</span>:
+        <span class="comment"># Start transaction</span>
+        conn.execute(<span class="string">"BEGIN EXCLUSIVE"</span>)
+        
+        <span class="comment"># Read current balance (row is now locked)</span>
+        cursor = conn.execute(
+            <span class="string">"SELECT balance FROM accounts WHERE user_id = ?"</span>,
+            (user_id,)
+        )
+        current_balance = cursor.fetchone()[0]
+        
+        <span class="comment"># Calculate new balance</span>
+        new_balance = current_balance + amount
+        
+        <span class="comment"># Update balance</span>
+        conn.execute(
+            <span class="string">"UPDATE accounts SET balance = ? WHERE user_id = ?"</span>,
+            (new_balance, user_id)
+        )
+        
+        <span class="comment"># Commit (releases lock)</span>
+        conn.commit()
+        
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"new_balance"</span>: new_balance}
+    
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        conn.rollback()
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: str(e)}
+    
+    <span class="keyword">finally</span>:
+        conn.close()</code></div>
+                            
+                            <div class="warning">
+                                <strong>⚠ Trade-off:</strong> Pessimistic locking is safe but can create bottlenecks. Use for critical operations like financial transactions.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>✨ Optimistic Concurrency Control</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>Allow concurrent access, detect conflicts on write, retry if needed.</p>
+                            <div class="code-block"><code><span class="keyword">def</span> <span class="function">update_with_version_check</span>(
+    user_id: <span class="class-name">int</span>,
+    new_data: <span class="class-name">dict</span>,
+    max_retries: <span class="class-name">int</span> = 3
+):
+    <span class="string">"""Update with optimistic concurrency control."""</span>
+    
+    <span class="keyword">for</span> attempt <span class="keyword">in</span> range(max_retries):
+        conn = sqlite3.connect(<span class="string">"data.db"</span>)
+        
+        <span class="keyword">try</span>:
+            <span class="comment"># Read current version</span>
+            cursor = conn.execute(
+                <span class="string">"SELECT data, version FROM records WHERE user_id = ?"</span>,
+                (user_id,)
+            )
+            row = cursor.fetchone()
+            current_version = row[1]
+            
+            <span class="comment"># Attempt update with version check</span>
+            result = conn.execute(<span class="string">"""
+                UPDATE records 
+                SET data = ?, version = version + 1
+                WHERE user_id = ? AND version = ?
+            """</span>, (json.dumps(new_data), user_id, current_version))
+            
+            conn.commit()
+            
+            <span class="comment"># Check if update succeeded</span>
+            <span class="keyword">if</span> result.rowcount > 0:
+                <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"version"</span>: current_version + 1}
+            
+            <span class="comment"># Version mismatch: someone else updated</span>
+            logging.warning(<span class="string">f"Version conflict, retry {attempt + 1}"</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            conn.rollback()
+            <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: str(e)}
+        
+        <span class="keyword">finally</span>:
+            conn.close()
+    
+    <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: <span class="string">"Max retries exceeded"</span>}</code></div>
+                            
+                            <div class="best-practice">
+                                <strong>✓ Best for:</strong> High-concurrency scenarios where conflicts are rare. More efficient than pessimistic locking.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🎯 Event Sourcing</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>Store all state changes as events, reconstruct current state by replaying events.</p>
+                            <div class="code-block"><code><span class="keyword">class</span> <span class="class-name">EventStore</span>:
+    <span class="string">"""Store and replay state changes as events."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.events = []
+    
+    <span class="keyword">def</span> <span class="function">append_event</span>(<span class="keyword">self</span>, event: <span class="class-name">dict</span>):
+        <span class="string">"""Add new event to the log."""</span>
+        event[<span class="string">"timestamp"</span>] = datetime.now()
+        event[<span class="string">"id"</span>] = len(<span class="keyword">self</span>.events) + 1
+        <span class="keyword">self</span>.events.append(event)
+    
+    <span class="keyword">def</span> <span class="function">get_current_state</span>(<span class="keyword">self</span>, entity_id: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+        <span class="string">"""Reconstruct current state by replaying events."""</span>
+        state = {}
+        
+        <span class="keyword">for</span> event <span class="keyword">in self</span>.events:
+            <span class="keyword">if</span> event[<span class="string">"entity_id"</span>] == entity_id:
+                <span class="comment"># Apply event to state</span>
+                <span class="keyword">if</span> event[<span class="string">"type"</span>] == <span class="string">"created"</span>:
+                    state = event[<span class="string">"data"</span>]
+                
+                <span class="keyword">elif</span> event[<span class="string">"type"</span>] == <span class="string">"updated"</span>:
+                    state.update(event[<span class="string">"data"</span>])
+                
+                <span class="keyword">elif</span> event[<span class="string">"type"</span>] == <span class="string">"deleted"</span>:
+                    state = {}
+        
+        <span class="keyword">return</span> state
+
+<span class="comment"># Usage</span>
+store = EventStore()
+
+<span class="comment"># Record events</span>
+store.append_event({
+    <span class="string">"entity_id"</span>: <span class="string">"order_123"</span>,
+    <span class="string">"type"</span>: <span class="string">"created"</span>,
+    <span class="string">"data"</span>: {<span class="string">"status"</span>: <span class="string">"pending"</span>, <span class="string">"amount"</span>: 100}
+})
+
+store.append_event({
+    <span class="string">"entity_id"</span>: <span class="string">"order_123"</span>,
+    <span class="string">"type"</span>: <span class="string">"updated"</span>,
+    <span class="string">"data"</span>: {<span class="string">"status"</span>: <span class="string">"completed"</span>}
+})
+
+<span class="comment"># Reconstruct current state</span>
+current_state = store.get_current_state(<span class="string">"order_123"</span>)
+<span class="comment"># Result: {"status": "completed", "amount": 100}</span></code></div>
+                            
+                            <div class="best-practice">
+                                <strong>✓ Benefits:</strong> Complete audit trail, time travel (replay to any point), easy debugging.
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>State Management Best Practices</h3>
+                    <div class="best-practice">
+                        <strong>✓ Choose Appropriate Scope:</strong> Use ephemeral state for temporary data, persistent for long-term.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Version Your State:</strong> Include version numbers to detect conflicts.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Validate Before Persisting:</strong> Always validate state data before storing.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Clean Up Old State:</strong> Implement retention policies for ephemeral and temporary state.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ERROR HANDLING TAB -->
+            <div id="errors" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">⚠️</span> Error Handling Patterns</h2>
+                    <p>Robust error handling prevents cascading failures and maintains system reliability.</p>
+
+                    <h3>Core Error Handling Strategies</h3>
+
+                    <div class="pattern-card">
+                        <h4>1. Retry with Exponential Backoff</h4>
+                        <span class="tag blue">For transient failures</span>
+                        <p>Retry failed operations with increasing delays to handle temporary issues.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">import</span> time
+<span class="keyword">from</span> typing <span class="keyword">import</span> Callable, Any
+
+<span class="keyword">def</span> <span class="function">retry_with_backoff</span>(
+    func: <span class="class-name">Callable</span>,
+    max_retries: <span class="class-name">int</span> = 3,
+    initial_delay: <span class="class-name">float</span> = 1.0,
+    backoff_factor: <span class="class-name">float</span> = 2.0
+) -> <span class="class-name">Any</span>:
+    <span class="string">"""
+    Retry function with exponential backoff.
+    
+    Args:
+        func: Function to retry
+        max_retries: Maximum number of retry attempts
+        initial_delay: Initial delay in seconds
+        backoff_factor: Multiplier for each retry
+    """</span>
+    delay = initial_delay
+    
+    <span class="keyword">for</span> attempt <span class="keyword">in</span> range(max_retries):
+        <span class="keyword">try</span>:
+            result = func()
+            <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"data"</span>: result}
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">if</span> attempt == max_retries - 1:
+                <span class="comment"># Last attempt failed</span>
+                logging.error(<span class="string">f"All retries exhausted: {e}"</span>)
+                <span class="keyword">return</span> {
+                    <span class="string">"success"</span>: <span class="keyword">False</span>,
+                    <span class="string">"error"</span>: <span class="string">f"Failed after {max_retries} attempts"</span>
+                }
+            
+            <span class="comment"># Wait before retrying</span>
+            logging.warning(<span class="string">f"Attempt {attempt + 1} failed, retrying in {delay}s"</span>)
+            time.sleep(delay)
+            delay *= backoff_factor
+
+<span class="comment"># Usage</span>
+result = retry_with_backoff(
+    <span class="keyword">lambda</span>: api_call_that_might_fail(),
+    max_retries=5,
+    initial_delay=1.0,
+    backoff_factor=2.0
+)</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>2. Fallback Pattern</h4>
+                        <span class="tag green">For graceful degradation</span>
+                        <p>Provide alternative paths when primary operation fails.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">get_data_with_fallback</span>(query: <span class="class-name">str</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Try multiple data sources with fallback."""</span>
+    
+    <span class="comment"># Try primary source</span>
+    <span class="keyword">try</span>:
+        result = primary_database.query(query)
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"data"</span>: result,
+            <span class="string">"source"</span>: <span class="string">"primary"</span>
+        }
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        logging.warning(<span class="string">f"Primary source failed: {e}"</span>)
+    
+    <span class="comment"># Fallback to cache</span>
+    <span class="keyword">try</span>:
+        cached_result = cache.get(query)
+        <span class="keyword">if</span> cached_result:
+            logging.info(<span class="string">"Using cached data"</span>)
+            <span class="keyword">return</span> {
+                <span class="string">"success"</span>: <span class="keyword">True</span>,
+                <span class="string">"data"</span>: cached_result,
+                <span class="string">"source"</span>: <span class="string">"cache"</span>,
+                <span class="string">"warning"</span>: <span class="string">"Data may be stale"</span>
+            }
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        logging.warning(<span class="string">f"Cache failed: {e}"</span>)
+    
+    <span class="comment"># Fallback to backup database</span>
+    <span class="keyword">try</span>:
+        result = backup_database.query(query)
+        logging.info(<span class="string">"Using backup database"</span>)
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"data"</span>: result,
+            <span class="string">"source"</span>: <span class="string">"backup"</span>
+        }
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        logging.error(<span class="string">f"All sources failed: {e}"</span>)
+    
+    <span class="comment"># All fallbacks failed</span>
+    <span class="keyword">return</span> {
+        <span class="string">"success"</span>: <span class="keyword">False</span>,
+        <span class="string">"error"</span>: <span class="string">"All data sources unavailable"</span>
+    }</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>3. Compensation Pattern</h4>
+                        <span class="tag amber">For reversing partial failures</span>
+                        <p>Undo completed operations when later steps fail.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">process_order_with_compensation</span>(order_data: <span class="class-name">dict</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Process order with compensation on failure."""</span>
+    completed_steps = []
+    
+    <span class="keyword">try</span>:
+        <span class="comment"># Step 1: Reserve inventory</span>
+        inventory_result = reserve_inventory(order_data[<span class="string">"items"</span>])
+        completed_steps.append((<span class="string">"inventory"</span>, inventory_result))
+        
+        <span class="comment"># Step 2: Process payment</span>
+        payment_result = process_payment(order_data[<span class="string">"payment"</span>])
+        completed_steps.append((<span class="string">"payment"</span>, payment_result))
+        
+        <span class="comment"># Step 3: Create shipment</span>
+        shipment_result = create_shipment(order_data[<span class="string">"address"</span>])
+        completed_steps.append((<span class="string">"shipment"</span>, shipment_result))
+        
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"order_id"</span>: shipment_result[<span class="string">"id"</span>]}
+    
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        logging.error(<span class="string">f"Order processing failed: {e}"</span>)
+        
+        <span class="comment"># Compensate completed steps in reverse order</span>
+        <span class="keyword">for</span> step_name, step_result <span class="keyword">in</span> reversed(completed_steps):
+            <span class="keyword">try</span>:
+                <span class="keyword">if</span> step_name == <span class="string">"inventory"</span>:
+                    release_inventory(step_result[<span class="string">"reservation_id"</span>])
+                    logging.info(<span class="string">"Inventory released"</span>)
+                
+                <span class="keyword">elif</span> step_name == <span class="string">"payment"</span>:
+                    refund_payment(step_result[<span class="string">"transaction_id"</span>])
+                    logging.info(<span class="string">"Payment refunded"</span>)
+                
+                <span class="keyword">elif</span> step_name == <span class="string">"shipment"</span>:
+                    cancel_shipment(step_result[<span class="string">"shipment_id"</span>])
+                    logging.info(<span class="string">"Shipment canceled"</span>)
+            
+            <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> comp_error:
+                logging.error(<span class="string">f"Compensation failed for {step_name}: {comp_error}"</span>)
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: str(e),
+            <span class="string">"compensated"</span>: <span class="keyword">True</span>
+        }</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>4. Circuit Breaker Pattern</h4>
+                        <span class="tag blue">For preventing cascading failures</span>
+                        <p>Stop calling failing services to allow recovery time.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">from</span> enum <span class="keyword">import</span> Enum
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+
+<span class="keyword">class</span> <span class="class-name">CircuitState</span>(Enum):
+    CLOSED = <span class="string">"closed"</span>      <span class="comment"># Normal operation</span>
+    OPEN = <span class="string">"open"</span>          <span class="comment"># Failures detected, reject requests</span>
+    HALF_OPEN = <span class="string">"half_open"</span> <span class="comment"># Testing if service recovered</span>
+
+<span class="keyword">class</span> <span class="class-name">CircuitBreaker</span>:
+    <span class="string">"""Prevent cascading failures by stopping calls to failing services."""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        <span class="keyword">self</span>,
+        failure_threshold: <span class="class-name">int</span> = 5,
+        timeout_seconds: <span class="class-name">int</span> = 60
+    ):
+        <span class="keyword">self</span>.state = CircuitState.CLOSED
+        <span class="keyword">self</span>.failure_count = 0
+        <span class="keyword">self</span>.failure_threshold = failure_threshold
+        <span class="keyword">self</span>.timeout_seconds = timeout_seconds
+        <span class="keyword">self</span>.last_failure_time = <span class="keyword">None</span>
+    
+    <span class="keyword">def</span> <span class="function">call</span>(<span class="keyword">self</span>, func: <span class="class-name">Callable</span>) -> <span class="class-name">dict</span>:
+        <span class="string">"""Execute function with circuit breaker protection."""</span>
+        
+        <span class="comment"># Check if circuit is open</span>
+        <span class="keyword">if self</span>.state == CircuitState.OPEN:
+            <span class="comment"># Check if timeout expired</span>
+            <span class="keyword">if</span> datetime.now() - <span class="keyword">self</span>.last_failure_time > timedelta(seconds=<span class="keyword">self</span>.timeout_seconds):
+                <span class="keyword">self</span>.state = CircuitState.HALF_OPEN
+                logging.info(<span class="string">"Circuit half-open, testing service"</span>)
+            <span class="keyword">else</span>:
+                <span class="keyword">return</span> {
+                    <span class="string">"success"</span>: <span class="keyword">False</span>,
+                    <span class="string">"error"</span>: <span class="string">"Circuit breaker OPEN"</span>
+                }
+        
+        <span class="comment"># Attempt the call</span>
+        <span class="keyword">try</span>:
+            result = func()
+            <span class="keyword">self</span>._on_success()
+            <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"data"</span>: result}
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">self</span>._on_failure()
+            <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: str(e)}
+    
+    <span class="keyword">def</span> <span class="function">_on_success</span>(<span class="keyword">self</span>):
+        <span class="string">"""Reset on successful call."""</span>
+        <span class="keyword">self</span>.failure_count = 0
+        <span class="keyword">self</span>.state = CircuitState.CLOSED
+        logging.info(<span class="string">"Circuit closed"</span>)
+    
+    <span class="keyword">def</span> <span class="function">_on_failure</span>(<span class="keyword">self</span>):
+        <span class="string">"""Track failures and open circuit if threshold reached."""</span>
+        <span class="keyword">self</span>.failure_count += 1
+        <span class="keyword">self</span>.last_failure_time = datetime.now()
+        
+        <span class="keyword">if self</span>.failure_count >= <span class="keyword">self</span>.failure_threshold:
+            <span class="keyword">self</span>.state = CircuitState.OPEN
+            logging.warning(<span class="string">"Circuit breaker OPEN"</span>)
+
+<span class="comment"># Usage</span>
+breaker = CircuitBreaker(failure_threshold=3, timeout_seconds=30)
+result = breaker.call(<span class="keyword">lambda</span>: external_api_call())</code></div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>5. Human-in-the-Loop Escalation</h4>
+                        <span class="tag green">For complex failures</span>
+                        <p>Escalate to humans when automated recovery isn't possible.</p>
+                        
+                        <div class="code-block"><code><span class="keyword">def</span> <span class="function">process_with_escalation</span>(request: <span class="class-name">dict</span>) -> <span class="class-name">dict</span>:
+    <span class="string">"""Process request with human escalation for failures."""</span>
+    
+    <span class="keyword">try</span>:
+        <span class="comment"># Attempt automated processing</span>
+        result = automated_agent.process(request)
+        
+        <span class="comment"># Check confidence level</span>
+        <span class="keyword">if</span> result.get(<span class="string">"confidence"</span>, 0) < 0.7:
+            <span class="comment"># Low confidence: escalate to human</span>
+            <span class="keyword">return</span> escalate_to_human(
+                request,
+                reason=<span class="string">"Low confidence"</span>,
+                automated_result=result
+            )
+        
+        <span class="keyword">return</span> result
+    
+    <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+        <span class="comment"># Automated processing failed: escalate</span>
+        <span class="keyword">return</span> escalate_to_human(
+            request,
+            reason=<span class="string">f"Processing failed: {str(e)}"</span>,
+            automated_result=<span class="keyword">None</span>
+        )
+
+<span class="keyword">def</span> <span class="function">escalate_to_human</span>(
+    request: <span class="class-name">dict</span>,
+    reason: <span class="class-name">str</span>,
+    automated_result: <span class="class-name">dict</span> = <span class="keyword">None</span>
+) -> <span class="class-name">dict</span>:
+    <span class="string">"""Create escalation ticket for human review."""</span>
+    
+    ticket = {
+        <span class="string">"id"</span>: generate_ticket_id(),
+        <span class="string">"request"</span>: request,
+        <span class="string">"escalation_reason"</span>: reason,
+        <span class="string">"automated_result"</span>: automated_result,
+        <span class="string">"created_at"</span>: datetime.now(),
+        <span class="string">"status"</span>: <span class="string">"pending_human_review"</span>
+    }
+    
+    <span class="comment"># Store in escalation queue</span>
+    escalation_queue.add(ticket)
+    
+    <span class="comment"># Notify human operators</span>
+    notify_operators(ticket)
+    
+    logging.info(<span class="string">f"Escalated to human: {ticket['id']}"</span>)
+    
+    <span class="keyword">return</span> {
+        <span class="string">"success"</span>: <span class="keyword">False</span>,
+        <span class="string">"escalated"</span>: <span class="keyword">True</span>,
+        <span class="string">"ticket_id"</span>: ticket[<span class="string">"id"</span>],
+        <span class="string">"message"</span>: <span class="string">"Request escalated for human review"</span>
+    }</code></div>
+                    </div>
+
+                    <h3>Error Handling Best Practices</h3>
+                    <div class="best-practice">
+                        <strong>✓ Fail Fast:</strong> Detect errors early and handle them immediately.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Provide Context:</strong> Include enough information to debug (request ID, timestamp, state).
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Log Comprehensively:</strong> Log all errors with full context for post-mortem analysis.
+                    </div>
+                    <div class="best-practice">
+                        <strong>✓ Test Failure Paths:</strong> Regularly test error handling and recovery mechanisms.
+                    </div>
+                    <div class="warning">
+                        <strong>⚠ Never Silence Errors:</strong> Always log errors even if you handle them gracefully.
+                    </div>
+                </div>
+            </div>
+
+            <!-- FRAMEWORKS TAB -->
+            <div id="frameworks" class="tab-content">
+                <div class="section">
+                    <h2><span class="icon">🛠️</span> Framework Comparisons</h2>
+                    <p>Choose the right framework based on your use case, complexity, and team expertise.</p>
+
+                    <h3>Framework Overview</h3>
+
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Framework</th>
+                                <th>Best For</th>
+                                <th>Learning Curve</th>
+                                <th>Flexibility</th>
+                                <th>Community</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>LangGraph</strong></td>
+                                <td>Complex workflows, state graphs</td>
+                                <td>Steep</td>
+                                <td>High</td>
+                                <td>Large</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Swarm</strong></td>
+                                <td>Simple multi-agent, quick prototypes</td>
+                                <td>Gentle</td>
+                                <td>Medium</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pydantic AI</strong></td>
+                                <td>Type-safe agents, data validation</td>
+                                <td>Medium</td>
+                                <td>Medium</td>
+                                <td>Growing</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Framework Deep Dives</h3>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🕸️ LangGraph - State Graph Framework</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>LangGraph models agent workflows as state graphs with nodes and edges.</p>
+                            
+                            <div class="code-block"><code><span class="keyword">from</span> langgraph.graph <span class="keyword">import</span> StateGraph
+<span class="keyword">from</span> typing <span class="keyword">import</span> TypedDict
+
+<span class="comment"># Define state structure</span>
+<span class="keyword">class</span> <span class="class-name">AgentState</span>(TypedDict):
+    messages: list
+    next_agent: str
+
+<span class="comment"># Create graph</span>
+workflow = StateGraph(AgentState)
+
+<span class="comment"># Add agent nodes</span>
+workflow.add_node(<span class="string">"researcher"</span>, research_agent)
+workflow.add_node(<span class="string">"analyzer"</span>, analysis_agent)
+workflow.add_node(<span class="string">"writer"</span>, writer_agent)
+
+<span class="comment"># Define edges (transitions)</span>
+workflow.add_edge(<span class="string">"researcher"</span>, <span class="string">"analyzer"</span>)
+workflow.add_edge(<span class="string">"analyzer"</span>, <span class="string">"writer"</span>)
+
+<span class="comment"># Set entry point</span>
+workflow.set_entry_point(<span class="string">"researcher"</span>)
+
+<span class="comment"># Compile and run</span>
+app = workflow.compile()
+result = app.invoke({<span class="string">"messages"</span>: [user_input]})</code></div>
+                            
+                            <p><strong>Key Features:</strong></p>
+                            <ul>
+                                <li>Visual graph representation of workflows</li>
+                                <li>Built-in state management and persistence</li>
+                                <li>Conditional routing between agents</li>
+                                <li>Checkpointing for long-running workflows</li>
+                                <li>Time travel debugging</li>
+                            </ul>
+                            
+                            <p><strong>Use When:</strong> Building complex, multi-stage workflows with conditional logic and state persistence needs.</p>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🐝 Swarm - Simple Multi-Agent Framework</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>Swarm focuses on simplicity and ease of use for basic multi-agent coordination.</p>
+                            
+                            <div class="code-block"><code><span class="keyword">from</span> swarm <span class="keyword">import</span> Agent, Swarm
+
+<span class="comment"># Define agents</span>
+research_agent = Agent(
+    name=<span class="string">"Researcher"</span>,
+    instructions=<span class="string">"You research topics thoroughly."</span>,
+    functions=[search_web, read_documents]
+)
+
+writer_agent = Agent(
+    name=<span class="string">"Writer"</span>,
+    instructions=<span class="string">"You write clear, engaging content."</span>,
+    functions=[draft_content, edit_content]
+)
+
+<span class="comment"># Create swarm and run</span>
+client = Swarm()
+
+response = client.run(
+    agent=research_agent,
+    messages=[{<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: <span class="string">"Research AI trends"</span>}],
+    context_variables={<span class="string">"topic"</span>: <span class="string">"AI trends 2024"</span>}
+)
+
+<span class="comment"># Hand off to writer</span>
+response = client.run(
+    agent=writer_agent,
+    messages=response.messages,
+    context_variables={<span class="string">"research_data"</span>: response.context_variables}
+)</code></div>
+                            
+                            <p><strong>Key Features:</strong></p>
+                            <ul>
+                                <li>Minimal boilerplate code</li>
+                                <li>Easy agent handoffs</li>
+                                <li>Shared context variables</li>
+                                <li>Function calling support</li>
+                                <li>Quick prototyping</li>
+                            </ul>
+                            
+                            <p><strong>Use When:</strong> Building simple multi-agent systems, prototyping ideas, or learning multi-agent concepts.</p>
+                        </div>
+                    </div>
+
+                    <div class="collapsible" onclick="toggleCollapsible(this)">
+                        <div class="collapsible-header">
+                            <span>🔒 Pydantic AI - Type-Safe Agent Framework</span>
+                            <span class="collapsible-icon">▼</span>
+                        </div>
+                        <div class="collapsible-content">
+                            <p>Pydantic AI emphasizes type safety and data validation using Pydantic models.</p>
+                            
+                            <div class="code-block"><code><span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel
+<span class="keyword">from</span> pydantic_ai <span class="keyword">import</span> Agent, tool
+
+<span class="comment"># Define typed data models</span>
+<span class="keyword">class</span> <span class="class-name">UserData</span>(BaseModel):
+    name: str
+    age: int
+    email: str
+
+<span class="keyword">class</span> <span class="class-name">AnalysisResult</span>(BaseModel):
+    summary: str
+    confidence: float
+    recommendations: list[str]
+
+<span class="comment"># Define tool with type hints</span>
+<span class="decorator">@tool</span>
+<span class="keyword">def</span> <span class="function">analyze_user</span>(data: <span class="class-name">UserData</span>) -> <span class="class-name">AnalysisResult</span>:
+    <span class="comment"># Pydantic validates input automatically</span>
+    <span class="keyword">return</span> AnalysisResult(
+        summary=<span class="string">f"Analysis for {data.name}"</span>,
+        confidence=0.85,
+        recommendations=[<span class="string">"rec1"</span>, <span class="string">"rec2"</span>]
+    )
+
+<span class="comment"># Create typed agent</span>
+agent = Agent(
+    name=<span class="string">"analyzer"</span>,
+    tools=[analyze_user],
+    model=<span class="string">"gpt-4"</span>
+)
+
+<span class="comment"># Run with automatic validation</span>
+result = agent.run(<span class="string">"Analyze user: John, age 30, john@example.com"</span>)</code></div>
+                            
+                            <p><strong>Key Features:</strong></p>
+                            <ul>
+                                <li>Full type safety with Pydantic</li>
+                                <li>Automatic input/output validation</li>
+                                <li>IDE autocomplete support</li>
+                                <li>Clear data contracts between agents</li>
+                                <li>Reduces runtime errors</li>
+                            </ul>
+                            
+                            <p><strong>Use When:</strong> Type safety is critical, working in large teams, or building production systems where data validation is essential.</p>
+                        </div>
+                    </div>
+
+                    <h3>Framework Selection Guide</h3>
+                    
+                    <div class="pattern-card">
+                        <h4>Choose LangGraph if you need:</h4>
+                        <ul>
+                            <li>Complex conditional workflows</li>
+                            <li>State persistence across restarts</li>
+                            <li>Visual workflow representation</li>
+                            <li>Long-running processes with checkpoints</li>
+                            <li>Human-in-the-loop capabilities</li>
+                        </ul>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>Choose Swarm if you need:</h4>
+                        <ul>
+                            <li>Quick prototype development</li>
+                            <li>Simple agent handoffs</li>
+                            <li>Minimal learning curve</li>
+                            <li>Lightweight deployment</li>
+                            <li>Educational projects</li>
+                        </ul>
+                    </div>
+
+                    <div class="pattern-card">
+                        <h4>Choose Pydantic AI if you need:</h4>
+                        <ul>
+                            <li>Strong type safety</li>
+                            <li>Data validation guarantees</li>
+                            <li>Large team development</li>
+                            <li>IDE support and autocomplete</li>
+                            <li>Clear data contracts</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function toggleCollapsible(element) {
+            const content = element.querySelector('.collapsible-content');
+            const icon = element.querySelector('.collapsible-icon');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+            }
+        }
+    </script>
+</body>
+</html>
