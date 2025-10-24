@@ -1,710 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Structured Outputs & Evaluation</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            background: #FFFFFF;
-            padding: 40px 20px;
-            color: #1A1A1A;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 16px;
-            letter-spacing: -0.02em;
-        }
-        
-        .header p {
-            font-size: 1.125rem;
-            color: #616161;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        /* Two Main Sections */
-        .main-section {
-            margin-bottom: 80px;
-        }
-        
-        .section-header {
-            background: linear-gradient(135deg, #212121 0%, #424242 100%);
-            color: white;
-            padding: 24px 40px;
-            border-radius: 12px 12px 0 0;
-            margin-bottom: 0;
-        }
-        
-        .section-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .section-subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-            font-style: italic;
-        }
-        
-        .section-content {
-            background: #FAFAFA;
-            padding: 40px;
-            border-radius: 0 0 12px 12px;
-            border: 2px solid #E0E0E0;
-            border-top: none;
-        }
-        
-        /* Structured Outputs Section */
-        .why-structure {
-            background: linear-gradient(135deg, #E8F4FF 0%, #D1E9FF 100%);
-            border: 3px solid #0066FF;
-            border-radius: 12px;
-            padding: 32px;
-            margin-bottom: 40px;
-        }
-        
-        .why-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .why-content {
-            font-size: 1rem;
-            color: #424242;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-        
-        .why-examples {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-        
-        .why-example {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #0066FF;
-        }
-        
-        .why-example-title {
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 8px;
-        }
-        
-        .why-example-text {
-            font-size: 0.875rem;
-            color: #616161;
-        }
-        
-        /* Pydantic Examples */
-        .pydantic-section {
-            margin-bottom: 40px;
-        }
-        
-        .pydantic-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .pydantic-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 24px;
-        }
-        
-        .pydantic-card {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .pydantic-card:hover {
-            border-color: #22C55E;
-            box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
-        }
-        
-        .pydantic-header {
-            background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%);
-            padding: 20px;
-            border-bottom: 2px solid #22C55E;
-        }
-        
-        .pydantic-header-title {
-            font-weight: 700;
-            color: #212121;
-            font-size: 1.125rem;
-            margin-bottom: 4px;
-        }
-        
-        .pydantic-header-desc {
-            font-size: 0.875rem;
-            color: #616161;
-        }
-        
-        .pydantic-code {
-            background: #1E1E1E;
-            color: #D4D4D4;
-            padding: 24px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8125rem;
-            line-height: 1.6;
-            overflow-x: auto;
-        }
-        
-        .code-keyword { color: #569CD6; }
-        .code-class { color: #4EC9B0; }
-        .code-string { color: #CE9178; }
-        .code-comment { color: #6A9955; }
-        .code-number { color: #B5CEA8; }
-        
-        /* Output Flow */
-        .output-flow {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 32px;
-            margin-bottom: 40px;
-        }
-        
-        .flow-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #212121;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .flow-steps {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            position: relative;
-        }
-        
-        .flow-step {
-            background: #F5F5F5;
-            padding: 24px;
-            border-radius: 12px;
-            text-align: center;
-            border: 2px solid #E0E0E0;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        
-        .flow-step:hover {
-            border-color: #22C55E;
-            background: linear-gradient(135deg, #F8FFF9 0%, #F0FFF4 100%);
-        }
-        
-        .flow-step-number {
-            background: #22C55E;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin: 0 auto 12px;
-        }
-        
-        .flow-step-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-        }
-        
-        .flow-step-title {
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 8px;
-            font-size: 0.9375rem;
-        }
-        
-        .flow-step-desc {
-            font-size: 0.8125rem;
-            color: #616161;
-            line-height: 1.5;
-        }
-        
-        /* Evaluation Approaches */
-        .eval-approaches {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        
-        .eval-card {
-            background: white;
-            border-radius: 12px;
-            padding: 32px;
-            border: 3px solid;
-            transition: all 0.3s ease;
-        }
-        
-        .eval-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .eval-blackbox {
-            border-color: #8B5CF6;
-            background: linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 100%);
-        }
-        
-        .eval-singlestep {
-            border-color: #22C55E;
-            background: linear-gradient(135deg, #F8FFF9 0%, #F0FFF4 100%);
-        }
-        
-        .eval-trajectory {
-            border-color: #0066FF;
-            background: linear-gradient(135deg, #F5F9FF 0%, #EBF4FF 100%);
-        }
-        
-        .eval-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .eval-icon {
-            font-size: 56px;
-            margin-bottom: 16px;
-        }
-        
-        .eval-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 8px;
-        }
-        
-        .eval-subtitle {
-            font-size: 0.875rem;
-            color: #616161;
-            font-style: italic;
-        }
-        
-        .eval-description {
-            font-size: 0.9375rem;
-            color: #424242;
-            line-height: 1.7;
-            margin-bottom: 20px;
-        }
-        
-        .eval-section {
-            margin-bottom: 16px;
-        }
-        
-        .eval-section-title {
-            font-weight: 700;
-            color: #212121;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
-        }
-        
-        .eval-section-content {
-            font-size: 0.875rem;
-            color: #424242;
-            line-height: 1.6;
-        }
-        
-        .eval-section-content ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .eval-section-content li {
-            padding: 4px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .eval-section-content li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            font-weight: 700;
-        }
-        
-        .eval-blackbox .eval-section-content li::before { color: #8B5CF6; }
-        .eval-singlestep .eval-section-content li::before { color: #22C55E; }
-        .eval-trajectory .eval-section-content li::before { color: #0066FF; }
-        
-        /* Dimensions Matrix */
-        .dimensions-section {
-            margin-bottom: 40px;
-        }
-        
-        .dimensions-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        
-        .dimensions-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-        
-        .dimension-card {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-        
-        .dimension-card:hover {
-            border-color: #F59E0B;
-            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
-        }
-        
-        .dimension-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        
-        .dimension-icon {
-            font-size: 36px;
-        }
-        
-        .dimension-title {
-            font-weight: 700;
-            color: #212121;
-            font-size: 1.125rem;
-        }
-        
-        .dimension-questions {
-            background: #F5F5F5;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #F59E0B;
-        }
-        
-        .dimension-questions ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .dimension-questions li {
-            padding: 6px 0;
-            font-size: 0.875rem;
-            color: #424242;
-            padding-left: 20px;
-            position: relative;
-        }
-        
-        .dimension-questions li::before {
-            content: "?";
-            position: absolute;
-            left: 0;
-            color: #F59E0B;
-            font-weight: 700;
-        }
-        
-        /* LLM as Judge */
-        .llm-judge-section {
-            background: linear-gradient(135deg, #FFF4E6 0%, #FFE4CC 100%);
-            border: 3px solid #F59E0B;
-            border-radius: 12px;
-            padding: 32px;
-            margin-bottom: 40px;
-        }
-        
-        .llm-judge-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+          sans-serif;
+        background: #ffffff;
+        padding: 40px 20px;
+        color: #1a1a1a;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 60px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
+      }
+
+      .header p {
+        font-size: 1.125rem;
+        color: #616161;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      /* Two Main Sections */
+      .main-section {
+        margin-bottom: 80px;
+      }
+
+      .section-header {
+        background: linear-gradient(135deg, #212121 0%, #424242 100%);
+        color: white;
+        padding: 24px 40px;
+        border-radius: 12px 12px 0 0;
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .section-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        font-style: italic;
+      }
+
+      .section-content {
+        background: #fafafa;
+        padding: 40px;
+        border-radius: 0 0 12px 12px;
+        border: 2px solid #e0e0e0;
+        border-top: none;
+      }
+
+      /* Structured Outputs Section */
+      .why-structure {
+        background: linear-gradient(135deg, #e8f4ff 0%, #d1e9ff 100%);
+        border: 3px solid #0066ff;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 40px;
+      }
+
+      .why-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .why-content {
+        font-size: 1rem;
+        color: #424242;
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      .why-examples {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .why-example {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #0066ff;
+      }
+
+      .why-example-title {
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 8px;
+      }
+
+      .why-example-text {
+        font-size: 0.875rem;
+        color: #616161;
+      }
+
+      /* Pydantic Examples */
+      .pydantic-section {
+        margin-bottom: 40px;
+      }
+
+      .pydantic-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .pydantic-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+      }
+
+      .pydantic-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .pydantic-card:hover {
+        border-color: #22c55e;
+        box-shadow: 0 4px 16px rgba(34, 197, 94, 0.2);
+      }
+
+      .pydantic-header {
+        background: linear-gradient(135deg, #e8fff1 0%, #d1ffe2 100%);
+        padding: 20px;
+        border-bottom: 2px solid #22c55e;
+      }
+
+      .pydantic-header-title {
+        font-weight: 700;
+        color: #212121;
+        font-size: 1.125rem;
+        margin-bottom: 4px;
+      }
+
+      .pydantic-header-desc {
+        font-size: 0.875rem;
+        color: #616161;
+      }
+
+      .pydantic-code {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 24px;
+        font-family: "Courier New", monospace;
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        overflow-x: auto;
+      }
+
+      .code-keyword {
+        color: #569cd6;
+      }
+      .code-class {
+        color: #4ec9b0;
+      }
+      .code-string {
+        color: #ce9178;
+      }
+      .code-comment {
+        color: #6a9955;
+      }
+      .code-number {
+        color: #b5cea8;
+      }
+
+      /* Output Flow */
+      .output-flow {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 40px;
+      }
+
+      .flow-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #212121;
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .flow-steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        position: relative;
+      }
+
+      .flow-step {
+        background: #f5f5f5;
+        padding: 24px;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid #e0e0e0;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .flow-step:hover {
+        border-color: #22c55e;
+        background: linear-gradient(135deg, #f8fff9 0%, #f0fff4 100%);
+      }
+
+      .flow-step-number {
+        background: #22c55e;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        margin: 0 auto 12px;
+      }
+
+      .flow-step-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+
+      .flow-step-title {
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 8px;
+        font-size: 0.9375rem;
+      }
+
+      .flow-step-desc {
+        font-size: 0.8125rem;
+        color: #616161;
+        line-height: 1.5;
+      }
+
+      /* Evaluation Approaches */
+      .eval-approaches {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 40px;
+      }
+
+      .eval-card {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        border: 3px solid;
+        transition: all 0.3s ease;
+      }
+
+      .eval-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .eval-blackbox {
+        border-color: #8b5cf6;
+        background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      }
+
+      .eval-singlestep {
+        border-color: #22c55e;
+        background: linear-gradient(135deg, #f8fff9 0%, #f0fff4 100%);
+      }
+
+      .eval-trajectory {
+        border-color: #0066ff;
+        background: linear-gradient(135deg, #f5f9ff 0%, #ebf4ff 100%);
+      }
+
+      .eval-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .eval-icon {
+        font-size: 56px;
+        margin-bottom: 16px;
+      }
+
+      .eval-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 8px;
+      }
+
+      .eval-subtitle {
+        font-size: 0.875rem;
+        color: #616161;
+        font-style: italic;
+      }
+
+      .eval-description {
+        font-size: 0.9375rem;
+        color: #424242;
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      .eval-section {
+        margin-bottom: 16px;
+      }
+
+      .eval-section-title {
+        font-weight: 700;
+        color: #212121;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+      }
+
+      .eval-section-content {
+        font-size: 0.875rem;
+        color: #424242;
+        line-height: 1.6;
+      }
+
+      .eval-section-content ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .eval-section-content li {
+        padding: 4px 0;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .eval-section-content li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        font-weight: 700;
+      }
+
+      .eval-blackbox .eval-section-content li::before {
+        color: #8b5cf6;
+      }
+      .eval-singlestep .eval-section-content li::before {
+        color: #22c55e;
+      }
+      .eval-trajectory .eval-section-content li::before {
+        color: #0066ff;
+      }
+
+      /* Dimensions Matrix */
+      .dimensions-section {
+        margin-bottom: 40px;
+      }
+
+      .dimensions-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+
+      .dimensions-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      .dimension-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s ease;
+      }
+
+      .dimension-card:hover {
+        border-color: #f59e0b;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+      }
+
+      .dimension-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .dimension-icon {
+        font-size: 36px;
+      }
+
+      .dimension-title {
+        font-weight: 700;
+        color: #212121;
+        font-size: 1.125rem;
+      }
+
+      .dimension-questions {
+        background: #f5f5f5;
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid #f59e0b;
+      }
+
+      .dimension-questions ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .dimension-questions li {
+        padding: 6px 0;
+        font-size: 0.875rem;
+        color: #424242;
+        padding-left: 20px;
+        position: relative;
+      }
+
+      .dimension-questions li::before {
+        content: "?";
+        position: absolute;
+        left: 0;
+        color: #f59e0b;
+        font-weight: 700;
+      }
+
+      /* LLM as Judge */
+      .llm-judge-section {
+        background: linear-gradient(135deg, #fff4e6 0%, #ffe4cc 100%);
+        border: 3px solid #f59e0b;
+        border-radius: 12px;
+        padding: 32px;
+        margin-bottom: 40px;
+      }
+
+      .llm-judge-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .llm-judge-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+
+      .llm-judge-box {
+        background: white;
+        padding: 24px;
+        border-radius: 12px;
+        border-left: 4px solid #f59e0b;
+      }
+
+      .llm-judge-box-title {
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 12px;
+      }
+
+      .llm-judge-box ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .llm-judge-box li {
+        padding: 6px 0;
+        padding-left: 20px;
+        position: relative;
+        font-size: 0.875rem;
+        color: #424242;
+      }
+
+      .llm-judge-box li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #f59e0b;
+        font-weight: 700;
+      }
+
+      /* Improvement Loop */
+      .improvement-loop {
+        background: white;
+        border: 3px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 40px;
+        position: relative;
+      }
+
+      .improvement-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #212121;
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .loop-diagram {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 24px;
+        position: relative;
+        margin-bottom: 32px;
+      }
+
+      .loop-step {
+        background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+        padding: 28px;
+        border-radius: 12px;
+        text-align: center;
+        border: 3px solid #e0e0e0;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .loop-step:hover {
+        border-color: #0066ff;
+        transform: scale(1.05);
+      }
+
+      .loop-step-1 {
+        border-color: #0066ff;
+        background: linear-gradient(135deg, #ebf4ff 0%, #d1e9ff 100%);
+      }
+      .loop-step-2 {
+        border-color: #22c55e;
+        background: linear-gradient(135deg, #e8fff1 0%, #d1ffe2 100%);
+      }
+      .loop-step-3 {
+        border-color: #f59e0b;
+        background: linear-gradient(135deg, #fff9f0 0%, #ffe4cc 100%);
+      }
+      .loop-step-4 {
+        border-color: #8b5cf6;
+        background: linear-gradient(135deg, #f5f3ff 0%, #e9d5ff 100%);
+      }
+
+      .loop-number {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .loop-step-1 .loop-number {
+        color: #0066ff;
+      }
+      .loop-step-2 .loop-number {
+        color: #22c55e;
+      }
+      .loop-step-3 .loop-number {
+        color: #f59e0b;
+      }
+      .loop-step-4 .loop-number {
+        color: #8b5cf6;
+      }
+
+      .loop-step-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+      }
+
+      .loop-step-title {
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 8px;
+        font-size: 1rem;
+      }
+
+      .loop-step-desc {
+        font-size: 0.875rem;
+        color: #616161;
+        line-height: 1.5;
+      }
+
+      .loop-insights {
+        background: #f5f5f5;
+        padding: 24px;
+        border-radius: 12px;
+        border-left: 4px solid #0066ff;
+      }
+
+      .loop-insights-title {
+        font-weight: 700;
+        color: #212121;
+        margin-bottom: 12px;
+        font-size: 1rem;
+      }
+
+      .loop-insights ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .loop-insights li {
+        padding: 8px 0;
+        padding-left: 24px;
+        position: relative;
+        font-size: 0.875rem;
+        color: #424242;
+        line-height: 1.6;
+      }
+
+      .loop-insights li::before {
+        content: "💡";
+        position: absolute;
+        left: 0;
+        font-size: 1rem;
+      }
+
+      @media (max-width: 1024px) {
+        .pydantic-grid,
+        .eval-approaches,
+        .dimensions-grid,
         .llm-judge-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
+          grid-template-columns: 1fr;
         }
-        
-        .llm-judge-box {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            border-left: 4px solid #F59E0B;
-        }
-        
-        .llm-judge-box-title {
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 12px;
-        }
-        
-        .llm-judge-box ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .llm-judge-box li {
-            padding: 6px 0;
-            padding-left: 20px;
-            position: relative;
-            font-size: 0.875rem;
-            color: #424242;
-        }
-        
-        .llm-judge-box li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: #F59E0B;
-            font-weight: 700;
-        }
-        
-        /* Improvement Loop */
-        .improvement-loop {
-            background: white;
-            border: 3px solid #E0E0E0;
-            border-radius: 16px;
-            padding: 40px;
-            position: relative;
-        }
-        
-        .improvement-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #212121;
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        
+
+        .flow-steps,
         .loop-diagram {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            position: relative;
-            margin-bottom: 32px;
+          grid-template-columns: repeat(2, 1fr);
         }
-        
-        .loop-step {
-            background: linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%);
-            padding: 28px;
-            border-radius: 12px;
-            text-align: center;
-            border: 3px solid #E0E0E0;
-            transition: all 0.3s ease;
-            position: relative;
+
+        .why-examples {
+          grid-template-columns: 1fr;
         }
-        
-        .loop-step:hover {
-            border-color: #0066FF;
-            transform: scale(1.05);
+      }
+
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
         }
-        
-        .loop-step-1 { border-color: #0066FF; background: linear-gradient(135deg, #EBF4FF 0%, #D1E9FF 100%); }
-        .loop-step-2 { border-color: #22C55E; background: linear-gradient(135deg, #E8FFF1 0%, #D1FFE2 100%); }
-        .loop-step-3 { border-color: #F59E0B; background: linear-gradient(135deg, #FFF9F0 0%, #FFE4CC 100%); }
-        .loop-step-4 { border-color: #8B5CF6; background: linear-gradient(135deg, #F5F3FF 0%, #E9D5FF 100%); }
-        
-        .loop-number {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
+
+        .flow-steps,
+        .loop-diagram {
+          grid-template-columns: 1fr;
         }
-        
-        .loop-step-1 .loop-number { color: #0066FF; }
-        .loop-step-2 .loop-number { color: #22C55E; }
-        .loop-step-3 .loop-number { color: #F59E0B; }
-        .loop-step-4 .loop-number { color: #8B5CF6; }
-        
-        .loop-step-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        
-        .loop-step-title {
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-        
-        .loop-step-desc {
-            font-size: 0.875rem;
-            color: #616161;
-            line-height: 1.5;
-        }
-        
-        .loop-insights {
-            background: #F5F5F5;
-            padding: 24px;
-            border-radius: 12px;
-            border-left: 4px solid #0066FF;
-        }
-        
-        .loop-insights-title {
-            font-weight: 700;
-            color: #212121;
-            margin-bottom: 12px;
-            font-size: 1rem;
-        }
-        
-        .loop-insights ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .loop-insights li {
-            padding: 8px 0;
-            padding-left: 24px;
-            position: relative;
-            font-size: 0.875rem;
-            color: #424242;
-            line-height: 1.6;
-        }
-        
-        .loop-insights li::before {
-            content: "💡";
-            position: absolute;
-            left: 0;
-            font-size: 1rem;
-        }
-        
-        @media (max-width: 1024px) {
-            .pydantic-grid,
-            .eval-approaches,
-            .dimensions-grid,
-            .llm-judge-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .flow-steps,
-            .loop-diagram {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .why-examples {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .flow-steps,
-            .loop-diagram {
-                grid-template-columns: 1fr;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1>Structured Outputs & Evaluation</h1>
-            <p>Master quality control for production agents through structured output validation and comprehensive evaluation frameworks</p>
+      <div class="header">
+        <h1>Structured Outputs & Evaluation</h1>
+        <p>
+          Master quality control for production agents through structured output
+          validation and comprehensive evaluation frameworks
+        </p>
+      </div>
+
+      <!-- PART 1: STRUCTURED OUTPUTS -->
+      <div class="main-section">
+        <div class="section-header">
+          <div class="section-title">Part 1: Structured Outputs</div>
+          <div class="section-subtitle">
+            From Free Text to Machine-Readable Data
+          </div>
         </div>
-        
-        <!-- PART 1: STRUCTURED OUTPUTS -->
-        <div class="main-section">
-            <div class="section-header">
-                <div class="section-title">Part 1: Structured Outputs</div>
-                <div class="section-subtitle">From Free Text to Machine-Readable Data</div>
+
+        <div class="section-content">
+          <!-- Why Structure Matters -->
+          <div class="why-structure">
+            <div class="why-title">
+              <span>🎯</span>
+              Why Structure Matters
             </div>
-            
-            <div class="section-content">
-                <!-- Why Structure Matters -->
-                <div class="why-structure">
-                    <div class="why-title">
-                        <span>🎯</span>
-                        Why Structure Matters
-                    </div>
-                    <div class="why-content">
-                        LLMs naturally generate unstructured text. But production systems need <strong>predictable, typed, validated outputs</strong> that can trigger downstream actions, integrate with APIs, populate databases, and flow through software pipelines. Structured outputs transform agents from conversational tools into reliable system components.
-                    </div>
-                    <div class="why-examples">
-                        <div class="why-example">
-                            <div class="why-example-title">❌ Unstructured Problem</div>
-                            <div class="why-example-text">Agent says "Create a high-priority ticket for John about the login bug." How does your system parse this? What if it says "urgent" instead of "high"?</div>
-                        </div>
-                        <div class="why-example">
-                            <div class="why-example-title">✅ Structured Solution</div>
-                            <div class="why-example-text">Agent outputs: {"assignee": "john@company.com", "priority": "high", "category": "bug", "title": "Login issue"}. Perfect for API calls!</div>
-                        </div>
-                        <div class="why-example">
-                            <div class="why-example-title">❌ Unstructured Problem</div>
-                            <div class="why-example-text">"The meeting should probably be next Tuesday around 2pm with Sarah and Mike." Ambiguous, unparseable.</div>
-                        </div>
-                        <div class="why-example">
-                            <div class="why-example-title">✅ Structured Solution</div>
-                            <div class="why-example-text">{"date": "2025-10-28", "time": "14:00", "duration_minutes": 60, "attendees": ["sarah@co", "mike@co"]}. Calendar API ready!</div>
-                        </div>
-                    </div>
+            <div class="why-content">
+              LLMs naturally generate unstructured text. But production systems
+              need <strong>predictable, typed, validated outputs</strong> that
+              can trigger downstream actions, integrate with APIs, populate
+              databases, and flow through software pipelines. Structured outputs
+              transform agents from conversational tools into reliable system
+              components.
+            </div>
+            <div class="why-examples">
+              <div class="why-example">
+                <div class="why-example-title">❌ Unstructured Problem</div>
+                <div class="why-example-text">
+                  Agent says "Create a high-priority ticket for John about the
+                  login bug." How does your system parse this? What if it says
+                  "urgent" instead of "high"?
                 </div>
-                
-                <!-- Pydantic Examples -->
-                <div class="pydantic-section">
-                    <div class="pydantic-title">
-                        <span>🔧</span>
-                        Pydantic: Type-Safe Output Validation
-                    </div>
-                    
-                    <div class="pydantic-grid">
-                        <div class="pydantic-card">
-                            <div class="pydantic-header">
-                                <div class="pydantic-header-title">Simple Schema</div>
-                                <div class="pydantic-header-desc">Basic type validation with required fields</div>
-                            </div>
-                            <div class="pydantic-code"><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">BaseModel</span>
+              </div>
+              <div class="why-example">
+                <div class="why-example-title">✅ Structured Solution</div>
+                <div class="why-example-text">
+                  Agent outputs: {"assignee": "john@company.com", "priority":
+                  "high", "category": "bug", "title": "Login issue"}. Perfect
+                  for API calls!
+                </div>
+              </div>
+              <div class="why-example">
+                <div class="why-example-title">❌ Unstructured Problem</div>
+                <div class="why-example-text">
+                  "The meeting should probably be next Tuesday around 2pm with
+                  Sarah and Mike." Ambiguous, unparseable.
+                </div>
+              </div>
+              <div class="why-example">
+                <div class="why-example-title">✅ Structured Solution</div>
+                <div class="why-example-text">
+                  {"date": "2025-10-28", "time": "14:00", "duration_minutes":
+                  60, "attendees": ["sarah@co", "mike@co"]}. Calendar API ready!
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pydantic Examples -->
+          <div class="pydantic-section">
+            <div class="pydantic-title">
+              <span>🔧</span>
+              Pydantic: Type-Safe Output Validation
+            </div>
+
+            <div class="pydantic-grid">
+              <div class="pydantic-card">
+                <div class="pydantic-header">
+                  <div class="pydantic-header-title">Simple Schema</div>
+                  <div class="pydantic-header-desc">
+                    Basic type validation with required fields
+                  </div>
+                </div>
+                <div class="pydantic-code">
+                  <pre><code><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">BaseModel</span>
 
 <span class="code-keyword">class</span> <span class="code-class">TicketOutput</span>(<span class="code-class">BaseModel</span>):
     title: <span class="code-class">str</span>
@@ -713,16 +777,19 @@
     estimated_hours: <span class="code-class">int</span>
 
 <span class="code-comment"># Validates types automatically</span>
-ticket = <span class="code-class">TicketOutput</span>(**llm_output)
-                            </div>
-                        </div>
-                        
-                        <div class="pydantic-card">
-                            <div class="pydantic-header">
-                                <div class="pydantic-header-title">Advanced Validation</div>
-                                <div class="pydantic-header-desc">Constraints, enums, and custom validators</div>
-                            </div>
-                            <div class="pydantic-code"><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">BaseModel</span>, validator
+ticket = <span class="code-class">TicketOutput</span>(**llm_output)</code></pre>
+                </div>
+              </div>
+
+              <div class="pydantic-card">
+                <div class="pydantic-header">
+                  <div class="pydantic-header-title">Advanced Validation</div>
+                  <div class="pydantic-header-desc">
+                    Constraints, enums, and custom validators
+                  </div>
+                </div>
+                <div class="pydantic-code">
+                  <pre><code><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">BaseModel</span>, validator
 <span class="code-keyword">from</span> typing <span class="code-keyword">import</span> <span class="code-class">List</span>
 <span class="code-keyword">from</span> enum <span class="code-keyword">import</span> <span class="code-class">Enum</span>
 
@@ -741,16 +808,19 @@ ticket = <span class="code-class">TicketOutput</span>(**llm_output)
     <span class="code-keyword">def</span> check_hours(cls, v):
         <span class="code-keyword">if</span> v < <span class="code-number">0</span> <span class="code-keyword">or</span> v > <span class="code-number">100</span>:
             <span class="code-keyword">raise</span> <span class="code-class">ValueError</span>(<span class="code-string">'Invalid hours'</span>)
-        <span class="code-keyword">return</span> v
-                            </div>
-                        </div>
-                        
-                        <div class="pydantic-card">
-                            <div class="pydantic-header">
-                                <div class="pydantic-header-title">Nested Structures</div>
-                                <div class="pydantic-header-desc">Complex hierarchical data models</div>
-                            </div>
-                            <div class="pydantic-code"><span class="code-keyword">class</span> <span class="code-class">Action</span>(<span class="code-class">BaseModel</span>):
+        <span class="code-keyword">return</span> v</code></pre>
+                </div>
+              </div>
+
+              <div class="pydantic-card">
+                <div class="pydantic-header">
+                  <div class="pydantic-header-title">Nested Structures</div>
+                  <div class="pydantic-header-desc">
+                    Complex hierarchical data models
+                  </div>
+                </div>
+                <div class="pydantic-code">
+                  <pre><code><span class="code-keyword">class</span> <span class="code-class">Action</span>(<span class="code-class">BaseModel</span>):
     action_type: <span class="code-class">str</span>
     owner: <span class="code-class">str</span>
     deadline: <span class="code-class">str</span>
@@ -763,16 +833,19 @@ ticket = <span class="code-class">TicketOutput</span>(**llm_output)
     key_decisions: <span class="code-class">List</span>[<span class="code-class">str</span>]
 
 <span class="code-comment"># Validates entire nested structure</span>
-summary = <span class="code-class">MeetingSummary</span>(**llm_output)
-                            </div>
-                        </div>
-                        
-                        <div class="pydantic-card">
-                            <div class="pydantic-header">
-                                <div class="pydantic-header-title">Error Handling</div>
-                                <div class="pydantic-header-desc">Graceful validation failure management</div>
-                            </div>
-                            <div class="pydantic-code"><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">ValidationError</span>
+summary = <span class="code-class">MeetingSummary</span>(**llm_output)</code></pre>
+                </div>
+              </div>
+
+              <div class="pydantic-card">
+                <div class="pydantic-header">
+                  <div class="pydantic-header-title">Error Handling</div>
+                  <div class="pydantic-header-desc">
+                    Graceful validation failure management
+                  </div>
+                </div>
+                <div class="pydantic-code">
+                  <pre><code><span class="code-keyword">from</span> pydantic <span class="code-keyword">import</span> <span class="code-class">ValidationError</span>
 
 <span class="code-keyword">try</span>:
     ticket = <span class="code-class">TicketOutput</span>(**llm_output)
@@ -783,299 +856,365 @@ summary = <span class="code-class">MeetingSummary</span>(**llm_output)
     <span class="code-comment"># Validation failed</span>
     <span class="code-keyword">print</span>(f<span class="code-string">"Errors: {e.errors()}"</span>)
     <span class="code-comment"># Ask LLM to try again with error details</span>
-    retry_with_feedback(e.errors())
-                            </div>
-                        </div>
-                    </div>
+    retry_with_feedback(e.errors())</code></pre>
                 </div>
-                
-                <!-- Output Flow -->
-                <div class="output-flow">
-                    <div class="flow-title">🔄 Structured Output Generation Flow</div>
-                    <div class="flow-steps">
-                        <div class="flow-step">
-                            <div class="flow-step-number">1</div>
-                            <div class="flow-step-icon">📋</div>
-                            <div class="flow-step-title">Define Schema</div>
-                            <div class="flow-step-desc">Create Pydantic model with required fields, types, and constraints</div>
-                        </div>
-                        <div class="flow-step">
-                            <div class="flow-step-number">2</div>
-                            <div class="flow-step-icon">🤖</div>
-                            <div class="flow-step-title">Provide to LLM</div>
-                            <div class="flow-step-desc">Send schema as JSON format instruction via function calling or system prompt</div>
-                        </div>
-                        <div class="flow-step">
-                            <div class="flow-step-number">3</div>
-                            <div class="flow-step-icon">✅</div>
-                            <div class="flow-step-title">Validate Output</div>
-                            <div class="flow-step-desc">Parse LLM response through Pydantic model to check types and constraints</div>
-                        </div>
-                        <div class="flow-step">
-                            <div class="flow-step-number">4</div>
-                            <div class="flow-step-icon">🔁</div>
-                            <div class="flow-step-title">Retry if Failed</div>
-                            <div class="flow-step-desc">If validation fails, provide error details to LLM and request corrected output</div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
+          </div>
+
+          <!-- Output Flow -->
+          <div class="output-flow">
+            <div class="flow-title">🔄 Structured Output Generation Flow</div>
+            <div class="flow-steps">
+              <div class="flow-step">
+                <div class="flow-step-number">1</div>
+                <div class="flow-step-icon">📋</div>
+                <div class="flow-step-title">Define Schema</div>
+                <div class="flow-step-desc">
+                  Create Pydantic model with required fields, types, and
+                  constraints
+                </div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-step-number">2</div>
+                <div class="flow-step-icon">🤖</div>
+                <div class="flow-step-title">Provide to LLM</div>
+                <div class="flow-step-desc">
+                  Send schema as JSON format instruction via function calling or
+                  system prompt
+                </div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-step-number">3</div>
+                <div class="flow-step-icon">✅</div>
+                <div class="flow-step-title">Validate Output</div>
+                <div class="flow-step-desc">
+                  Parse LLM response through Pydantic model to check types and
+                  constraints
+                </div>
+              </div>
+              <div class="flow-step">
+                <div class="flow-step-number">4</div>
+                <div class="flow-step-icon">🔁</div>
+                <div class="flow-step-title">Retry if Failed</div>
+                <div class="flow-step-desc">
+                  If validation fails, provide error details to LLM and request
+                  corrected output
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <!-- PART 2: EVALUATION -->
-        <div class="main-section">
-            <div class="section-header">
-                <div class="section-title">Part 2: Agent Evaluation</div>
-                <div class="section-subtitle">Measuring Performance & Driving Improvement</div>
-            </div>
-            
-            <div class="section-content">
-                <!-- Three Evaluation Approaches -->
-                <div class="eval-approaches">
-                    <div class="eval-card eval-blackbox">
-                        <div class="eval-header">
-                            <div class="eval-icon">📦</div>
-                            <div class="eval-title">Final Response Evaluation</div>
-                            <div class="eval-subtitle">(Black Box Testing)</div>
-                        </div>
-                        <div class="eval-description">
-                            Examine only the end result without looking at internal steps. Like judging a restaurant by the final dish—you don't care how it was made, just if it's good.
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">✅ Best For</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>End-to-end testing</li>
-                                    <li>User experience validation</li>
-                                    <li>Quality benchmarking</li>
-                                    <li>A/B testing different agents</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">❌ Limitations</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>Can't debug failures</li>
-                                    <li>No visibility into reasoning</li>
-                                    <li>Hard to identify specific issues</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="eval-card eval-singlestep">
-                        <div class="eval-header">
-                            <div class="eval-icon">🎯</div>
-                            <div class="eval-title">Single-Step Evaluation</div>
-                            <div class="eval-subtitle">(Unit Testing)</div>
-                        </div>
-                        <div class="eval-description">
-                            Test individual decisions in isolation—did the agent choose the right tool? Format arguments correctly? Like testing each ingredient separately.
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">✅ Best For</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>Tool selection accuracy</li>
-                                    <li>Argument validation</li>
-                                    <li>Fast iteration during development</li>
-                                    <li>Targeted debugging</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">❌ Limitations</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>Doesn't validate full task completion</li>
-                                    <li>Misses multi-step coordination issues</li>
-                                    <li>Can pass tests but fail in practice</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="eval-card eval-trajectory">
-                        <div class="eval-header">
-                            <div class="eval-icon">🛤️</div>
-                            <div class="eval-title">Trajectory Evaluation</div>
-                            <div class="eval-subtitle">(Flight Recorder)</div>
-                        </div>
-                        <div class="eval-description">
-                            Trace the complete execution path—every tool call, argument, result, and decision. Like a flight recorder capturing the entire journey, not just takeoff and landing.
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">✅ Best For</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>Deep debugging</li>
-                                    <li>Understanding agent reasoning</li>
-                                    <li>Comparing execution paths</li>
-                                    <li>Root cause analysis</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="eval-section">
-                            <div class="eval-section-title">❌ Limitations</div>
-                            <div class="eval-section-content">
-                                <ul>
-                                    <li>Most complex to implement</li>
-                                    <li>Expensive (requires full logging)</li>
-                                    <li>Slower to run</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Four Evaluation Dimensions -->
-                <div class="dimensions-section">
-                    <div class="dimensions-title">📐 Four Critical Evaluation Dimensions</div>
-                    
-                    <div class="dimensions-grid">
-                        <div class="dimension-card">
-                            <div class="dimension-header">
-                                <div class="dimension-icon">🎯</div>
-                                <div class="dimension-title">1. Task Completion</div>
-                            </div>
-                            <div class="dimension-questions">
-                                <ul>
-                                    <li>Did the agent accomplish what the user asked?</li>
-                                    <li>Was the goal fully achieved or only partially?</li>
-                                    <li>Are there any unfinished sub-tasks?</li>
-                                    <li>Did the agent recognize when it couldn't complete something?</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="dimension-card">
-                            <div class="dimension-header">
-                                <div class="dimension-icon">✨</div>
-                                <div class="dimension-title">2. Quality Control</div>
-                            </div>
-                            <div class="dimension-questions">
-                                <ul>
-                                    <li>Is the output in the correct format?</li>
-                                    <li>Did the agent follow instructions properly?</li>
-                                    <li>Was context used appropriately (not ignored or misapplied)?</li>
-                                    <li>Are there factual errors or hallucinations?</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="dimension-card">
-                            <div class="dimension-header">
-                                <div class="dimension-icon">🔧</div>
-                                <div class="dimension-title">3. Tool Interaction</div>
-                            </div>
-                            <div class="dimension-questions">
-                                <ul>
-                                    <li>Did the agent choose the right tools for the task?</li>
-                                    <li>Were tool arguments valid and well-formed?</li>
-                                    <li>Did tool calls return useful results?</li>
-                                    <li>Was the tool sequence logical and efficient?</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="dimension-card">
-                            <div class="dimension-header">
-                                <div class="dimension-icon">⚡</div>
-                                <div class="dimension-title">4. System Metrics</div>
-                            </div>
-                            <div class="dimension-questions">
-                                <ul>
-                                    <li>How fast did the agent respond (latency)?</li>
-                                    <li>How many tokens were consumed (cost)?</li>
-                                    <li>What's the failure/error rate?</li>
-                                    <li>Did the agent hit context window limits?</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- LLM as Judge -->
-                <div class="llm-judge-section">
-                    <div class="llm-judge-title">
-                        <span>🤖</span>
-                        LLM-as-Judge: Automated Evaluation
-                    </div>
-                    
-                    <div class="llm-judge-content">
-                        <div class="llm-judge-box">
-                            <div class="llm-judge-box-title">How It Works</div>
-                            <ul>
-                                <li>Use a separate LLM to evaluate agent outputs</li>
-                                <li>Provide rubric, reference answer, actual output</li>
-                                <li>LLM scores on dimensions (1-5 or pass/fail)</li>
-                                <li>Can evaluate subjective qualities like tone, helpfulness</li>
-                                <li>Much faster and cheaper than human evaluation</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="llm-judge-box">
-                            <div class="llm-judge-box-title">Best Practices</div>
-                            <ul>
-                                <li>Use stronger model as judge (e.g., GPT-4 judging GPT-3.5)</li>
-                                <li>Provide clear scoring criteria and examples</li>
-                                <li>Combine with rule-based checks for objectivity</li>
-                                <li>Validate judge accuracy with human spot-checks</li>
-                                <li>Store judgments for analysis and improvement</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Improvement Loop -->
-                <div class="improvement-loop">
-                    <div class="improvement-title">🔄 The Continuous Improvement Loop</div>
-                    
-                    <div class="loop-diagram">
-                        <div class="loop-step loop-step-1">
-                            <div class="loop-number">1</div>
-                            <div class="loop-step-icon">📊</div>
-                            <div class="loop-step-title">Measure</div>
-                            <div class="loop-step-desc">Run evaluation across all dimensions using test cases and real traffic</div>
-                        </div>
-                        
-                        <div class="loop-step loop-step-2">
-                            <div class="loop-number">2</div>
-                            <div class="loop-step-icon">🔍</div>
-                            <div class="loop-step-title">Analyze</div>
-                            <div class="loop-step-desc">Identify patterns in failures, bottlenecks, and opportunities for improvement</div>
-                        </div>
-                        
-                        <div class="loop-step loop-step-3">
-                            <div class="loop-number">3</div>
-                            <div class="loop-step-icon">🛠️</div>
-                            <div class="loop-step-title">Improve</div>
-                            <div class="loop-step-desc">Fix tool descriptions, prompts, validation rules, or add missing capabilities</div>
-                        </div>
-                        
-                        <div class="loop-step loop-step-4">
-                            <div class="loop-number">4</div>
-                            <div class="loop-step-icon">✅</div>
-                            <div class="loop-step-title">Validate</div>
-                            <div class="loop-step-desc">Re-run evaluation to confirm improvements, then deploy and repeat</div>
-                        </div>
-                    </div>
-                    
-                    <div class="loop-insights">
-                        <div class="loop-insights-title">💡 Key Insights from Evaluation</div>
-                        <ul>
-                            <li><strong>Unclear tool descriptions</strong> → Agent chooses wrong tools or uses them incorrectly</li>
-                            <li><strong>Excessive token usage</strong> → Need summarization, better memory management, or shorter prompts</li>
-                            <li><strong>Inefficient tool sequences</strong> → Agent needs better planning or more direct paths to goals</li>
-                            <li><strong>Low quality scores</strong> → Improve prompts, add examples, or use stronger base model</li>
-                            <li><strong>High failure rates</strong> → Add retry logic, better error handling, or fallback strategies</li>
-                            <li><strong>Context window overflow</strong> → Implement sliding window or summarization for memory</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+      </div>
+
+      <!-- PART 2: EVALUATION -->
+      <div class="main-section">
+        <div class="section-header">
+          <div class="section-title">Part 2: Agent Evaluation</div>
+          <div class="section-subtitle">
+            Measuring Performance & Driving Improvement
+          </div>
         </div>
+
+        <div class="section-content">
+          <!-- Three Evaluation Approaches -->
+          <div class="eval-approaches">
+            <div class="eval-card eval-blackbox">
+              <div class="eval-header">
+                <div class="eval-icon">📦</div>
+                <div class="eval-title">Final Response Evaluation</div>
+                <div class="eval-subtitle">(Black Box Testing)</div>
+              </div>
+              <div class="eval-description">
+                Examine only the end result without looking at internal steps.
+                Like judging a restaurant by the final dish—you don't care how
+                it was made, just if it's good.
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">✅ Best For</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>End-to-end testing</li>
+                    <li>User experience validation</li>
+                    <li>Quality benchmarking</li>
+                    <li>A/B testing different agents</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">❌ Limitations</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>Can't debug failures</li>
+                    <li>No visibility into reasoning</li>
+                    <li>Hard to identify specific issues</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="eval-card eval-singlestep">
+              <div class="eval-header">
+                <div class="eval-icon">🎯</div>
+                <div class="eval-title">Single-Step Evaluation</div>
+                <div class="eval-subtitle">(Unit Testing)</div>
+              </div>
+              <div class="eval-description">
+                Test individual decisions in isolation—did the agent choose the
+                right tool? Format arguments correctly? Like testing each
+                ingredient separately.
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">✅ Best For</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>Tool selection accuracy</li>
+                    <li>Argument validation</li>
+                    <li>Fast iteration during development</li>
+                    <li>Targeted debugging</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">❌ Limitations</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>Doesn't validate full task completion</li>
+                    <li>Misses multi-step coordination issues</li>
+                    <li>Can pass tests but fail in practice</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="eval-card eval-trajectory">
+              <div class="eval-header">
+                <div class="eval-icon">🛤️</div>
+                <div class="eval-title">Trajectory Evaluation</div>
+                <div class="eval-subtitle">(Flight Recorder)</div>
+              </div>
+              <div class="eval-description">
+                Trace the complete execution path—every tool call, argument,
+                result, and decision. Like a flight recorder capturing the
+                entire journey, not just takeoff and landing.
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">✅ Best For</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>Deep debugging</li>
+                    <li>Understanding agent reasoning</li>
+                    <li>Comparing execution paths</li>
+                    <li>Root cause analysis</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="eval-section">
+                <div class="eval-section-title">❌ Limitations</div>
+                <div class="eval-section-content">
+                  <ul>
+                    <li>Most complex to implement</li>
+                    <li>Expensive (requires full logging)</li>
+                    <li>Slower to run</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Four Evaluation Dimensions -->
+          <div class="dimensions-section">
+            <div class="dimensions-title">
+              📐 Four Critical Evaluation Dimensions
+            </div>
+
+            <div class="dimensions-grid">
+              <div class="dimension-card">
+                <div class="dimension-header">
+                  <div class="dimension-icon">🎯</div>
+                  <div class="dimension-title">1. Task Completion</div>
+                </div>
+                <div class="dimension-questions">
+                  <ul>
+                    <li>Did the agent accomplish what the user asked?</li>
+                    <li>Was the goal fully achieved or only partially?</li>
+                    <li>Are there any unfinished sub-tasks?</li>
+                    <li>
+                      Did the agent recognize when it couldn't complete
+                      something?
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="dimension-card">
+                <div class="dimension-header">
+                  <div class="dimension-icon">✨</div>
+                  <div class="dimension-title">2. Quality Control</div>
+                </div>
+                <div class="dimension-questions">
+                  <ul>
+                    <li>Is the output in the correct format?</li>
+                    <li>Did the agent follow instructions properly?</li>
+                    <li>
+                      Was context used appropriately (not ignored or
+                      misapplied)?
+                    </li>
+                    <li>Are there factual errors or hallucinations?</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="dimension-card">
+                <div class="dimension-header">
+                  <div class="dimension-icon">🔧</div>
+                  <div class="dimension-title">3. Tool Interaction</div>
+                </div>
+                <div class="dimension-questions">
+                  <ul>
+                    <li>Did the agent choose the right tools for the task?</li>
+                    <li>Were tool arguments valid and well-formed?</li>
+                    <li>Did tool calls return useful results?</li>
+                    <li>Was the tool sequence logical and efficient?</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="dimension-card">
+                <div class="dimension-header">
+                  <div class="dimension-icon">⚡</div>
+                  <div class="dimension-title">4. System Metrics</div>
+                </div>
+                <div class="dimension-questions">
+                  <ul>
+                    <li>How fast did the agent respond (latency)?</li>
+                    <li>How many tokens were consumed (cost)?</li>
+                    <li>What's the failure/error rate?</li>
+                    <li>Did the agent hit context window limits?</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LLM as Judge -->
+          <div class="llm-judge-section">
+            <div class="llm-judge-title">
+              <span>🤖</span>
+              LLM-as-Judge: Automated Evaluation
+            </div>
+
+            <div class="llm-judge-content">
+              <div class="llm-judge-box">
+                <div class="llm-judge-box-title">How It Works</div>
+                <ul>
+                  <li>Use a separate LLM to evaluate agent outputs</li>
+                  <li>Provide rubric, reference answer, actual output</li>
+                  <li>LLM scores on dimensions (1-5 or pass/fail)</li>
+                  <li>
+                    Can evaluate subjective qualities like tone, helpfulness
+                  </li>
+                  <li>Much faster and cheaper than human evaluation</li>
+                </ul>
+              </div>
+
+              <div class="llm-judge-box">
+                <div class="llm-judge-box-title">Best Practices</div>
+                <ul>
+                  <li>
+                    Use stronger model as judge (e.g., GPT-4 judging GPT-3.5)
+                  </li>
+                  <li>Provide clear scoring criteria and examples</li>
+                  <li>Combine with rule-based checks for objectivity</li>
+                  <li>Validate judge accuracy with human spot-checks</li>
+                  <li>Store judgments for analysis and improvement</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Improvement Loop -->
+          <div class="improvement-loop">
+            <div class="improvement-title">
+              🔄 The Continuous Improvement Loop
+            </div>
+
+            <div class="loop-diagram">
+              <div class="loop-step loop-step-1">
+                <div class="loop-number">1</div>
+                <div class="loop-step-icon">📊</div>
+                <div class="loop-step-title">Measure</div>
+                <div class="loop-step-desc">
+                  Run evaluation across all dimensions using test cases and real
+                  traffic
+                </div>
+              </div>
+
+              <div class="loop-step loop-step-2">
+                <div class="loop-number">2</div>
+                <div class="loop-step-icon">🔍</div>
+                <div class="loop-step-title">Analyze</div>
+                <div class="loop-step-desc">
+                  Identify patterns in failures, bottlenecks, and opportunities
+                  for improvement
+                </div>
+              </div>
+
+              <div class="loop-step loop-step-3">
+                <div class="loop-number">3</div>
+                <div class="loop-step-icon">🛠️</div>
+                <div class="loop-step-title">Improve</div>
+                <div class="loop-step-desc">
+                  Fix tool descriptions, prompts, validation rules, or add
+                  missing capabilities
+                </div>
+              </div>
+
+              <div class="loop-step loop-step-4">
+                <div class="loop-number">4</div>
+                <div class="loop-step-icon">✅</div>
+                <div class="loop-step-title">Validate</div>
+                <div class="loop-step-desc">
+                  Re-run evaluation to confirm improvements, then deploy and
+                  repeat
+                </div>
+              </div>
+            </div>
+
+            <div class="loop-insights">
+              <div class="loop-insights-title">
+                💡 Key Insights from Evaluation
+              </div>
+              <ul>
+                <li>
+                  <strong>Unclear tool descriptions</strong> → Agent chooses
+                  wrong tools or uses them incorrectly
+                </li>
+                <li>
+                  <strong>Excessive token usage</strong> → Need summarization,
+                  better memory management, or shorter prompts
+                </li>
+                <li>
+                  <strong>Inefficient tool sequences</strong> → Agent needs
+                  better planning or more direct paths to goals
+                </li>
+                <li>
+                  <strong>Low quality scores</strong> → Improve prompts, add
+                  examples, or use stronger base model
+                </li>
+                <li>
+                  <strong>High failure rates</strong> → Add retry logic, better
+                  error handling, or fallback strategies
+                </li>
+                <li>
+                  <strong>Context window overflow</strong> → Implement sliding
+                  window or summarization for memory
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

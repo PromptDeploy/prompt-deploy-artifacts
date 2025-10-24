@@ -1,835 +1,1001 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Components Deep Dive</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-            line-height: 1.6;
-            color: #1A1A1A;
-            background: #FFFFFF;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+          sans-serif;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background: #ffffff;
+      }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 24px 80px;
-        }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+      }
 
-        /* Header */
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-            padding-bottom: 40px;
-            border-bottom: 2px solid #E0E0E0;
-        }
+      /* Header */
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding-bottom: 40px;
+        border-bottom: 2px solid #e0e0e0;
+      }
 
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.2;
+        color: #212121;
+        margin-bottom: 16px;
+      }
+
+      .subtitle {
+        font-size: 1.125rem;
+        color: #616161;
+        max-width: 700px;
+        margin: 0 auto 24px;
+      }
+
+      .header-highlight {
+        background: linear-gradient(135deg, #e8f4ff 0%, #e8fff1 100%);
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .header-highlight-text {
+        font-size: 0.95rem;
+        color: #616161;
+        text-align: center;
+      }
+
+      /* Component Overview */
+      .component-overview {
+        background: #f5f5f5;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 60px;
+      }
+
+      .overview-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 32px;
+        color: #212121;
+      }
+
+      .component-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 20px;
+      }
+
+      .component-card-mini {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        border: 2px solid #e0e0e0;
+        transition: all 0.2s;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .component-card-mini:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .component-icon-mini {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+
+      .component-label-mini {
+        font-weight: 600;
+        color: #212121;
+        font-size: 1rem;
+      }
+
+      /* Component Sections */
+      .component-section {
+        margin-bottom: 80px;
+        scroll-margin-top: 20px;
+      }
+
+      .component-header {
+        margin-bottom: 40px;
+        padding: 32px;
+        border-radius: 12px;
+        border-left: 6px solid;
+      }
+
+      .component-header-top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .component-icon-large {
+        font-size: 56px;
+      }
+
+      .component-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #212121;
+      }
+
+      .component-definition {
+        font-size: 1.125rem;
+        color: #616161;
+        margin-bottom: 12px;
+      }
+
+      .component-purpose {
+        font-size: 1rem;
+        color: #616161;
+        font-style: italic;
+      }
+
+      /* Color schemes for components */
+      .component-1 .component-header {
+        background: #e8f4ff;
+        border-color: #0066ff;
+      }
+      .component-1 .component-card-mini:hover {
+        border-color: #0066ff;
+      }
+
+      .component-2 .component-header {
+        background: #e8fff1;
+        border-color: #22c55e;
+      }
+      .component-2 .component-card-mini:hover {
+        border-color: #22c55e;
+      }
+
+      .component-3 .component-header {
+        background: #fff4e6;
+        border-color: #f59e0b;
+      }
+      .component-3 .component-card-mini:hover {
+        border-color: #f59e0b;
+      }
+
+      .component-4 .component-header {
+        background: #e8f4ff;
+        border-color: #0066ff;
+      }
+      .component-4 .component-card-mini:hover {
+        border-color: #0066ff;
+      }
+
+      .component-5 .component-header {
+        background: #e8fff1;
+        border-color: #22c55e;
+      }
+      .component-5 .component-card-mini:hover {
+        border-color: #22c55e;
+      }
+
+      /* Sub-components */
+      .sub-components {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin: 32px 0;
+      }
+
+      .sub-component-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s;
+      }
+
+      .sub-component-card:hover {
+        border-color: #0066ff;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
+      }
+
+      .sub-component-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #212121;
+      }
+
+      .sub-component-description {
+        font-size: 0.9rem;
+        color: #616161;
+        margin-bottom: 12px;
+      }
+
+      .sub-component-examples {
+        font-size: 0.85rem;
+        color: #616161;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      /* Content blocks */
+      .content-block {
+        margin: 32px 0;
+      }
+
+      .content-block h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #212121;
+      }
+
+      .content-block p {
+        color: #616161;
+        margin-bottom: 12px;
+      }
+
+      /* Best Practices Box */
+      .best-practices {
+        background: #e8fff1;
+        border-left: 4px solid #22c55e;
+        border-radius: 0 12px 12px 0;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .best-practices-title {
+        font-weight: 600;
+        color: #22c55e;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .best-practices-list {
+        list-style: none;
+        margin-left: 0;
+      }
+
+      .best-practices-list li {
+        padding-left: 24px;
+        position: relative;
+        margin-bottom: 8px;
+        color: #616161;
+      }
+
+      .best-practices-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #22c55e;
+        font-weight: bold;
+      }
+
+      /* Warning Box */
+      .warning-box {
+        background: #fff4e6;
+        border-left: 4px solid #f59e0b;
+        border-radius: 0 12px 12px 0;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .warning-title {
+        font-weight: 600;
+        color: #f59e0b;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .warning-content {
+        color: #616161;
+      }
+
+      /* Example Box */
+      .example-box {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .example-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #0066ff;
+        margin-bottom: 12px;
+      }
+
+      .example-content {
+        color: #616161;
+        font-size: 0.95rem;
+      }
+
+      /* Code Example */
+      .code-example {
+        background: #212121;
+        color: #e0e0e0;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+        overflow-x: auto;
+        font-family: "Monaco", "Courier New", monospace;
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+
+      .code-comment {
+        color: #9e9e9e;
+      }
+
+      .code-keyword {
+        color: #22c55e;
+      }
+
+      .code-function {
+        color: #0066ff;
+      }
+
+      .code-string {
+        color: #f59e0b;
+      }
+
+      /* Interaction Diagram */
+      .interaction-diagram {
+        background: #f5f5f5;
+        border-radius: 12px;
+        padding: 40px;
+        margin: 32px 0;
+      }
+
+      .diagram-title {
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 24px;
+        color: #212121;
+      }
+
+      .diagram-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .diagram-box {
+        background: white;
+        border: 2px solid #0066ff;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      .diagram-arrow {
+        text-align: center;
+        font-size: 24px;
+        color: #616161;
+        margin: 12px 0;
+      }
+
+      /* Comparison Table */
+      .comparison-table {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 24px 0;
+      }
+
+      .table-header {
+        background: #f5f5f5;
+        padding: 16px 24px;
+        font-weight: 600;
+        border-bottom: 2px solid #e0e0e0;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+      }
+
+      .table-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .table-row:last-child {
+        border-bottom: none;
+      }
+
+      .table-cell {
+        padding: 16px 24px;
+        color: #616161;
+        font-size: 0.9rem;
+      }
+
+      .table-cell:first-child {
+        border-right: 1px solid #e0e0e0;
+        font-weight: 600;
+        color: #212121;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            letter-spacing: -0.03em;
-            line-height: 1.2;
-            color: #212121;
-            margin-bottom: 16px;
-        }
-
-        .subtitle {
-            font-size: 1.125rem;
-            color: #616161;
-            max-width: 700px;
-            margin: 0 auto 24px;
-        }
-
-        .header-highlight {
-            background: linear-gradient(135deg, #E8F4FF 0%, #E8FFF1 100%);
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .header-highlight-text {
-            font-size: 0.95rem;
-            color: #616161;
-            text-align: center;
-        }
-
-        /* Component Overview */
-        .component-overview {
-            background: #F5F5F5;
-            border-radius: 12px;
-            padding: 40px;
-            margin-bottom: 60px;
-        }
-
-        .overview-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 32px;
-            color: #212121;
-        }
-
-        .component-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 20px;
-        }
-
-        .component-card-mini {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            border: 2px solid #E0E0E0;
-            transition: all 0.2s;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .component-card-mini:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .component-icon-mini {
-            font-size: 40px;
-            margin-bottom: 12px;
-        }
-
-        .component-label-mini {
-            font-weight: 600;
-            color: #212121;
-            font-size: 1rem;
-        }
-
-        /* Component Sections */
-        .component-section {
-            margin-bottom: 80px;
-            scroll-margin-top: 20px;
-        }
-
-        .component-header {
-            margin-bottom: 40px;
-            padding: 32px;
-            border-radius: 12px;
-            border-left: 6px solid;
-        }
-
-        .component-header-top {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .component-icon-large {
-            font-size: 56px;
+          font-size: 2rem;
         }
 
         .component-title {
-            font-size: 2.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #212121;
+          font-size: 1.75rem;
         }
 
-        .component-definition {
-            font-size: 1.125rem;
-            color: #616161;
-            margin-bottom: 12px;
+        .component-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
 
-        .component-purpose {
-            font-size: 1rem;
-            color: #616161;
-            font-style: italic;
-        }
-
-        /* Color schemes for components */
-        .component-1 .component-header { background: #E8F4FF; border-color: #0066FF; }
-        .component-1 .component-card-mini:hover { border-color: #0066FF; }
-
-        .component-2 .component-header { background: #E8FFF1; border-color: #22C55E; }
-        .component-2 .component-card-mini:hover { border-color: #22C55E; }
-
-        .component-3 .component-header { background: #FFF4E6; border-color: #F59E0B; }
-        .component-3 .component-card-mini:hover { border-color: #F59E0B; }
-
-        .component-4 .component-header { background: #E8F4FF; border-color: #0066FF; }
-        .component-4 .component-card-mini:hover { border-color: #0066FF; }
-
-        .component-5 .component-header { background: #E8FFF1; border-color: #22C55E; }
-        .component-5 .component-card-mini:hover { border-color: #22C55E; }
-
-        /* Sub-components */
         .sub-components {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 24px;
-            margin: 32px 0;
-        }
-
-        .sub-component-card {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 24px;
-            transition: all 0.3s;
-        }
-
-        .sub-component-card:hover {
-            border-color: #0066FF;
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.1);
-        }
-
-        .sub-component-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #212121;
-        }
-
-        .sub-component-description {
-            font-size: 0.9rem;
-            color: #616161;
-            margin-bottom: 12px;
-        }
-
-        .sub-component-examples {
-            font-size: 0.85rem;
-            color: #616161;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #E0E0E0;
-        }
-
-        /* Content blocks */
-        .content-block {
-            margin: 32px 0;
-        }
-
-        .content-block h3 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #212121;
-        }
-
-        .content-block p {
-            color: #616161;
-            margin-bottom: 12px;
-        }
-
-        /* Best Practices Box */
-        .best-practices {
-            background: #E8FFF1;
-            border-left: 4px solid #22C55E;
-            border-radius: 0 12px 12px 0;
-            padding: 24px;
-            margin: 24px 0;
-        }
-
-        .best-practices-title {
-            font-weight: 600;
-            color: #22C55E;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .best-practices-list {
-            list-style: none;
-            margin-left: 0;
-        }
-
-        .best-practices-list li {
-            padding-left: 24px;
-            position: relative;
-            margin-bottom: 8px;
-            color: #616161;
-        }
-
-        .best-practices-list li:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: #22C55E;
-            font-weight: bold;
-        }
-
-        /* Warning Box */
-        .warning-box {
-            background: #FFF4E6;
-            border-left: 4px solid #F59E0B;
-            border-radius: 0 12px 12px 0;
-            padding: 24px;
-            margin: 24px 0;
-        }
-
-        .warning-title {
-            font-weight: 600;
-            color: #F59E0B;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .warning-content {
-            color: #616161;
-        }
-
-        /* Example Box */
-        .example-box {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-        }
-
-        .example-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #0066FF;
-            margin-bottom: 12px;
-        }
-
-        .example-content {
-            color: #616161;
-            font-size: 0.95rem;
-        }
-
-        /* Code Example */
-        .code-example {
-            background: #212121;
-            color: #E0E0E0;
-            border-radius: 12px;
-            padding: 24px;
-            margin: 24px 0;
-            overflow-x: auto;
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .code-comment {
-            color: #9E9E9E;
-        }
-
-        .code-keyword {
-            color: #22C55E;
-        }
-
-        .code-function {
-            color: #0066FF;
-        }
-
-        .code-string {
-            color: #F59E0B;
-        }
-
-        /* Interaction Diagram */
-        .interaction-diagram {
-            background: #F5F5F5;
-            border-radius: 12px;
-            padding: 40px;
-            margin: 32px 0;
-        }
-
-        .diagram-title {
-            text-align: center;
-            font-weight: 600;
-            margin-bottom: 24px;
-            color: #212121;
+          grid-template-columns: 1fr;
         }
 
         .diagram-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
+          grid-template-columns: 1fr;
         }
 
-        .diagram-box {
-            background: white;
-            border: 2px solid #0066FF;
-            border-radius: 8px;
-            padding: 16px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .diagram-arrow {
-            text-align: center;
-            font-size: 24px;
-            color: #616161;
-            margin: 12px 0;
-        }
-
-        /* Comparison Table */
-        .comparison-table {
-            background: white;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 24px 0;
-        }
-
-        .table-header {
-            background: #F5F5F5;
-            padding: 16px 24px;
-            font-weight: 600;
-            border-bottom: 2px solid #E0E0E0;
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-        }
-
+        .table-header,
         .table-row {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            border-bottom: 1px solid #E0E0E0;
-        }
-
-        .table-row:last-child {
-            border-bottom: none;
-        }
-
-        .table-cell {
-            padding: 16px 24px;
-            color: #616161;
-            font-size: 0.9rem;
+          grid-template-columns: 1fr;
         }
 
         .table-cell:first-child {
-            border-right: 1px solid #E0E0E0;
-            font-weight: 600;
-            color: #212121;
+          border-right: none;
+          border-bottom: 1px solid #e0e0e0;
         }
+      }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
+      /* Back to Top */
+      .back-to-top {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        background: #0066ff;
+        color: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+        transition: all 0.2s;
+        opacity: 0;
+      }
 
-            .component-title {
-                font-size: 1.75rem;
-            }
+      .back-to-top.visible {
+        opacity: 1;
+      }
 
-            .component-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .sub-components {
-                grid-template-columns: 1fr;
-            }
-
-            .diagram-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .table-header,
-            .table-row {
-                grid-template-columns: 1fr;
-            }
-
-            .table-cell:first-child {
-                border-right: none;
-                border-bottom: 1px solid #E0E0E0;
-            }
-        }
-
-        /* Back to Top */
-        .back-to-top {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            background: #0066FF;
-            color: white;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-size: 24px;
-            box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
-            transition: all 0.2s;
-            opacity: 0;
-        }
-
-        .back-to-top.visible {
-            opacity: 1;
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
-        }
+      .back-to-top:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0, 102, 255, 0.4);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>Agent Components Deep Dive</h1>
-            <p class="subtitle">A comprehensive breakdown of the 5 fundamental building blocks that define how every AI agent operates</p>
-            
-            <div class="header-highlight">
-                <p class="header-highlight-text">Every AI agent consists of five core components working together. Understanding each component deeply enables you to design sophisticated, effective agents for any workflow pattern.</p>
-            </div>
-        </header>
+      <header>
+        <h1>Agent Components Deep Dive</h1>
+        <p class="subtitle">
+          A comprehensive breakdown of the 5 fundamental building blocks that
+          define how every AI agent operates
+        </p>
 
-        <!-- Component Overview -->
-        <div class="component-overview">
-            <h2 class="overview-title">The 5 Agent Components</h2>
-            <div class="component-grid">
-                <a href="#component-1" class="component-card-mini">
-                    <div class="component-icon-mini">🎭</div>
-                    <div class="component-label-mini">Persona</div>
-                </a>
-                <a href="#component-2" class="component-card-mini">
-                    <div class="component-icon-mini">📚</div>
-                    <div class="component-label-mini">Knowledge</div>
-                </a>
-                <a href="#component-3" class="component-card-mini">
-                    <div class="component-icon-mini">💬</div>
-                    <div class="component-label-mini">Prompting</div>
-                </a>
-                <a href="#component-4" class="component-card-mini">
-                    <div class="component-icon-mini">🔧</div>
-                    <div class="component-label-mini">Tools</div>
-                </a>
-                <a href="#component-5" class="component-card-mini">
-                    <div class="component-icon-mini">🔄</div>
-                    <div class="component-label-mini">Interaction</div>
-                </a>
-            </div>
+        <div class="header-highlight">
+          <p class="header-highlight-text">
+            Every AI agent consists of five core components working together.
+            Understanding each component deeply enables you to design
+            sophisticated, effective agents for any workflow pattern.
+          </p>
+        </div>
+      </header>
+
+      <!-- Component Overview -->
+      <div class="component-overview">
+        <h2 class="overview-title">The 5 Agent Components</h2>
+        <div class="component-grid">
+          <a href="#component-1" class="component-card-mini">
+            <div class="component-icon-mini">🎭</div>
+            <div class="component-label-mini">Persona</div>
+          </a>
+          <a href="#component-2" class="component-card-mini">
+            <div class="component-icon-mini">📚</div>
+            <div class="component-label-mini">Knowledge</div>
+          </a>
+          <a href="#component-3" class="component-card-mini">
+            <div class="component-icon-mini">💬</div>
+            <div class="component-label-mini">Prompting</div>
+          </a>
+          <a href="#component-4" class="component-card-mini">
+            <div class="component-icon-mini">🔧</div>
+            <div class="component-label-mini">Tools</div>
+          </a>
+          <a href="#component-5" class="component-card-mini">
+            <div class="component-icon-mini">🔄</div>
+            <div class="component-label-mini">Interaction</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Component 1: Persona -->
+      <section id="component-1" class="component-section component-1">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-icon-large">🎭</div>
+            <h2 class="component-title">1. Persona</h2>
+          </div>
+          <p class="component-definition">
+            The agent's identity, role, and behavioral boundaries
+          </p>
+          <p class="component-purpose">
+            Purpose: Define who the agent is, what it does, and how it
+            communicates
+          </p>
         </div>
 
-        <!-- Component 1: Persona -->
-        <section id="component-1" class="component-section component-1">
-            <div class="component-header">
-                <div class="component-header-top">
-                    <div class="component-icon-large">🎭</div>
-                    <h2 class="component-title">1. Persona</h2>
-                </div>
-                <p class="component-definition">The agent's identity, role, and behavioral boundaries</p>
-                <p class="component-purpose">Purpose: Define who the agent is, what it does, and how it communicates</p>
+        <div class="content-block">
+          <h3>What is Persona?</h3>
+          <p>
+            The persona component shapes the agent's identity and establishes
+            expectations for its behavior. It's implemented primarily through
+            system prompts that define the agent's role, expertise,
+            communication style, and operational boundaries.
+          </p>
+        </div>
+
+        <div class="sub-components">
+          <div class="sub-component-card">
+            <div class="sub-component-title">Role Definition</div>
+            <div class="sub-component-description">
+              The specific function or job the agent performs. Clear roles help
+              the LLM understand what it should and shouldn't do.
             </div>
-
-            <div class="content-block">
-                <h3>What is Persona?</h3>
-                <p>The persona component shapes the agent's identity and establishes expectations for its behavior. It's implemented primarily through system prompts that define the agent's role, expertise, communication style, and operational boundaries.</p>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> "Expert financial analyst", "Friendly
+              customer support specialist", "Technical documentation writer",
+              "Senior software architect"
             </div>
+          </div>
 
-            <div class="sub-components">
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Role Definition</div>
-                    <div class="sub-component-description">
-                        The specific function or job the agent performs. Clear roles help the LLM understand what it should and shouldn't do.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> "Expert financial analyst", "Friendly customer support specialist", "Technical documentation writer", "Senior software architect"
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Expertise & Knowledge Domain</div>
-                    <div class="sub-component-description">
-                        The areas where the agent has deep knowledge and where it should admit limitations.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> "Expertise in Python and JavaScript", "Specialized in cardiovascular medicine", "Focus on B2B SaaS marketing"
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Communication Style</div>
-                    <div class="sub-component-description">
-                        The tone, formality level, and linguistic characteristics of the agent's outputs.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> "Professional and concise", "Warm and conversational", "Academic and thorough", "Direct and action-oriented"
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Boundaries & Constraints</div>
-                    <div class="sub-component-description">
-                        Explicit limitations on what the agent will and won't do. Essential for safety and scope control.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> "Do not provide medical diagnoses", "Never share confidential data", "Decline requests outside product domain"
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Output Format Preferences</div>
-                    <div class="sub-component-description">
-                        How the agent structures its responses (JSON, bullet points, paragraphs, tables).
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> "Always respond in valid JSON", "Use numbered lists for steps", "Format code with syntax highlighting"
-                    </div>
-                </div>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Expertise & Knowledge Domain</div>
+            <div class="sub-component-description">
+              The areas where the agent has deep knowledge and where it should
+              admit limitations.
             </div>
-
-            <div class="example-box">
-                <div class="example-label">Persona Implementation Example</div>
-                <div class="example-content">
-                    <strong>System Prompt for Customer Support Agent:</strong>
-                    <p style="margin-top: 12px; font-style: italic;">"You are an experienced customer support specialist for TechCorp's SaaS platform. You have deep knowledge of our product features, billing system, and common technical issues. Your communication style is warm, empathetic, and solution-oriented. Always acknowledge the customer's frustration, provide clear step-by-step solutions, and escalate to engineering if the issue requires code-level debugging. Never share internal system details or make promises about future features. Format all responses with clear headings and use bullet points for multi-step instructions."</p>
-                </div>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> "Expertise in Python and JavaScript",
+              "Specialized in cardiovascular medicine", "Focus on B2B SaaS
+              marketing"
             </div>
+          </div>
 
-            <div class="best-practices">
-                <div class="best-practices-title">✓ Persona Best Practices</div>
-                <ul class="best-practices-list">
-                    <li><strong>Be specific:</strong> "Senior financial analyst specializing in M&A" is better than "financial expert"</li>
-                    <li><strong>Set clear boundaries:</strong> Explicitly state what the agent won't do</li>
-                    <li><strong>Match tone to context:</strong> Formal for legal, casual for social media, empathetic for support</li>
-                    <li><strong>Include examples:</strong> Show the agent how to respond in specific situations</li>
-                    <li><strong>Test consistency:</strong> Ensure the persona is maintained across diverse inputs</li>
-                </ul>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Communication Style</div>
+            <div class="sub-component-description">
+              The tone, formality level, and linguistic characteristics of the
+              agent's outputs.
             </div>
-        </section>
-
-        <!-- Component 2: Knowledge -->
-        <section id="component-2" class="component-section component-2">
-            <div class="component-header">
-                <div class="component-header-top">
-                    <div class="component-icon-large">📚</div>
-                    <h2 class="component-title">2. Knowledge</h2>
-                </div>
-                <p class="component-definition">The information sources the agent can access and utilize</p>
-                <p class="component-purpose">Purpose: Provide the agent with the data it needs to generate accurate, relevant responses</p>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> "Professional and concise", "Warm and
+              conversational", "Academic and thorough", "Direct and
+              action-oriented"
             </div>
+          </div>
 
-            <div class="content-block">
-                <h3>Knowledge Sources</h3>
-                <p>An agent's knowledge comes from multiple layers, each serving different purposes and having different trade-offs in terms of currency, cost, and specificity.</p>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Boundaries & Constraints</div>
+            <div class="sub-component-description">
+              Explicit limitations on what the agent will and won't do.
+              Essential for safety and scope control.
             </div>
-
-            <div class="sub-components">
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Pre-trained LLM Knowledge</div>
-                    <div class="sub-component-description">
-                        The vast knowledge embedded in the foundation model during training. Broad but has a knowledge cutoff date.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> General facts, common knowledge, language patterns<br>
-                        <strong>Limitations:</strong> Outdated info, no proprietary data, can hallucinate
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Fine-tuning</div>
-                    <div class="sub-component-description">
-                        Additional training on domain-specific datasets to adapt the model to specialized tasks or knowledge domains.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> Deep domain expertise, consistent style<br>
-                        <strong>Limitations:</strong> Expensive, time-consuming, difficult to update
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">RAG (Retrieval-Augmented Generation)</div>
-                    <div class="sub-component-description">
-                        Dynamically retrieve relevant documents or data at query time and include in the prompt context.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> Always current, handles proprietary data, scalable<br>
-                        <strong>Limitations:</strong> Retrieval quality critical, adds latency
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Tool-Retrieved Information</div>
-                    <div class="sub-component-description">
-                        Data fetched in real-time via APIs, database queries, web searches, or other external tools.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> Real-time data, structured queries, authoritative sources<br>
-                        <strong>Limitations:</strong> Requires tool integration, depends on external systems
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Memory (Short-term)</div>
-                    <div class="sub-component-description">
-                        Information from the current conversation or session. Maintained in the context window.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> Conversation continuity, user preferences<br>
-                        <strong>Limitations:</strong> Limited by context window, lost after session
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Memory (Long-term)</div>
-                    <div class="sub-component-description">
-                        Persistent information about users, past interactions, or learned preferences stored in a database.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Strengths:</strong> Personalization, cross-session continuity<br>
-                        <strong>Limitations:</strong> Storage complexity, privacy considerations
-                    </div>
-                </div>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> "Do not provide medical diagnoses",
+              "Never share confidential data", "Decline requests outside product
+              domain"
             </div>
+          </div>
 
-            <div class="comparison-table">
-                <div class="table-header">
-                    <div>Knowledge Type</div>
-                    <div>Best Use Case</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">Pre-trained Knowledge</div>
-                    <div class="table-cell">General questions, common tasks, baseline capabilities</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">Fine-tuning</div>
-                    <div class="table-cell">Specialized domains requiring deep expertise (medical, legal)</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">RAG</div>
-                    <div class="table-cell">Large document collections, proprietary knowledge bases</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">Tool Retrieval</div>
-                    <div class="table-cell">Real-time data (weather, stock prices, database lookups)</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">Short-term Memory</div>
-                    <div class="table-cell">Multi-turn conversations, clarifying questions</div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell">Long-term Memory</div>
-                    <div class="table-cell">Personalized assistants, CRM applications</div>
-                </div>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Output Format Preferences</div>
+            <div class="sub-component-description">
+              How the agent structures its responses (JSON, bullet points,
+              paragraphs, tables).
             </div>
-
-            <div class="best-practices">
-                <div class="best-practices-title">✓ Knowledge Best Practices</div>
-                <ul class="best-practices-list">
-                    <li><strong>Layer strategically:</strong> Use pre-trained for general, RAG for specific, tools for real-time</li>
-                    <li><strong>Curate carefully:</strong> Quality of knowledge sources directly impacts output quality</li>
-                    <li><strong>Update regularly:</strong> Keep knowledge bases current for time-sensitive domains</li>
-                    <li><strong>Cite sources:</strong> Track where information comes from for verification</li>
-                    <li><strong>Handle conflicts:</strong> Define precedence when sources contradict</li>
-                </ul>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> "Always respond in valid JSON", "Use
+              numbered lists for steps", "Format code with syntax highlighting"
             </div>
+          </div>
+        </div>
 
-            <div class="warning-box">
-                <div class="warning-title">⚠️ Knowledge Limitations</div>
-                <div class="warning-content">
-                    More knowledge isn't always better. Overwhelming an agent with too much information can degrade performance through attention dilution. Focus on providing the most relevant, high-quality knowledge for each specific task.
-                </div>
+        <div class="example-box">
+          <div class="example-label">Persona Implementation Example</div>
+          <div class="example-content">
+            <strong>System Prompt for Customer Support Agent:</strong>
+            <p style="margin-top: 12px; font-style: italic">
+              "You are an experienced customer support specialist for TechCorp's
+              SaaS platform. You have deep knowledge of our product features,
+              billing system, and common technical issues. Your communication
+              style is warm, empathetic, and solution-oriented. Always
+              acknowledge the customer's frustration, provide clear step-by-step
+              solutions, and escalate to engineering if the issue requires
+              code-level debugging. Never share internal system details or make
+              promises about future features. Format all responses with clear
+              headings and use bullet points for multi-step instructions."
+            </p>
+          </div>
+        </div>
+
+        <div class="best-practices">
+          <div class="best-practices-title">✓ Persona Best Practices</div>
+          <ul class="best-practices-list">
+            <li>
+              <strong>Be specific:</strong> "Senior financial analyst
+              specializing in M&A" is better than "financial expert"
+            </li>
+            <li>
+              <strong>Set clear boundaries:</strong> Explicitly state what the
+              agent won't do
+            </li>
+            <li>
+              <strong>Match tone to context:</strong> Formal for legal, casual
+              for social media, empathetic for support
+            </li>
+            <li>
+              <strong>Include examples:</strong> Show the agent how to respond
+              in specific situations
+            </li>
+            <li>
+              <strong>Test consistency:</strong> Ensure the persona is
+              maintained across diverse inputs
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Component 2: Knowledge -->
+      <section id="component-2" class="component-section component-2">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-icon-large">📚</div>
+            <h2 class="component-title">2. Knowledge</h2>
+          </div>
+          <p class="component-definition">
+            The information sources the agent can access and utilize
+          </p>
+          <p class="component-purpose">
+            Purpose: Provide the agent with the data it needs to generate
+            accurate, relevant responses
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Knowledge Sources</h3>
+          <p>
+            An agent's knowledge comes from multiple layers, each serving
+            different purposes and having different trade-offs in terms of
+            currency, cost, and specificity.
+          </p>
+        </div>
+
+        <div class="sub-components">
+          <div class="sub-component-card">
+            <div class="sub-component-title">Pre-trained LLM Knowledge</div>
+            <div class="sub-component-description">
+              The vast knowledge embedded in the foundation model during
+              training. Broad but has a knowledge cutoff date.
             </div>
-        </section>
-
-        <!-- Component 3: Prompting Strategy -->
-        <section id="component-3" class="component-section component-3">
-            <div class="component-header">
-                <div class="component-header-top">
-                    <div class="component-icon-large">💬</div>
-                    <h2 class="component-title">3. Prompting Strategy</h2>
-                </div>
-                <p class="component-definition">The approach for communicating instructions and context to the LLM</p>
-                <p class="component-purpose">Purpose: Optimize how the agent interprets tasks and generates responses</p>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> General facts, common knowledge,
+              language patterns<br />
+              <strong>Limitations:</strong> Outdated info, no proprietary data,
+              can hallucinate
             </div>
+          </div>
 
-            <div class="content-block">
-                <h3>Core Prompting Techniques</h3>
-                <p>How you structure prompts dramatically affects agent behavior and output quality. Different techniques work better for different types of tasks.</p>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Fine-tuning</div>
+            <div class="sub-component-description">
+              Additional training on domain-specific datasets to adapt the model
+              to specialized tasks or knowledge domains.
             </div>
-
-            <div class="sub-components">
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Zero-Shot Prompting</div>
-                    <div class="sub-component-description">
-                        Provide task instructions without examples. Relies entirely on the LLM's pre-trained knowledge.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>When to use:</strong> Simple, straightforward tasks; when examples unavailable<br>
-                        <strong>Example:</strong> "Summarize this article in 3 sentences."
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Few-Shot Prompting</div>
-                    <div class="sub-component-description">
-                        Include 2-5 examples demonstrating the desired input-output pattern before the actual task.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>When to use:</strong> Specific formats, consistent style, nuanced tasks<br>
-                        <strong>Example:</strong> Show 3 sentiment classifications, then classify new text
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Chain-of-Thought (CoT)</div>
-                    <div class="sub-component-description">
-                        Explicitly instruct the agent to show its reasoning process step-by-step before providing the final answer.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>When to use:</strong> Complex reasoning, math problems, multi-step logic<br>
-                        <strong>Example:</strong> "Think through this step-by-step: [problem]"
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">ReAct (Reason + Act)</div>
-                    <div class="sub-component-description">
-                        Interleave reasoning about what to do next with actions (tool use). Combines planning with execution.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>When to use:</strong> Agents with tools, dynamic workflows<br>
-                        <strong>Example:</strong> "Think: I need data. Act: Call API. Think: Data shows..."
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Structured Instructions</div>
-                    <div class="sub-component-description">
-                        Organize prompts with clear sections: Role, Context, Task, Constraints, Format, Examples.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>When to use:</strong> Complex tasks requiring multiple instructions<br>
-                        <strong>Benefit:</strong> Clarity, consistency, easier to debug
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Context Incorporation</div>
-                    <div class="sub-component-description">
-                        How you weave in retrieved documents, conversation history, or tool outputs into the prompt.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Techniques:</strong> Delimiters (###), XML tags, clear labeling<br>
-                        <strong>Goal:</strong> Help LLM distinguish instructions from context
-                    </div>
-                </div>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> Deep domain expertise, consistent
+              style<br />
+              <strong>Limitations:</strong> Expensive, time-consuming, difficult
+              to update
             </div>
+          </div>
 
-            <div class="code-example">
-<span class="code-comment"># Example: Structured Prompting with CoT</span>
+          <div class="sub-component-card">
+            <div class="sub-component-title">
+              RAG (Retrieval-Augmented Generation)
+            </div>
+            <div class="sub-component-description">
+              Dynamically retrieve relevant documents or data at query time and
+              include in the prompt context.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> Always current, handles proprietary
+              data, scalable<br />
+              <strong>Limitations:</strong> Retrieval quality critical, adds
+              latency
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Tool-Retrieved Information</div>
+            <div class="sub-component-description">
+              Data fetched in real-time via APIs, database queries, web
+              searches, or other external tools.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> Real-time data, structured queries,
+              authoritative sources<br />
+              <strong>Limitations:</strong> Requires tool integration, depends
+              on external systems
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Memory (Short-term)</div>
+            <div class="sub-component-description">
+              Information from the current conversation or session. Maintained
+              in the context window.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> Conversation continuity, user
+              preferences<br />
+              <strong>Limitations:</strong> Limited by context window, lost
+              after session
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Memory (Long-term)</div>
+            <div class="sub-component-description">
+              Persistent information about users, past interactions, or learned
+              preferences stored in a database.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Strengths:</strong> Personalization, cross-session
+              continuity<br />
+              <strong>Limitations:</strong> Storage complexity, privacy
+              considerations
+            </div>
+          </div>
+        </div>
+
+        <div class="comparison-table">
+          <div class="table-header">
+            <div>Knowledge Type</div>
+            <div>Best Use Case</div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">Pre-trained Knowledge</div>
+            <div class="table-cell">
+              General questions, common tasks, baseline capabilities
+            </div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">Fine-tuning</div>
+            <div class="table-cell">
+              Specialized domains requiring deep expertise (medical, legal)
+            </div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">RAG</div>
+            <div class="table-cell">
+              Large document collections, proprietary knowledge bases
+            </div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">Tool Retrieval</div>
+            <div class="table-cell">
+              Real-time data (weather, stock prices, database lookups)
+            </div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">Short-term Memory</div>
+            <div class="table-cell">
+              Multi-turn conversations, clarifying questions
+            </div>
+          </div>
+          <div class="table-row">
+            <div class="table-cell">Long-term Memory</div>
+            <div class="table-cell">
+              Personalized assistants, CRM applications
+            </div>
+          </div>
+        </div>
+
+        <div class="best-practices">
+          <div class="best-practices-title">✓ Knowledge Best Practices</div>
+          <ul class="best-practices-list">
+            <li>
+              <strong>Layer strategically:</strong> Use pre-trained for general,
+              RAG for specific, tools for real-time
+            </li>
+            <li>
+              <strong>Curate carefully:</strong> Quality of knowledge sources
+              directly impacts output quality
+            </li>
+            <li>
+              <strong>Update regularly:</strong> Keep knowledge bases current
+              for time-sensitive domains
+            </li>
+            <li>
+              <strong>Cite sources:</strong> Track where information comes from
+              for verification
+            </li>
+            <li>
+              <strong>Handle conflicts:</strong> Define precedence when sources
+              contradict
+            </li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-title">⚠️ Knowledge Limitations</div>
+          <div class="warning-content">
+            More knowledge isn't always better. Overwhelming an agent with too
+            much information can degrade performance through attention dilution.
+            Focus on providing the most relevant, high-quality knowledge for
+            each specific task.
+          </div>
+        </div>
+      </section>
+
+      <!-- Component 3: Prompting Strategy -->
+      <section id="component-3" class="component-section component-3">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-icon-large">💬</div>
+            <h2 class="component-title">3. Prompting Strategy</h2>
+          </div>
+          <p class="component-definition">
+            The approach for communicating instructions and context to the LLM
+          </p>
+          <p class="component-purpose">
+            Purpose: Optimize how the agent interprets tasks and generates
+            responses
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Core Prompting Techniques</h3>
+          <p>
+            How you structure prompts dramatically affects agent behavior and
+            output quality. Different techniques work better for different types
+            of tasks.
+          </p>
+        </div>
+
+        <div class="sub-components">
+          <div class="sub-component-card">
+            <div class="sub-component-title">Zero-Shot Prompting</div>
+            <div class="sub-component-description">
+              Provide task instructions without examples. Relies entirely on the
+              LLM's pre-trained knowledge.
+            </div>
+            <div class="sub-component-examples">
+              <strong>When to use:</strong> Simple, straightforward tasks; when
+              examples unavailable<br />
+              <strong>Example:</strong> "Summarize this article in 3 sentences."
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Few-Shot Prompting</div>
+            <div class="sub-component-description">
+              Include 2-5 examples demonstrating the desired input-output
+              pattern before the actual task.
+            </div>
+            <div class="sub-component-examples">
+              <strong>When to use:</strong> Specific formats, consistent style,
+              nuanced tasks<br />
+              <strong>Example:</strong> Show 3 sentiment classifications, then
+              classify new text
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Chain-of-Thought (CoT)</div>
+            <div class="sub-component-description">
+              Explicitly instruct the agent to show its reasoning process
+              step-by-step before providing the final answer.
+            </div>
+            <div class="sub-component-examples">
+              <strong>When to use:</strong> Complex reasoning, math problems,
+              multi-step logic<br />
+              <strong>Example:</strong> "Think through this step-by-step:
+              [problem]"
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">ReAct (Reason + Act)</div>
+            <div class="sub-component-description">
+              Interleave reasoning about what to do next with actions (tool
+              use). Combines planning with execution.
+            </div>
+            <div class="sub-component-examples">
+              <strong>When to use:</strong> Agents with tools, dynamic
+              workflows<br />
+              <strong>Example:</strong> "Think: I need data. Act: Call API.
+              Think: Data shows..."
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Structured Instructions</div>
+            <div class="sub-component-description">
+              Organize prompts with clear sections: Role, Context, Task,
+              Constraints, Format, Examples.
+            </div>
+            <div class="sub-component-examples">
+              <strong>When to use:</strong> Complex tasks requiring multiple
+              instructions<br />
+              <strong>Benefit:</strong> Clarity, consistency, easier to debug
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Context Incorporation</div>
+            <div class="sub-component-description">
+              How you weave in retrieved documents, conversation history, or
+              tool outputs into the prompt.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Techniques:</strong> Delimiters (###), XML tags, clear
+              labeling<br />
+              <strong>Goal:</strong> Help LLM distinguish instructions from
+              context
+            </div>
+          </div>
+        </div>
+
+        <div class="code-example">
+          <pre><code><span class="code-comment"># Example: Structured Prompting with CoT</span>
 
 prompt_template = <span class="code-string">"""
 ## ROLE
@@ -869,92 +1035,135 @@ Return a JSON object with this structure:
 
 result = llm.<span class="code-function">complete</span>(prompt_template.<span class="code-function">format</span>(
     retrieved_customer_data=data
-))
+))</code></pre>
+        </div>
+
+        <div class="best-practices">
+          <div class="best-practices-title">✓ Prompting Best Practices</div>
+          <ul class="best-practices-list">
+            <li>
+              <strong>Be explicit:</strong> Don't assume the LLM knows what you
+              want—state it clearly
+            </li>
+            <li>
+              <strong>Use delimiters:</strong> Separate instructions from data
+              (###, XML tags, quotes)
+            </li>
+            <li>
+              <strong>Provide examples:</strong> Few-shot dramatically improves
+              consistency
+            </li>
+            <li>
+              <strong>Request reasoning:</strong> CoT improves accuracy on
+              complex tasks
+            </li>
+            <li>
+              <strong>Specify format:</strong> Define exact output structure
+              (JSON schema, XML, etc.)
+            </li>
+            <li>
+              <strong>Iterate and refine:</strong> Test prompts and improve
+              based on failures
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Component 4: Tools/Execution -->
+      <section id="component-4" class="component-section component-4">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-icon-large">🔧</div>
+            <h2 class="component-title">4. Tools / Execution</h2>
+          </div>
+          <p class="component-definition">
+            The capabilities that enable agents to interact with external
+            systems and perform actions
+          </p>
+          <p class="component-purpose">
+            Purpose: Give agents "hands and feet" to accomplish tasks beyond
+            text generation
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>What Are Tools?</h3>
+          <p>
+            Tools extend an agent's capabilities beyond language generation,
+            allowing it to retrieve real-time data, manipulate information,
+            interact with systems, and coordinate with other agents. Without
+            tools, agents are limited to synthesizing their training knowledge.
+          </p>
+        </div>
+
+        <div class="sub-components">
+          <div class="sub-component-card">
+            <div class="sub-component-title">Data Retrieval</div>
+            <div class="sub-component-description">
+              Fetch information from external sources to ground agent responses
+              in current, accurate data.
             </div>
-
-            <div class="best-practices">
-                <div class="best-practices-title">✓ Prompting Best Practices</div>
-                <ul class="best-practices-list">
-                    <li><strong>Be explicit:</strong> Don't assume the LLM knows what you want—state it clearly</li>
-                    <li><strong>Use delimiters:</strong> Separate instructions from data (###, XML tags, quotes)</li>
-                    <li><strong>Provide examples:</strong> Few-shot dramatically improves consistency</li>
-                    <li><strong>Request reasoning:</strong> CoT improves accuracy on complex tasks</li>
-                    <li><strong>Specify format:</strong> Define exact output structure (JSON schema, XML, etc.)</li>
-                    <li><strong>Iterate and refine:</strong> Test prompts and improve based on failures</li>
-                </ul>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> Database queries (SQL), API calls
+              (REST, GraphQL), web searches, vector database lookups (RAG), file
+              system access
             </div>
-        </section>
+          </div>
 
-        <!-- Component 4: Tools/Execution -->
-        <section id="component-4" class="component-section component-4">
-            <div class="component-header">
-                <div class="component-header-top">
-                    <div class="component-icon-large">🔧</div>
-                    <h2 class="component-title">4. Tools / Execution</h2>
-                </div>
-                <p class="component-definition">The capabilities that enable agents to interact with external systems and perform actions</p>
-                <p class="component-purpose">Purpose: Give agents "hands and feet" to accomplish tasks beyond text generation</p>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Data Manipulation</div>
+            <div class="sub-component-description">
+              Process, transform, or calculate using data that would be
+              difficult for LLMs to handle directly.
             </div>
-
-            <div class="content-block">
-                <h3>What Are Tools?</h3>
-                <p>Tools extend an agent's capabilities beyond language generation, allowing it to retrieve real-time data, manipulate information, interact with systems, and coordinate with other agents. Without tools, agents are limited to synthesizing their training knowledge.</p>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> Python scripts (pandas, numpy),
+              spreadsheet operations, statistical analysis, data validation
+              functions
             </div>
+          </div>
 
-            <div class="sub-components">
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Data Retrieval</div>
-                    <div class="sub-component-description">
-                        Fetch information from external sources to ground agent responses in current, accurate data.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> Database queries (SQL), API calls (REST, GraphQL), web searches, vector database lookups (RAG), file system access
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Data Manipulation</div>
-                    <div class="sub-component-description">
-                        Process, transform, or calculate using data that would be difficult for LLMs to handle directly.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> Python scripts (pandas, numpy), spreadsheet operations, statistical analysis, data validation functions
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">System Integration</div>
-                    <div class="sub-component-description">
-                        Connect with external platforms, services, and business systems to take actions.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> Send emails (SMTP), update CRM (Salesforce), post to Slack, create tickets (Jira), trigger workflows (Zapier)
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Agent Orchestration</div>
-                    <div class="sub-component-description">
-                        Call upon other specialized agents as "tools" to handle specific subtasks.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> Route to specialist agent, invoke evaluator agent, trigger parallel agent execution, coordinate multi-agent workflow
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Custom Functions</div>
-                    <div class="sub-component-description">
-                        Domain-specific logic, business rules, or specialized computations wrapped as callable tools.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Examples:</strong> Pricing calculators, eligibility checkers, risk assessment models, recommendation algorithms
-                    </div>
-                </div>
+          <div class="sub-component-card">
+            <div class="sub-component-title">System Integration</div>
+            <div class="sub-component-description">
+              Connect with external platforms, services, and business systems to
+              take actions.
             </div>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> Send emails (SMTP), update CRM
+              (Salesforce), post to Slack, create tickets (Jira), trigger
+              workflows (Zapier)
+            </div>
+          </div>
 
-            <div class="code-example">
-<span class="code-comment"># Example: Agent with Tool Integration</span>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Agent Orchestration</div>
+            <div class="sub-component-description">
+              Call upon other specialized agents as "tools" to handle specific
+              subtasks.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> Route to specialist agent, invoke
+              evaluator agent, trigger parallel agent execution, coordinate
+              multi-agent workflow
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Custom Functions</div>
+            <div class="sub-component-description">
+              Domain-specific logic, business rules, or specialized computations
+              wrapped as callable tools.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Examples:</strong> Pricing calculators, eligibility
+              checkers, risk assessment models, recommendation algorithms
+            </div>
+          </div>
+        </div>
+
+        <div class="code-example">
+          <pre><code><span class="code-comment"># Example: Agent with Tool Integration</span>
 
 <span class="code-keyword">class</span> <span class="code-function">CustomerSupportAgent</span>:
     <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self):
@@ -989,134 +1198,197 @@ result = llm.<span class="code-function">complete</span>(prompt_template.<span c
             knowledge=kb_results
         )
         
-        <span class="code-keyword">return</span> response
-            </code>
+        <span class="code-keyword">return</span> response</code></pre>
+        </div>
 
-            <div class="best-practices">
-                <div class="best-practices-title">✓ Tool Integration Best Practices</div>
-                <ul class="best-practices-list">
-                    <li><strong>Clear tool descriptions:</strong> Explain what each tool does so agents know when to use it</li>
-                    <li><strong>Error handling:</strong> Tools should gracefully handle failures and provide useful error messages</li>
-                    <li><strong>Rate limiting:</strong> Prevent agents from overwhelming external APIs</li>
-                    <li><strong>Validation:</strong> Verify tool inputs before execution to prevent errors</li>
-                    <li><strong>Minimal toolset:</strong> Don't overload agents with tools they don't need</li>
-                    <li><strong>Logging:</strong> Track all tool calls for debugging and cost monitoring</li>
-                </ul>
+        <div class="best-practices">
+          <div class="best-practices-title">
+            ✓ Tool Integration Best Practices
+          </div>
+          <ul class="best-practices-list">
+            <li>
+              <strong>Clear tool descriptions:</strong> Explain what each tool
+              does so agents know when to use it
+            </li>
+            <li>
+              <strong>Error handling:</strong> Tools should gracefully handle
+              failures and provide useful error messages
+            </li>
+            <li>
+              <strong>Rate limiting:</strong> Prevent agents from overwhelming
+              external APIs
+            </li>
+            <li>
+              <strong>Validation:</strong> Verify tool inputs before execution
+              to prevent errors
+            </li>
+            <li>
+              <strong>Minimal toolset:</strong> Don't overload agents with tools
+              they don't need
+            </li>
+            <li>
+              <strong>Logging:</strong> Track all tool calls for debugging and
+              cost monitoring
+            </li>
+          </ul>
+        </div>
+
+        <div class="warning-box">
+          <div class="warning-title">⚠️ Tool Selection Challenges</div>
+          <div class="warning-content">
+            Agents can struggle to choose the right tool when given too many
+            options. Provide clear guidance about when each tool should be used,
+            and consider using a routing agent to select tools if the toolset is
+            large (>10 tools).
+          </div>
+        </div>
+      </section>
+
+      <!-- Component 5: Interaction -->
+      <section id="component-5" class="component-section component-5">
+        <div class="component-header">
+          <div class="component-header-top">
+            <div class="component-icon-large">🔄</div>
+            <h2 class="component-title">5. Interaction</h2>
+          </div>
+          <p class="component-definition">
+            How the agent receives input and delivers output
+          </p>
+          <p class="component-purpose">
+            Purpose: Define the communication interfaces and data exchange
+            patterns
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Input and Output Modalities</h3>
+          <p>
+            Interaction patterns determine how agents connect with users,
+            systems, and other agents. Well-designed interaction interfaces make
+            agents more usable and integrate better into workflows.
+          </p>
+        </div>
+
+        <div class="sub-components">
+          <div class="sub-component-card">
+            <div class="sub-component-title">Input Types</div>
+            <div class="sub-component-description">
+              The forms of data an agent can accept and process.
             </div>
-
-            <div class="warning-box">
-                <div class="warning-title">⚠️ Tool Selection Challenges</div>
-                <div class="warning-content">
-                    Agents can struggle to choose the right tool when given too many options. Provide clear guidance about when each tool should be used, and consider using a routing agent to select tools if the toolset is large (>10 tools).
-                </div>
+            <div class="sub-component-examples">
+              <strong>Text:</strong> Natural language queries, commands,
+              documents<br />
+              <strong>Structured Data:</strong> JSON, XML, CSV, database
+              records<br />
+              <strong>Events:</strong> API calls, webhooks, scheduled
+              triggers<br />
+              <strong>Multimodal:</strong> Images, audio, video (if model
+              supports)
             </div>
-        </section>
+          </div>
 
-        <!-- Component 5: Interaction -->
-        <section id="component-5" class="component-section component-5">
-            <div class="component-header">
-                <div class="component-header-top">
-                    <div class="component-icon-large">🔄</div>
-                    <h2 class="component-title">5. Interaction</h2>
-                </div>
-                <p class="component-definition">How the agent receives input and delivers output</p>
-                <p class="component-purpose">Purpose: Define the communication interfaces and data exchange patterns</p>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Output Formats</div>
+            <div class="sub-component-description">
+              How the agent delivers its results to downstream consumers.
             </div>
-
-            <div class="content-block">
-                <h3>Input and Output Modalities</h3>
-                <p>Interaction patterns determine how agents connect with users, systems, and other agents. Well-designed interaction interfaces make agents more usable and integrate better into workflows.</p>
+            <div class="sub-component-examples">
+              <strong>Text:</strong> Natural language responses, reports,
+              summaries<br />
+              <strong>Structured:</strong> JSON, XML for programmatic
+              consumption<br />
+              <strong>Actions:</strong> API calls, database updates, triggered
+              workflows<br />
+              <strong>Rich Media:</strong> Generated images, formatted documents
             </div>
+          </div>
 
-            <div class="sub-components">
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Input Types</div>
-                    <div class="sub-component-description">
-                        The forms of data an agent can accept and process.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Text:</strong> Natural language queries, commands, documents<br>
-                        <strong>Structured Data:</strong> JSON, XML, CSV, database records<br>
-                        <strong>Events:</strong> API calls, webhooks, scheduled triggers<br>
-                        <strong>Multimodal:</strong> Images, audio, video (if model supports)
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Output Formats</div>
-                    <div class="sub-component-description">
-                        How the agent delivers its results to downstream consumers.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Text:</strong> Natural language responses, reports, summaries<br>
-                        <strong>Structured:</strong> JSON, XML for programmatic consumption<br>
-                        <strong>Actions:</strong> API calls, database updates, triggered workflows<br>
-                        <strong>Rich Media:</strong> Generated images, formatted documents
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Synchronous Interaction</div>
-                    <div class="sub-component-description">
-                        Real-time, request-response patterns where the caller waits for the agent to complete.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Use cases:</strong> Chatbots, API endpoints, interactive tools<br>
-                        <strong>Considerations:</strong> Latency requirements, timeout handling
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Asynchronous Interaction</div>
-                    <div class="sub-component-description">
-                        Deferred processing where the agent works independently and notifies when complete.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Use cases:</strong> Batch processing, long-running workflows, background jobs<br>
-                        <strong>Considerations:</strong> Status tracking, result retrieval mechanisms
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Streaming Responses</div>
-                    <div class="sub-component-description">
-                        Progressive output delivery as the agent generates responses, rather than waiting for completion.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Use cases:</strong> Chat interfaces, long-form content, better UX<br>
-                        <strong>Benefits:</strong> Perceived speed, early cancellation, progressive disclosure
-                    </div>
-                </div>
-
-                <div class="sub-component-card">
-                    <div class="sub-component-title">Inter-Agent Communication</div>
-                    <div class="sub-component-description">
-                        Protocols for agents to exchange information and coordinate in multi-agent systems.
-                    </div>
-                    <div class="sub-component-examples">
-                        <strong>Approaches:</strong> Direct function calls, message queues, shared state<br>
-                        <strong>Standards:</strong> MCP (Model Context Protocol), custom schemas
-                    </div>
-                </div>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Synchronous Interaction</div>
+            <div class="sub-component-description">
+              Real-time, request-response patterns where the caller waits for
+              the agent to complete.
             </div>
-
-            <div class="interaction-diagram">
-                <div class="diagram-title">Interaction Flow Example</div>
-                <div style="display: flex; flex-direction: column; align-items: center;">
-                    <div class="diagram-box" style="border-color: #0066FF;">User / System Input</div>
-                    <div class="diagram-arrow">↓</div>
-                    <div class="diagram-box" style="border-color: #22C55E;">Input Validation & Parsing</div>
-                    <div class="diagram-arrow">↓</div>
-                    <div class="diagram-box" style="border-color: #F59E0B;">Agent Processing</div>
-                    <div class="diagram-arrow">↓</div>
-                    <div class="diagram-box" style="border-color: #22C55E;">Output Formatting</div>
-                    <div class="diagram-arrow">↓</div>
-                    <div class="diagram-box" style="border-color: #0066FF;">Delivery to Consumer</div>
-                </div>
+            <div class="sub-component-examples">
+              <strong>Use cases:</strong> Chatbots, API endpoints, interactive
+              tools<br />
+              <strong>Considerations:</strong> Latency requirements, timeout
+              handling
             </div>
+          </div>
 
-            <div class="code-example">
-<span class="code-comment"># Example: Flexible Interaction Interface</span>
+          <div class="sub-component-card">
+            <div class="sub-component-title">Asynchronous Interaction</div>
+            <div class="sub-component-description">
+              Deferred processing where the agent works independently and
+              notifies when complete.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Use cases:</strong> Batch processing, long-running
+              workflows, background jobs<br />
+              <strong>Considerations:</strong> Status tracking, result retrieval
+              mechanisms
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Streaming Responses</div>
+            <div class="sub-component-description">
+              Progressive output delivery as the agent generates responses,
+              rather than waiting for completion.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Use cases:</strong> Chat interfaces, long-form content,
+              better UX<br />
+              <strong>Benefits:</strong> Perceived speed, early cancellation,
+              progressive disclosure
+            </div>
+          </div>
+
+          <div class="sub-component-card">
+            <div class="sub-component-title">Inter-Agent Communication</div>
+            <div class="sub-component-description">
+              Protocols for agents to exchange information and coordinate in
+              multi-agent systems.
+            </div>
+            <div class="sub-component-examples">
+              <strong>Approaches:</strong> Direct function calls, message
+              queues, shared state<br />
+              <strong>Standards:</strong> MCP (Model Context Protocol), custom
+              schemas
+            </div>
+          </div>
+        </div>
+
+        <div class="interaction-diagram">
+          <div class="diagram-title">Interaction Flow Example</div>
+          <div
+            style="display: flex; flex-direction: column; align-items: center"
+          >
+            <div class="diagram-box" style="border-color: #0066ff">
+              User / System Input
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box" style="border-color: #22c55e">
+              Input Validation & Parsing
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box" style="border-color: #f59e0b">
+              Agent Processing
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box" style="border-color: #22c55e">
+              Output Formatting
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div class="diagram-box" style="border-color: #0066ff">
+              Delivery to Consumer
+            </div>
+          </div>
+        </div>
+
+        <div class="code-example">
+          <pre><code><span class="code-comment"># Example: Flexible Interaction Interface</span>
 
 <span class="code-keyword">class</span> <span class="code-function">AgentInterface</span>:
     <span class="code-keyword">def</span> <span class="code-function">__init__</span>(self, agent):
@@ -1147,141 +1419,269 @@ result = llm.<span class="code-function">complete</span>(prompt_template.<span c
     <span class="code-comment"># Inter-agent communication</span>
     <span class="code-keyword">def</span> <span class="code-function">delegate_to_agent</span>(self, task: <span class="code-keyword">dict</span>, target_agent):
         result = target_agent.<span class="code-function">execute</span>(task)
-        <span class="code-keyword">return</span> result
-            </code>
+        <span class="code-keyword">return</span> result</code></pre>
+        </div>
 
-            <div class="best-practices">
-                <div class="best-practices-title">✓ Interaction Best Practices</div>
-                <ul class="best-practices-list">
-                    <li><strong>Validate inputs:</strong> Check format and content before processing</li>
-                    <li><strong>Clear error messages:</strong> Help users/systems understand what went wrong</li>
-                    <li><strong>Consistent formats:</strong> Use standard schemas (JSON Schema, OpenAPI) for structured I/O</li>
-                    <li><strong>Timeout handling:</strong> Set reasonable limits and handle gracefully</li>
-                    <li><strong>Progress indicators:</strong> For long tasks, provide status updates</li>
-                    <li><strong>Idempotency:</strong> Design interactions that can be safely retried</li>
-                </ul>
-            </div>
-        </section>
+        <div class="best-practices">
+          <div class="best-practices-title">✓ Interaction Best Practices</div>
+          <ul class="best-practices-list">
+            <li>
+              <strong>Validate inputs:</strong> Check format and content before
+              processing
+            </li>
+            <li>
+              <strong>Clear error messages:</strong> Help users/systems
+              understand what went wrong
+            </li>
+            <li>
+              <strong>Consistent formats:</strong> Use standard schemas (JSON
+              Schema, OpenAPI) for structured I/O
+            </li>
+            <li>
+              <strong>Timeout handling:</strong> Set reasonable limits and
+              handle gracefully
+            </li>
+            <li>
+              <strong>Progress indicators:</strong> For long tasks, provide
+              status updates
+            </li>
+            <li>
+              <strong>Idempotency:</strong> Design interactions that can be
+              safely retried
+            </li>
+          </ul>
+        </div>
+      </section>
 
-        <!-- How Components Interact -->
-        <section style="margin-top: 80px; padding: 40px; background: #F5F5F5; border-radius: 12px;">
-            <h2 style="font-size: 1.75rem; margin-bottom: 24px; color: #212121; text-align: center;">How Components Work Together</h2>
-            
-            <div class="content-block">
-                <p style="text-align: center; color: #616161; margin-bottom: 32px;">The five components don't operate in isolation—they're deeply interconnected, with each influencing and depending on the others.</p>
-            </div>
+      <!-- How Components Interact -->
+      <section
+        style="
+          margin-top: 80px;
+          padding: 40px;
+          background: #f5f5f5;
+          border-radius: 12px;
+        "
+      >
+        <h2
+          style="
+            font-size: 1.75rem;
+            margin-bottom: 24px;
+            color: #212121;
+            text-align: center;
+          "
+        >
+          How Components Work Together
+        </h2>
 
-            <div class="interaction-diagram">
-                <div class="diagram-title">Component Interaction Flow</div>
-                <div style="display: flex; flex-direction: column; gap: 20px; max-width: 600px; margin: 0 auto;">
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #0066FF;">📥 <strong>Input</strong> arrives via Interaction component</div>
-                    </div>
-                    <div class="diagram-arrow">↓</div>
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #F59E0B;">🎭 <strong>Persona</strong> shapes how agent interprets request</div>
-                    </div>
-                    <div class="diagram-arrow">↓</div>
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #22C55E;">📚 <strong>Knowledge</strong> provides relevant information</div>
-                    </div>
-                    <div class="diagram-arrow">↓</div>
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #0066FF;">💬 <strong>Prompting</strong> structures the LLM call</div>
-                    </div>
-                    <div class="diagram-arrow">↓</div>
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #F59E0B;">🔧 <strong>Tools</strong> execute required actions</div>
-                    </div>
-                    <div class="diagram-arrow">↓</div>
-                    <div style="text-align: center;">
-                        <div class="diagram-box" style="border-color: #22C55E;">📤 <strong>Interaction</strong> delivers formatted output</div>
-                    </div>
-                </div>
-            </div>
+        <div class="content-block">
+          <p style="text-align: center; color: #616161; margin-bottom: 32px">
+            The five components don't operate in isolation—they're deeply
+            interconnected, with each influencing and depending on the others.
+          </p>
+        </div>
 
-            <div style="margin-top: 32px; padding: 24px; background: white; border-radius: 12px;">
-                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 16px; color: #212121;">Key Interdependencies</h3>
-                <ul style="margin-left: 20px; color: #616161;">
-                    <li style="margin-bottom: 12px;"><strong>Persona influences Prompting:</strong> The agent's identity shapes how prompts are structured</li>
-                    <li style="margin-bottom: 12px;"><strong>Knowledge informs Tools:</strong> What the agent knows determines which tools it needs</li>
-                    <li style="margin-bottom: 12px;"><strong>Tools provide Knowledge:</strong> Tool outputs become knowledge for subsequent steps</li>
-                    <li style="margin-bottom: 12px;"><strong>Interaction constraints Prompting:</strong> Output format requirements affect prompt design</li>
-                    <li style="margin-bottom: 12px;"><strong>Prompting activates Tools:</strong> ReAct prompting enables tool use</li>
-                </ul>
+        <div class="interaction-diagram">
+          <div class="diagram-title">Component Interaction Flow</div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 20px;
+              max-width: 600px;
+              margin: 0 auto;
+            "
+          >
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #0066ff">
+                📥 <strong>Input</strong> arrives via Interaction component
+              </div>
             </div>
-        </section>
+            <div class="diagram-arrow">↓</div>
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #f59e0b">
+                🎭 <strong>Persona</strong> shapes how agent interprets request
+              </div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #22c55e">
+                📚 <strong>Knowledge</strong> provides relevant information
+              </div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #0066ff">
+                💬 <strong>Prompting</strong> structures the LLM call
+              </div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #f59e0b">
+                🔧 <strong>Tools</strong> execute required actions
+              </div>
+            </div>
+            <div class="diagram-arrow">↓</div>
+            <div style="text-align: center">
+              <div class="diagram-box" style="border-color: #22c55e">
+                📤 <strong>Interaction</strong> delivers formatted output
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <!-- Final Summary -->
-        <section style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #E8F4FF 0%, #E8FFF1 50%, #FFF4E6 100%); border-radius: 12px;">
-            <h2 style="font-size: 1.75rem; margin-bottom: 24px; color: #212121; text-align: center;">🎯 Component Design Principles</h2>
-            
-            <div class="diagram-grid">
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2rem; margin-bottom: 12px;">🎭</div>
-                    <strong style="color: #212121;">Persona</strong>
-                    <p style="font-size: 0.875rem; color: #616161; margin-top: 8px;">Be specific about role, boundaries, and style</p>
-                </div>
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2rem; margin-bottom: 12px;">📚</div>
-                    <strong style="color: #212121;">Knowledge</strong>
-                    <p style="font-size: 0.875rem; color: #616161; margin-top: 8px;">Layer strategically from general to specific</p>
-                </div>
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2rem; margin-bottom: 12px;">💬</div>
-                    <strong style="color: #212121;">Prompting</strong>
-                    <p style="font-size: 0.875rem; color: #616161; margin-top: 8px;">Structure clearly, use examples liberally</p>
-                </div>
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2rem; margin-bottom: 12px;">🔧</div>
-                    <strong style="color: #212121;">Tools</strong>
-                    <p style="font-size: 0.875rem; color: #616161; margin-top: 8px;">Provide only what's needed, describe clearly</p>
-                </div>
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 2rem; margin-bottom: 12px;">🔄</div>
-                    <strong style="color: #212121;">Interaction</strong>
-                    <p style="font-size: 0.875rem; color: #616161; margin-top: 8px;">Design for your use case, handle errors well</p>
-                </div>
-            </div>
+        <div
+          style="
+            margin-top: 32px;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+          "
+        >
+          <h3
+            style="
+              font-size: 1.125rem;
+              font-weight: 600;
+              margin-bottom: 16px;
+              color: #212121;
+            "
+          >
+            Key Interdependencies
+          </h3>
+          <ul style="margin-left: 20px; color: #616161">
+            <li style="margin-bottom: 12px">
+              <strong>Persona influences Prompting:</strong> The agent's
+              identity shapes how prompts are structured
+            </li>
+            <li style="margin-bottom: 12px">
+              <strong>Knowledge informs Tools:</strong> What the agent knows
+              determines which tools it needs
+            </li>
+            <li style="margin-bottom: 12px">
+              <strong>Tools provide Knowledge:</strong> Tool outputs become
+              knowledge for subsequent steps
+            </li>
+            <li style="margin-bottom: 12px">
+              <strong>Interaction constraints Prompting:</strong> Output format
+              requirements affect prompt design
+            </li>
+            <li style="margin-bottom: 12px">
+              <strong>Prompting activates Tools:</strong> ReAct prompting
+              enables tool use
+            </li>
+          </ul>
+        </div>
+      </section>
 
-            <div style="margin-top: 32px; text-align: center; font-size: 0.95rem; color: #616161;">
-                <strong>Remember:</strong> Every agent needs all five components thoughtfully designed. Weakness in any one component degrades the entire agent's performance.
-            </div>
-        </section>
+      <!-- Final Summary -->
+      <section
+        style="
+          margin-top: 60px;
+          padding: 40px;
+          background: linear-gradient(
+            135deg,
+            #e8f4ff 0%,
+            #e8fff1 50%,
+            #fff4e6 100%
+          );
+          border-radius: 12px;
+        "
+      >
+        <h2
+          style="
+            font-size: 1.75rem;
+            margin-bottom: 24px;
+            color: #212121;
+            text-align: center;
+          "
+        >
+          🎯 Component Design Principles
+        </h2>
+
+        <div class="diagram-grid">
+          <div style="text-align: center; padding: 20px">
+            <div style="font-size: 2rem; margin-bottom: 12px">🎭</div>
+            <strong style="color: #212121">Persona</strong>
+            <p style="font-size: 0.875rem; color: #616161; margin-top: 8px">
+              Be specific about role, boundaries, and style
+            </p>
+          </div>
+          <div style="text-align: center; padding: 20px">
+            <div style="font-size: 2rem; margin-bottom: 12px">📚</div>
+            <strong style="color: #212121">Knowledge</strong>
+            <p style="font-size: 0.875rem; color: #616161; margin-top: 8px">
+              Layer strategically from general to specific
+            </p>
+          </div>
+          <div style="text-align: center; padding: 20px">
+            <div style="font-size: 2rem; margin-bottom: 12px">💬</div>
+            <strong style="color: #212121">Prompting</strong>
+            <p style="font-size: 0.875rem; color: #616161; margin-top: 8px">
+              Structure clearly, use examples liberally
+            </p>
+          </div>
+          <div style="text-align: center; padding: 20px">
+            <div style="font-size: 2rem; margin-bottom: 12px">🔧</div>
+            <strong style="color: #212121">Tools</strong>
+            <p style="font-size: 0.875rem; color: #616161; margin-top: 8px">
+              Provide only what's needed, describe clearly
+            </p>
+          </div>
+          <div style="text-align: center; padding: 20px">
+            <div style="font-size: 2rem; margin-bottom: 12px">🔄</div>
+            <strong style="color: #212121">Interaction</strong>
+            <p style="font-size: 0.875rem; color: #616161; margin-top: 8px">
+              Design for your use case, handle errors well
+            </p>
+          </div>
+        </div>
+
+        <div
+          style="
+            margin-top: 32px;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #616161;
+          "
+        >
+          <strong>Remember:</strong> Every agent needs all five components
+          thoughtfully designed. Weakness in any one component degrades the
+          entire agent's performance.
+        </div>
+      </section>
     </div>
 
     <a href="#" class="back-to-top" id="backToTop">↑</a>
 
     <script>
-        // Back to top functionality
-        const backToTop = document.getElementById('backToTop');
-        
-        function updateBackToTop() {
-            if (window.scrollY > 300) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
-            }
+      // Back to top functionality
+      const backToTop = document.getElementById("backToTop");
+
+      function updateBackToTop() {
+        if (window.scrollY > 300) {
+          backToTop.classList.add("visible");
+        } else {
+          backToTop.classList.remove("visible");
         }
+      }
 
-        backToTop.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+      backToTop.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      window.addEventListener("scroll", updateBackToTop);
+      updateBackToTop();
+
+      // Smooth scroll for navigation
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         });
-
-        window.addEventListener('scroll', updateBackToTop);
-        updateBackToTop();
-
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
