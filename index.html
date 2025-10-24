@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Agent Architecture Gallery</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter",
+          sans-serif;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 24px;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        margin-bottom: 60px;
+        color: white;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        margin-bottom: 16px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+        font-weight: 300;
+      }
+
+      /* Categories */
+      .categories {
+        display: grid;
+        gap: 32px;
+        margin-bottom: 40px;
+      }
+
+      .category {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .category-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .category-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      /* Gallery Grid */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+
+      .artifact-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e5e5e5;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .artifact-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .artifact-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .artifact-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .artifact-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        line-height: 1.3;
+      }
+
+      .artifact-description {
+        font-size: 0.875rem;
+        color: #616161;
+        margin-bottom: 16px;
+        line-height: 1.5;
+      }
+
+      .artifact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: color 0.2s ease;
+      }
+
+      .artifact-link:hover {
+        color: #764ba2;
+      }
+
+      .artifact-link::after {
+        content: "→";
+        transition: transform 0.2s ease;
+      }
+
+      .artifact-link:hover::after {
+        transform: translateX(4px);
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        margin-top: 60px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.875rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px 16px;
+        }
+
+        h1 {
+          font-size: 2rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+
+        .category {
+          padding: 24px;
+        }
+
+        .gallery-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Animation */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .category {
+        animation: fadeInUp 0.6s ease forwards;
+      }
+
+      .category:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .category:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .category:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .category:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .category:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>AI Agent Architecture Gallery</h1>
+        <p class="subtitle">
+          Comprehensive collection of AI agent design patterns, architectures,
+          and implementation guides
+        </p>
+      </header>
+
+      <div class="categories">
+        <!-- Core Architecture -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">🏗️</span>
+            Core Architecture
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Agent Architecture Stack</h3>
+              <p class="artifact-description">
+                Comprehensive overview of the foundational components and layers
+                that make up modern AI agent architectures.
+              </p>
+              <a href="agent-architecture-stack.html" class="artifact-link"
+                >Explore Architecture</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">System Architecture Map</h3>
+              <p class="artifact-description">
+                Visual mapping of system components, data flows, and
+                architectural patterns for AI agent implementations.
+              </p>
+              <a href="system-architecture-map.html" class="artifact-link"
+                >View Architecture Map</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Integration Blueprint</h3>
+              <p class="artifact-description">
+                Detailed blueprint for integrating AI agents with existing
+                systems and infrastructure components.
+              </p>
+              <a href="integration-blueprint.html" class="artifact-link"
+                >See Integration Guide</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Agent Components -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">⚙️</span>
+            Agent Components
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Agent Components Deep Dive</h3>
+              <p class="artifact-description">
+                In-depth exploration of individual agent components, their
+                responsibilities, and implementation patterns.
+              </p>
+              <a href="agent-components-deep-dive.html" class="artifact-link"
+                >Deep Dive</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Memory Hierarchy Mental Model</h3>
+              <p class="artifact-description">
+                Understanding how agents store, retrieve, and manage different
+                types of memory and knowledge.
+              </p>
+              <a href="memory-hierarchy-mental-model.html" class="artifact-link"
+                >Explore Memory</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Tools Taxonomy Integration</h3>
+              <p class="artifact-description">
+                Comprehensive taxonomy of tools and their integration patterns
+                within AI agent ecosystems.
+              </p>
+              <a href="tools-taxonomy-integration.html" class="artifact-link"
+                >View Tools</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Agent Systems -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">🤝</span>
+            Multi-Agent Systems
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Multi-Agent System Navigator</h3>
+              <p class="artifact-description">
+                Navigation guide for designing and implementing complex
+                multi-agent systems and workflows.
+              </p>
+              <a href="multi-agent-system-navigator.html" class="artifact-link"
+                >Navigate Systems</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">
+                Multi-Agent Implementation Patterns
+              </h3>
+              <p class="artifact-description">
+                Proven patterns and best practices for implementing multi-agent
+                architectures and coordination.
+              </p>
+              <a
+                href="multi-agent-implementation-patterns.html"
+                class="artifact-link"
+                >View Patterns</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Multi-Agent Workflow Gallery</h3>
+              <p class="artifact-description">
+                Collection of workflow examples showcasing different multi-agent
+                collaboration patterns.
+              </p>
+              <a href="multi-agent-workflow-gallery.html" class="artifact-link"
+                >Browse Workflows</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Decision Making & Patterns -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">🧠</span>
+            Decision Making & Patterns
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Agent Decision Flow RAG Loop</h3>
+              <p class="artifact-description">
+                Understanding how agents make decisions using
+                Retrieval-Augmented Generation and feedback loops.
+              </p>
+              <a href="agent-decision-flow-rag-loop.html" class="artifact-link"
+                >Explore Decision Flow</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Decision Tree</h3>
+              <p class="artifact-description">
+                Visual decision trees and branching logic patterns for agent
+                decision-making processes.
+              </p>
+              <a href="decision-tree.html" class="artifact-link"
+                >View Decision Trees</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Pattern Mechanics Deep Dive</h3>
+              <p class="artifact-description">
+                Detailed analysis of the underlying mechanics and implementation
+                details of common agent patterns.
+              </p>
+              <a href="pattern-mechanics-deep-dive.html" class="artifact-link"
+                >Deep Dive</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Prompting & Design -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">✨</span>
+            Prompting & Design
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Prompt Periodic Table</h3>
+              <p class="artifact-description">
+                Comprehensive periodic table of prompting techniques, patterns,
+                and best practices for AI agents.
+              </p>
+              <a href="prompt-periodic-table.html" class="artifact-link"
+                >Explore Prompts</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Design Playbook</h3>
+              <p class="artifact-description">
+                Practical playbook with design principles, guidelines, and
+                templates for creating effective AI agents.
+              </p>
+              <a href="design-playbook.html" class="artifact-link"
+                >View Playbook</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">React Loop Visualization</h3>
+              <p class="artifact-description">
+                Interactive visualization of reactive loops and feedback
+                mechanisms in agent architectures.
+              </p>
+              <a href="react-loop-visualization.html" class="artifact-link"
+                >See Visualization</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Evaluation & Validation -->
+        <div class="category">
+          <h2 class="category-title">
+            <span class="category-icon">📊</span>
+            Evaluation & Validation
+          </h2>
+          <div class="gallery-grid">
+            <div class="artifact-card">
+              <h3 class="artifact-title">Structured Outputs Evaluation</h3>
+              <p class="artifact-description">
+                Framework for evaluating and validating structured outputs from
+                AI agents and their reliability.
+              </p>
+              <a href="structured-outputs-evaluation.html" class="artifact-link"
+                >View Framework</a
+              >
+            </div>
+            <div class="artifact-card">
+              <h3 class="artifact-title">Validation Error Framework</h3>
+              <p class="artifact-description">
+                Comprehensive framework for handling, categorizing, and
+                recovering from validation errors in agent systems.
+              </p>
+              <a href="validation-error-framework.html" class="artifact-link"
+                >Explore Framework</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <p>
+          AI Agent Architecture Gallery • Comprehensive collection of design
+          patterns and implementation guides
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
